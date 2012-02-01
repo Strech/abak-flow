@@ -26,7 +26,7 @@ command :'request make' do |c|
       exit
     end
 
-    puts
+    puts current_branch
 
     # Проверить что проект тот
 
