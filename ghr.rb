@@ -18,12 +18,15 @@ command :'request make' do |c|
 
   c.action do |args, options|
     repo = Hub::Commands.send(:local_repo)
+    current_branch = repo.current_branch.short_name
 
     # Проверим что мы не в мастере или девелопе
-    if [:master, :develop].include? repo.current_branch.short_name.to_sym
+    if [:master, :develop].include? current_branch.to_sym
       say 'Нельзя делать pull request из меток master или develop'
       exit
     end
+
+    puts
 
     # Проверить что проект тот
 
