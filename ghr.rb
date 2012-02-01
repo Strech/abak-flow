@@ -10,7 +10,7 @@ command :foo do |c|
   c.syntax = 'foobar foo'
   c.description = 'Displays foo'
   c.action do |args, options|
-    say 'foo'
+    say 'Fuuuuuuuuuu'
   end
 end
 
