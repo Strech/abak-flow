@@ -17,12 +17,19 @@ command :'request make' do |c|
   c.option '--base STRING', String, 'Имя ветки, в которую нужно принять изменения'
 
   c.action do |args, options|
-    # 1. Проверить в какой мы ветке
-    # 2. Если не указано имя, берем имя ветки после слеша
-    # 3. Если
+    repo = Hub::Commands.send(:local_repo)
 
-    repo = Hub::Commands.send :local_repo
-    puts repo.current_branch
+    # Проверим что мы не в мастере или девелопе
+    if [:master, :develop].include? repo.current_branch.short_name.to_sym
+      say 'Нельзя делать pull request из меток master или develop'
+      exit
+    end
+
+    # Проверить что проект тот
+
+    # Запушим текущую ветку на origin
+
+    # Запостим pull request на upstream
 
     puts options.inspect
     puts args.inspect
