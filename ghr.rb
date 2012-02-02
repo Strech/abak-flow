@@ -4,14 +4,128 @@ require 'rubygems'
 require 'commander/import'
 require 'hub'
 
+# Dirty hack
+module Hub
+  class Runner
+    def execute
+      if args.noop?
+        puts commands
+      elsif not args.skip?
+        if args.chained?
+          execute_command_chain
+        else
+          %x{#{args.to_exec.join(' ')}}
+        end
+      end
+    end
+  end
+
+  module Commands
+    def pull_request(args)
+      args.shift
+      options = { }
+      force = explicit_owner = false
+      base_project = local_repo.main_project
+      head_project = local_repo.current_project
+
+      from_github_ref = lambda do |ref, context_project|
+        if ref.index(':')
+          owner, ref = ref.split(':', 2)
+          project = github_project(context_project.name, owner)
+        end
+        [project || context_project, ref]
+      end
+
+      while arg = args.shift
+        case arg
+        when '-f'
+          force = true
+        when '-b'
+          base_project, options[:base] = from_github_ref.call(args.shift, base_project)
+        when '-h'
+          head = args.shift
+          explicit_owner = !!head.index(':')
+          head_project, options[:head] = from_github_ref.call(head, head_project)
+        when '-i'
+          options[:issue] = args.shift
+        when '-d'
+          options[:body] = args.shift
+        else
+          if url = resolve_github_url(arg) and url.project_path =~ /^issues\/(\d+)/
+            options[:issue] = $1
+            base_project = url.project
+          elsif !options[:title] then options[:title] = arg
+          else
+            abort "invalid argument: #{arg}"
+          end
+        end
+      end
+
+      options[:project] = base_project
+      options[:base] ||= master_branch.short_name
+
+      if tracked_branch = options[:head].nil? && current_branch.upstream
+        if base_project == head_project and tracked_branch.short_name == options[:base]
+          $stderr.puts "Aborted: head branch is the same as base (#{options[:base].inspect})"
+          warn "(use `-h <branch>` to specify an explicit pull request head)"
+          abort
+        end
+      end
+      options[:head] ||= (tracked_branch || current_branch).short_name
+
+      # when no tracking, assume remote branch is published under active user's fork
+      user = github_user(true, head_project.host)
+      if head_project.owner != user and !tracked_branch and !explicit_owner
+        head_project = head_project.owned_by(user)
+      end
+
+      remote_branch = "#{head_project.remote}/#{options[:head]}"
+      options[:head] = "#{head_project.owner}:#{options[:head]}"
+
+      if !force and tracked_branch and local_commits = git_command("rev-list --cherry #{remote_branch}...")
+        $stderr.puts "Aborted: #{local_commits.split("\n").size} commits are not yet pushed to #{remote_branch}"
+        warn "(use `-f` to force submit a pull request anyway)"
+        abort
+      end
+
+      if args.noop?
+        puts "Would reqest a pull to #{base_project.owner}:#{options[:base]} from #{options[:head]}"
+        exit
+      end
+
+      unless options[:title] or options[:issue]
+        base_branch = "#{base_project.remote}/#{options[:base]}"
+        changes = git_command "log --no-color --pretty=medium --cherry %s...%s" %
+          [base_branch, remote_branch]
+
+        options[:title], options[:body] = pullrequest_editmsg(changes) { |msg|
+          msg.puts "# Requesting a pull to #{base_project.owner}:#{options[:base]} from #{options[:head]}"
+          msg.puts "#"
+          msg.puts "# Write a message for this pull request. The first block"
+          msg.puts "# of text is the title and the rest is description."
+        }
+      end
+
+      pull = create_pullrequest(options)
+
+      args.executable = 'echo'
+      args.replace [pull['html_url']]
+    rescue HTTPExceptions
+      display_http_exception("creating pull request", $!.response)
+      exit 1
+    end
+  end
+end
+
 program :name, 'Утилита для оформления pull request на github.com'
 program :version, '0.0.1'
 program :description, 'Утилита, заточенная под git-flow но с использованием github.com'
 
-command :'request publish' do |c|
+command :publish do |c|
   c.syntax      = 'request publish <Заголовок>'
   c.description = 'Оформить pull request из текущей ветки (feature -> develop, hotfix -> master)'
 
+  # Опции нужны, если человек хочет запушить ветку, с именем отличным от стандарта
   c.option '--head STRING', String, 'Имя ветки, которую нужно принять в качестве изменений'
   c.option '--base STRING', String, 'Имя ветки, в которую нужно принять изменения'
 
@@ -22,6 +136,7 @@ command :'request publish' do |c|
       :feature => :develop,
       :hotfix  => :master
     }
+    jira_browse_url = 'http://jira.dev.apress.ru/browse/'
 
     # Проверим, что мы не в мастере или девелопе
     if [:master, :develop].include? current_branch.to_sym
@@ -36,31 +151,39 @@ command :'request publish' do |c|
       exit
     end
 
+    if args.first.to_s.empty?
+      say 'Пожалуйста, укажите в заголовке номер вашей задачи, например так:'
+      say '=> git request "PC-001"'
+      exit
+    end
+
+    # Расставим ветки согласно правилам
+    remote_branch, task = current_branch.split('/').push(nil).map(&:to_s)
+    head = "#{repository.repo_owner}:#{current_branch}"
+    base = "#{repository.remote_by_name('upstream').project.owner}:#{request_rules.fetch(remote_branch.to_sym, '')}"
+
+    head = options.head unless options.head.nil?
+    base = options.base unless options.base.nil?
+
     # Запушим текущую ветку на origin
-    #Hub::Runner.execute('push', repo.main_project.remote.name, current_branch)
-
-    # Овнер проекта
-    puts repository.repo_owner
-
-    # Овнер upstream
-    puts repository.remote_by_name('upstream').project.owner
-
-    puts options.head
-
+    say '=> Обновляю ветку на origin'
+    Hub::Runner.execute('push', repository.main_project.remote.name, current_branch)
 
     # Запостим pull request на upstream
-    #Hub::Runner.execute('pull-request', 'upstream', args.first, '-b', 'develop', '-h', current_branch)
+    command_options = ['pull-request', args.first, '-b', base, '-h', head, '-d']
+    command_options |= ['-d', jira_browse_url + task] if task =~ /^\w+\-\d{1,}$/
 
-    #puts options.inspect
-    #puts args.inspect
+    say '=> Делаю pull request на upstream'
+    say Hub::Runner.execute(*command_options)
   end
 end
-alias_command :request, :'request publish'
 
-command :'request update' do |c|
+command :update do |c|
+
+end
+
+command :done do |c|
 
 end
 
-command :'request done' do |c|
-
-end
+default_command :help
