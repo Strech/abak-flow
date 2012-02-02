@@ -4,7 +4,6 @@ require 'rubygems'
 require 'commander/import'
 require 'hub'
 
-# :name is optional, otherwise uses the basename of this executable
 program :name, 'Утилита для оформления pull request на github.com'
 program :version, '0.0.1'
 program :description, 'Утилита, заточенная под git-flow но с использованием github.com'
@@ -18,7 +17,7 @@ command :'request publish' do |c|
 
   c.action do |args, options|
     repository     = Hub::Commands.send :local_repo
-    current_branch = repo.current_branch.short_name
+    current_branch = repository.current_branch.short_name
     request_rules  = {
       :feature => :develop,
       :hotfix  => :master
@@ -31,20 +30,22 @@ command :'request publish' do |c|
     end
 
     # Проверим, что у нас настроен upstream
-    if repo.remote_by_name('upstream').nil?
+    if repository.remote_by_name('upstream').nil?
       say 'Необходимо настроить репозиторий upstream (главный) для текущего пользователя'
       say '=> git remote add upstream https://Developer@github.com/abak-press/sample.git'
       exit
     end
 
     # Запушим текущую ветку на origin
-    Hub::Runner.execute('push', repo.main_project.remote.name, current_branch)
+    #Hub::Runner.execute('push', repo.main_project.remote.name, current_branch)
 
     # Овнер проекта
-    puts repo.repo_owner
+    puts repository.repo_owner
 
     # Овнер upstream
-    puts repo.remote_by_name('upstream').project.owner
+    puts repository.remote_by_name('upstream').project.owner
+
+    puts options.head
 
 
     # Запостим pull request на upstream

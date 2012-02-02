@@ -5,7 +5,23 @@ require 'rubygems'
 require 'commander/import'
 require 'hub'
 
-# :name is optional, otherwise uses the basename of this executable
+# Dirty hack
+module Hub
+  class Runner
+    def execute
+      if args.noop?
+        puts commands
+      elsif not args.skip?
+        if args.chained?
+          execute_command_chain
+        else
+          %x{#{args.to_exec.join(' ')}}
+        end
+      end
+    end
+  end
+end
+
 program :name, 'Утилита для оформления pull request на github.com'
 program :version, '0.0.1'
 program :description, 'Утилита, заточенная под git-flow но с использованием github.com'
@@ -19,7 +35,7 @@ command :'request publish' do |c|
 
   c.action do |args, options|
     repository     = Hub::Commands.send :local_repo
-    current_branch = repo.current_branch.short_name
+    current_branch = repository.current_branch.short_name
     request_rules  = {
       :feature => :develop,
       :hotfix  => :master
@@ -32,27 +48,33 @@ command :'request publish' do |c|
     end
 
     # Проверим, что у нас настроен upstream
-    if repo.remote_by_name('upstream').nil?
+    if repository.remote_by_name('upstream').nil?
       say 'Необходимо настроить репозиторий upstream (главный) для текущего пользователя'
       say '=> git remote add upstream https://Developer@github.com/abak-press/sample.git'
       exit
     end
 
+    if args.first.to_s.empty?
+      say 'Пожалуйста, укажите в заголовке номер вашей задачи, например так:'
+      say '=> git request "PC-001"'
+      exit
+    end
+
+    # Расставим ветки согласно правилам
+    head = "#{repository.repo_owner}:#{current_branch}"
+    base = "#{repository.remote_by_name('upstream').project.owner}:#{request_rules[current_branch.split('/').first.to_sym]}"
+
+    head = options.head unless options.head.nil?
+    base = options.base unless options.base.nil?
+
     # Запушим текущую ветку на origin
-    Hub::Runner.execute('push', repo.main_project.remote.name, current_branch)
-
-    # Овнер проекта
-    puts repo.repo_owner
-
-    # Овнер upstream
-    puts repo.remote_by_name('upstream').project.owner
-
+    say '=> Обновляю ветку на origin'
+    Hub::Runner.execute('push', repository.main_project.remote.name, current_branch)
 
     # Запостим pull request на upstream
-    #Hub::Runner.execute('pull-request', 'upstream', args.first, '-b', 'develop', '-h', current_branch)
+    say '=> Делаю pull request на upstream'
+    Hub::Runner.execute('pull-request', args.first, '-b', base, '-h', head)
 
-    #puts options.inspect
-    #puts args.inspect
   end
 end
 alias_command :request, :'request publish'
@@ -64,3 +86,5 @@ end
 command :'request done' do |c|
 
 end
+
+default_command :request
