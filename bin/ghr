@@ -122,8 +122,9 @@ program :name, 'Утилита для оформления pull request на git
 program :version, '0.0.1'
 program :description, 'Утилита, заточенная под git-flow но с использованием github.com'
 
+default_command :help
 command :publish do |c|
-  c.syntax      = 'request publish <Заголовок>'
+  c.syntax      = 'git request publish <Заголовок>'
   c.description = 'Оформить pull request из текущей ветки (feature -> develop, hotfix -> master)'
 
   # Опции нужны, если человек хочет запушить ветку, с именем отличным от стандарта
@@ -167,7 +168,8 @@ command :publish do |c|
     base = options.base unless options.base.nil?
 
     # Запушим текущую ветку на origin
-    say '=> Обновляю ветку на origin'
+    # @TODO Может быть лучше достать дерективу конфига origin?
+    say "=> Обновляю ветку #{current_branch} на origin"
     Hub::Runner.execute('push', repository.main_project.remote.name, current_branch)
 
     # Запостим pull request на upstream
@@ -180,11 +182,40 @@ command :publish do |c|
 end
 
 command :update do |c|
+  c.syntax      = 'git request update'
+  c.description = 'Обновить ветку на удаленном (origin) репозитории'
 
+  c.option '--branch STRING', String, 'Имя ветки, которую нужно обновить'
+
+  c.action do |args, options|
+    repository     = Hub::Commands.send :local_repo
+    current_branch = repository.current_branch.short_name
+
+    # Запушим текущую ветку на origin
+    branch = options.branch || current_branch
+    say "=> Обновляю ветку #{branch} на origin"
+    Hub::Runner.execute('push', repository.main_project.remote.name, branch)
+  end
 end
 
 command :done do |c|
+  c.syntax      = 'git request done'
+  c.description = 'Завершить pull request. По умолчанию удаляются ветки как локальная (local), так и удаленная (origin)'
 
+  c.option '--all', 'Удаляет ветку в локальном репозитории и в удалнном (local + origin) (по умолчанию)'
+  c.option '--local', 'Удаляет ветку только в локальном репозитории (local)'
+  c.option '--origin', 'Удаляет ветку в удаленном репозитории (origin)'
+
+  c.action do |args, options|
+    type = :all
+    if [options.local, options.origin].compact.count == 1
+      type = options.local ? :local : :origin
+    end
+
+    puts type
+
+    if agree('При завершении задачи будет удалена как локальная ветка, так и ветка в удаленном репозитории (origin)? [yes/no/y/n]')
+      puts 'PEWPEW'
+    end
+  end
 end
-
-default_command :help
