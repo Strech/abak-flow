@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- encoding: utf-8 -*-
 
 require 'rubygems'
@@ -118,6 +117,8 @@ module Hub
   end
 end
 
+# @TODO Сделать класс, в котором собрать общие куски из задачь
+
 program :name, 'Утилита для оформления pull request на github.com'
 program :version, '0.0.1'
 program :description, 'Утилита, заточенная под git-flow но с использованием github.com'
@@ -202,20 +203,37 @@ command :done do |c|
   c.syntax      = 'git request done'
   c.description = 'Завершить pull request. По умолчанию удаляются ветки как локальная (local), так и удаленная (origin)'
 
+  c.option '--branch STRING', String, 'Имя ветки pull request которой нужно закрыть'
   c.option '--all', 'Удаляет ветку в локальном репозитории и в удалнном (local + origin) (по умолчанию)'
   c.option '--local', 'Удаляет ветку только в локальном репозитории (local)'
   c.option '--origin', 'Удаляет ветку в удаленном репозитории (origin)'
 
   c.action do |args, options|
+    repository     = Hub::Commands.send :local_repo
+    current_branch = repository.current_branch.short_name
+    branch         = options.branch || current_branch
+
     type = :all
     if [options.local, options.origin].compact.count == 1
       type = options.local ? :local : :origin
     end
 
-    puts type
+    warning = "Внимание! Alarm! Danger! Achtung\nЕсли вы удалите ветку на удаленном репозитории, а ваш pull request еще не приняли, вы рискуете потерять проделанную работу.\nВы уверены, что хотите продолжить?"
+    if [:all, :origin].include?(type)
+      say '=> Вы приняли верное решение :)' && exit unless agree("#{warning} [yes/no/y/n]:")
+    end
 
-    if agree('При завершении задачи будет удалена как локальная ветка, так и ветка в удаленном репозитории (origin)? [yes/no/y/n]')
-      puts 'PEWPEW'
+    if [:all, :origin].include? type
+      say "=> Удаляю ветку #{branch} на origin"
+      Hub::Runner.execute('push', repository.main_project.remote.name, ':' + branch)
+    end
+
+    if [:all, :local].include? type
+      remote_branch, task = current_branch.split('/').push(nil).map(&:to_s)
+
+      say "=>  Удаляю локальную ветку #{branch}"
+      Hub::Runner.execute('checkout', 'develop')
+      Hub::Runner.execute('branch', '-D', branch)
     end
   end
 end
