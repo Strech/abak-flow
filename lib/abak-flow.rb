@@ -1,7 +1,6 @@
-require "abak-flow/version"
+require 'commander/import'
+require 'hub'
 
-module Abak
-  module Flow
-    # Your code goes here...
-  end
-end
+require 'abak-flow/version'
+require 'abak-flow/hub_extensions'
+require 'abak-flow/request'

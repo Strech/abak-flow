@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Strech (aka Sergey Fedorov)"]
   s.email       = ["oni.strech@gmail.com"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.summary     = %q{Описание}
+  s.description = %q{Описание 2}
 
   s.rubyforge_project = "abak-flow"
 
