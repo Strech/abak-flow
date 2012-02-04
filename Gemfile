@@ -1,8 +1,6 @@
-source 'http://rubygems.org'
-source 'http://gems.github.com'
-source 'http://gemcutter.org'
-source 'http://gems.rubyonrails.org'
+source "http://rubygems.org"
 
-# ======================================================================================================================
-gem 'commander'
-gem 'hub'
+gemspec
+
+gem 'hub', '~> 1.8.1'
+gem 'commander', '~> 4.0.7'
