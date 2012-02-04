@@ -1,2 +1,6 @@
 #!/usr/bin/env ruby
-require 'abak-flow'
+# -*- encoding: utf-8 -*-
+
+require 'hub'
+require 'commander/import'
+require 'abak-flow/hub_extensions'
