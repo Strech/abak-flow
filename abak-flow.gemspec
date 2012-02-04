@@ -22,4 +22,5 @@ Gem::Specification.new do |s|
   # s.add_development_dependency "rspec"
   s.add_runtime_dependency 'hub'
   s.add_runtime_dependency 'commander'
+  s.add_runtime_dependency 'abak-flow'
 end
