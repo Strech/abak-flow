@@ -1,8 +1,4 @@
 module Abak::Flow
-
-  Hub::Runner.send :include, RunnerExtension
-  Hub::Commands.send :include, CommandsExtension
-
   module RunnerExtension
     def execute
       if args.noop?
@@ -112,4 +108,7 @@ module Abak::Flow
       exit 1
     end
   end
+
+  Hub::Runner.send :include, RunnerExtension
+  Hub::Commands.send :include, CommandsExtension
 end
