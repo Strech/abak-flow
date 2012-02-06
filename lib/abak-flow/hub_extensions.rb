@@ -1,5 +1,5 @@
 module Abak::Flow
-  module RunnerExtension
+  class ::Hub::Runner
     def execute
       if args.noop?
         puts commands
@@ -13,7 +13,7 @@ module Abak::Flow
     end
   end
 
-  module CommandsExtension
+  module ::Hub::Commands
     def pull_request(args)
       args.shift
       options = { }
@@ -108,7 +108,4 @@ module Abak::Flow
       exit 1
     end
   end
-
-  Hub::Runner.send :include, RunnerExtension
-  Hub::Commands.send :include, CommandsExtension
 end
