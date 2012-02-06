@@ -57,7 +57,7 @@ module Abak::Flow
       Hub::Runner.execute('push', repository.main_project.remote.name, current_branch)
 
       # Запостим pull request на upstream
-      command_options = ['pull-request', args.first, '-b', base, '-h', head, '-d']
+      command_options = ['pull-request', args.first, '-b', base, '-h', head]
       command_options |= ['-d', jira_browse_url + task] if task =~ /^\w+\-\d{1,}$/
 
       say '=> Делаю pull request на upstream'
@@ -79,6 +79,46 @@ module Abak::Flow
       branch = options.branch || current_branch
       say "=> Обновляю ветку #{branch} на origin"
       Hub::Runner.execute('push', repository.main_project.remote.name, branch)
+    end
+  end
+
+  command :feature do |c|
+    c.syntax      = 'git request feature <Название задачи>'
+    c.description = 'Создать ветку для выполнения задачи. Лучше всего, если название задачи, будет ее номером из jira'
+
+    c.action do |args, options|
+      task = args.shift.to_s
+
+      if task.empty?
+        say 'Необходимо указать имя задачи, а лучше всего ее номер из jira'
+        exit
+      end
+
+      unless task =~ /^\w+\-\d{1,}$/
+        say '=> Вы приняли верное решение :)' && exit unless agree("Лучше всего завести задачу с именем примерно такого формата PC-001, может попробуем заного? [yes/no/y/n]:")
+      end
+
+      Hub::Runner.execute('flow', 'feature', 'start', task)
+    end
+  end
+
+  command :hotfix do |c|
+    c.syntax      = 'git request hotfix <Название задачи>'
+    c.description = 'Создать ветку для выполнения bugfix задачи. Лучше всего, если название задачи, будет ее номером из jira'
+
+    c.action do |args, options|
+      task = args.shift.to_s
+
+      if task.empty?
+        say 'Необходимо указать имя задачи, а лучше всего ее номер из jira'
+        exit
+      end
+
+      unless task =~ /^\w+\-\d{1,}$/
+        say '=> Вы приняли верное решение :)' && exit unless agree("Лучше всего завести задачу с именем примерно такого формата PC-001, может попробуем заного? [yes/no/y/n]:")
+      end
+
+      Hub::Runner.execute('flow', 'hotfix', 'start', task)
     end
   end
 
@@ -106,6 +146,7 @@ module Abak::Flow
         say '=> Вы приняли верное решение :)' && exit unless agree("#{warning} [yes/no/y/n]:")
       end
 
+      # @TODO Проверку на наличие ветки на origin
       if [:all, :origin].include? type
         say "=> Удаляю ветку #{branch} на origin"
         Hub::Runner.execute('push', repository.main_project.remote.name, ':' + branch)
