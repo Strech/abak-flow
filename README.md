@@ -29,6 +29,8 @@ Github-flow же наоборот ведет основную разработк
     $ git config --global github.token 0123456789yourf0123456789token
     $ git remote add upstream git://github.com/anonimus/example.git
 
+**Обратите внимание:** В данном контексте под **upstream** подразумевается адрес репозитория в который будут оформляться pull request. А репозиторием **origin** будет являться ваш форк 
+
 # С чего начать?
 
     $ git request --help
@@ -37,7 +39,7 @@ Github-flow же наоборот ведет основную разработк
 ### Самый простой способ начать новую задачу:
 
     $ git checkout develop
-    $ git request feature
+    $ git request feature 'TASK-001'
     $ touch 'hello.txt' && echo 'Hello world!' > hello.txt
     $ git commit -a -m 'Hello world commit'
     $ git request publish
@@ -53,7 +55,7 @@ Github-flow же наоборот ведет основную разработк
 Для задач, которые должны быть выполнены в виде hotfix принцип тот же:
 
     $ git checkout master
-    $ git request hotfix
+    $ git request hotfix 'TASK-001'
     $ …
     $ git request publish
 
@@ -81,7 +83,7 @@ Github-flow же наоборот ведет основную разработк
     $ git request done --local
 
 ### Маленькие хитрости
-Если сразу правильно именовать ветки, т.е ветку с задачей создавать с именем, такого формата TASK-001, то, в описание pull request автоматически вставится ссылка на задачу в jira
+Если сразу правильно именовать ветки, т.е ветку с задачей создавать с именем, такого формата TASK-001, то, в описание pull request автоматически вставится ссылка на задачу в jira, а в имя pull request сразу вставится название, состоящее из имени задачи, т.е TASK-001
 
 ### А помощь?
 Многие команды имеют какие-то дополнительные опции. Но они нужны только в экзотических случаях. Но при любом раскладе подсказку и тонкий намек всегда можно получить воспользовавших такой командой:
