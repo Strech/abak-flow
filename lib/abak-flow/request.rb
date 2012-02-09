@@ -16,13 +16,15 @@ module Abak::Flow
     c.option '--base STRING', String, 'Имя ветки, в которую нужно принять изменения'
 
     c.action do |args, options|
-      repository     = Hub::Commands.send :local_repo
-      current_branch = repository.current_branch.short_name
-      request_rules  = {
-        :feature => :develop,
-        :hotfix  => :master
-      }
+      request_rules   = {:feature => :develop, :hotfix  => :master}
       jira_browse_url = 'http://jira.dev.apress.ru/browse/'
+
+      repository          = Hub::Commands.send :local_repo
+      current_branch      = repository.current_branch.short_name
+      remote_branch, task = current_branch.split('/').push(nil).map(&:to_s)
+
+      title = args.first.to_s.strip
+      title = task if task =~ /^\w+\-\d{1,}$/ && title.empty?
 
       # Проверим, что мы не в мастере или девелопе
       if [:master, :develop].include? current_branch.to_sym
@@ -37,14 +39,13 @@ module Abak::Flow
         exit
       end
 
-      if args.first.to_s.empty?
-        say 'Пожалуйста, укажите в заголовке номер вашей задачи, например так:'
-        say '=> git request "PC-001"'
+      if title.empty?
+        say 'Пожалуйста, укажите что-нибудь для заголовка pull request, например номер вашей задачи вот так:'
+        say '=> git request publish "PC-001"'
         exit
       end
 
       # Расставим ветки согласно правилам
-      remote_branch, task = current_branch.split('/').push(nil).map(&:to_s)
       head = "#{repository.repo_owner}:#{current_branch}"
       base = "#{repository.remote_by_name('upstream').project.owner}:#{request_rules.fetch(remote_branch.to_sym, '')}"
 
@@ -57,7 +58,7 @@ module Abak::Flow
       Hub::Runner.execute('push', repository.main_project.remote.name, current_branch)
 
       # Запостим pull request на upstream
-      command_options = ['pull-request', args.first, '-b', base, '-h', head]
+      command_options = ['pull-request', title, '-b', base, '-h', head]
       command_options |= ['-d', jira_browse_url + task] if task =~ /^\w+\-\d{1,}$/
 
       say '=> Делаю pull request на upstream'
@@ -95,7 +96,7 @@ module Abak::Flow
       end
 
       unless task =~ /^\w+\-\d{1,}$/
-        say '=> Вы приняли верное решение :)' && exit unless agree("Лучше всего завести задачу с именем примерно такого формата PC-001, может попробуем заного? [yes/no/y/n]:")
+        say '=> Вы приняли верное решение :)' && exit if agree("Лучше всего завести задачу с именем примерно такого формата PC-001, может попробуем заного? [y/n]:")
       end
 
       Hub::Runner.execute('flow', 'feature', 'start', task)
@@ -115,7 +116,7 @@ module Abak::Flow
       end
 
       unless task =~ /^\w+\-\d{1,}$/
-        say '=> Вы приняли верное решение :)' && exit unless agree("Лучше всего завести задачу с именем примерно такого формата PC-001, может попробуем заного? [yes/no/y/n]:")
+        say '=> Вы приняли верное решение :)' && exit if agree("Лучше всего завести задачу с именем примерно такого формата PC-001, может попробуем заного? [y/n]:")
       end
 
       Hub::Runner.execute('flow', 'hotfix', 'start', task)
@@ -143,7 +144,7 @@ module Abak::Flow
 
       warning = "Внимание! Alarm! Danger! Achtung\nЕсли вы удалите ветку на удаленном репозитории, а ваш pull request еще не приняли, вы рискуете потерять проделанную работу.\nВы уверены, что хотите продолжить?"
       if [:all, :origin].include?(type)
-        say '=> Вы приняли верное решение :)' && exit unless agree("#{warning} [yes/no/y/n]:")
+        say '=> Вы приняли верное решение :)' && exit unless agree("#{warning} [y/n]:")
       end
 
       # @TODO Проверку на наличие ветки на origin
