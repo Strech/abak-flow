@@ -3,7 +3,7 @@ module Abak::Flow
   # @TODO Сделать класс, в котором собрать общие куски из задач
 
   program :name, 'Утилита для оформления pull request на github.com'
-  program :version, '0.0.1'
+  program :version, Abak::Flow::VERSION
   program :description, 'Утилита, заточенная под git-flow но с использованием github.com'
 
   default_command :help
@@ -140,6 +140,11 @@ module Abak::Flow
       type = :all
       if [options.local, options.origin].compact.count == 1
         type = options.local ? :local : :origin
+      end
+
+      if [:master, :develop].include? branch.to_sym
+        say 'Извините, но нельзя удалить ветку develop или master'
+        exit
       end
 
       warning = "Внимание! Alarm! Danger! Achtung\nЕсли вы удалите ветку на удаленном репозитории, а ваш pull request еще не приняли, вы рискуете потерять проделанную работу.\nВы уверены, что хотите продолжить?"
