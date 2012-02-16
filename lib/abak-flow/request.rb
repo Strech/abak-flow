@@ -32,6 +32,13 @@ module Abak::Flow
         exit
       end
 
+      # Проверим, что у нас настроен origin
+      if repository.remote_by_name('origin').nil?
+        say 'Необходимо настроить репозиторий origin (форк) для текущего пользователя'
+        say '=> git remote add origin https://Developer@github.com/abak-press/sample.git'
+        exit
+      end
+
       # Проверим, что у нас настроен upstream
       if repository.remote_by_name('upstream').nil?
         say 'Необходимо настроить репозиторий upstream (главный) для текущего пользователя'
@@ -55,7 +62,7 @@ module Abak::Flow
       # Запушим текущую ветку на origin
       # @TODO Может быть лучше достать дерективу конфига origin?
       say "=> Обновляю ветку #{current_branch} на origin"
-      Hub::Runner.execute('push', repository.main_project.remote.name, current_branch)
+      Hub::Runner.execute('push', 'origin', current_branch)
 
       # Запостим pull request на upstream
       command_options = ['pull-request', title, '-b', base, '-h', head]
@@ -76,10 +83,17 @@ module Abak::Flow
       repository     = Hub::Commands.send :local_repo
       current_branch = repository.current_branch.short_name
 
+      # Проверим, что у нас настроен origin
+      if repository.remote_by_name('origin').nil?
+        say 'Необходимо настроить репозиторий origin (форк) для текущего пользователя'
+        say '=> git remote add origin https://Developer@github.com/abak-press/sample.git'
+        exit
+      end
+
       # Запушим текущую ветку на origin
       branch = options.branch || current_branch
       say "=> Обновляю ветку #{branch} на origin"
-      Hub::Runner.execute('push', repository.main_project.remote.name, branch)
+      Hub::Runner.execute('push', 'origin', branch)
     end
   end
 
@@ -96,7 +110,7 @@ module Abak::Flow
       end
 
       unless task =~ /^\w+\-\d{1,}$/
-        say '=> Вы приняли верное решение :)' && exit if agree("Лучше всего завести задачу с именем примерно такого формата PC-001, может попробуем заного? [y/n]:")
+        say '=> Вы приняли верное решение :)' && exit if agree("Лучше всего завести задачу с именем примерно такого формата PC-001, может попробуем заново? [y/n]:")
       end
 
       Hub::Runner.execute('flow', 'feature', 'start', task)
@@ -116,7 +130,7 @@ module Abak::Flow
       end
 
       unless task =~ /^\w+\-\d{1,}$/
-        say '=> Вы приняли верное решение :)' && exit if agree("Лучше всего завести задачу с именем примерно такого формата PC-001, может попробуем заного? [y/n]:")
+        say '=> Вы приняли верное решение :)' && exit if agree("Лучше всего завести задачу с именем примерно такого формата PC-001, может попробуем заново? [y/n]:")
       end
 
       Hub::Runner.execute('flow', 'hotfix', 'start', task)
