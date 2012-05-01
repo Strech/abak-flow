@@ -20,4 +20,5 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'hub'
   s.add_runtime_dependency 'commander'
+  s.add_runtime_dependency 'octokit'
 end

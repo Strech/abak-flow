@@ -26,6 +26,10 @@ module Abak::Flow
       title = args.first.to_s.strip
       title = task if task =~ /^\w+\-\d{1,}$/ && title.empty?
 
+      api_user   = Hub::Commands.send(:git_reader).read_config('abak.apiuser')
+      api_token  = Hub::Commands.send(:git_reader).read_config('abak.apitoken')
+      api_client = Octokit::Client.new(:login => api_user, :oauth_token => api_token)
+
       # Проверим, что мы не в мастере или девелопе
       if [:master, :develop].include? current_branch.to_sym
         say 'Нельзя делать pull request из меток master или develop'
@@ -52,6 +56,22 @@ module Abak::Flow
         exit
       end
 
+      # Проверим, что у нас указан апи юзер
+      if api_user.empty?
+        say 'Необходимо указать своего пользователя API github'
+        say '=> https://github.com/Strech/abak-flow/blob/master/README.md'
+        exit
+      end
+
+      # Проверим, что у нас указан токен
+      if api_token.empty?
+        say 'Необходимо указать токен своего пользователя API github'
+        say '=> https://github.com/Strech/abak-flow/blob/master/README.md'
+        exit
+      end
+
+      upstream_project = repository.remote_by_name('upstream').project
+
       # Расставим ветки согласно правилам
       head = "#{repository.repo_owner}:#{current_branch}"
       base = "#{repository.remote_by_name('upstream').project.owner}:#{request_rules.fetch(remote_branch.to_sym, '')}"
@@ -60,16 +80,17 @@ module Abak::Flow
       base = options.base unless options.base.nil?
 
       # Запушим текущую ветку на origin
-      # @TODO Может быть лучше достать дерективу конфига origin?
+      # TODO Может быть лучше достать дерективу конфига origin?
       say "=> Обновляю ветку #{current_branch} на origin"
       Hub::Runner.execute('push', 'origin', current_branch)
 
       # Запостим pull request на upstream
-      command_options = ['pull-request', title, '-b', base, '-h', head]
-      command_options |= ['-d', jira_browse_url + task] if task =~ /^\w+\-\d{1,}$/
+      body = jira_browse_url + task if task =~ /^\w+\-\d{1,}$/
+      body ||= 'Я забыл какая это задача :('
 
       say '=> Делаю pull request на upstream'
-      say Hub::Runner.execute(*command_options)
+      result = api_client.create_pull_request("#{upstream_project.owner}/#{upstream_project.name}", base, head, title, body)
+      say result._links.self.href
     end
   end
 
@@ -175,10 +196,60 @@ module Abak::Flow
       if [:all, :local].include? type
         remote_branch, task = current_branch.split('/').push(nil).map(&:to_s)
 
-        say "=>  Удаляю локальную ветку #{branch}"
+        say "=> Удаляю локальную ветку #{branch}"
         Hub::Runner.execute('checkout', 'develop')
         Hub::Runner.execute('branch', '-D', branch)
       end
+    end
+  end
+
+  # TODO Отрефакторить эту какашку
+  command :readycheck do |c|
+    c.syntax      = 'git request readycheck'
+    c.description = 'Проверить все ли настроено для работы с github и удаленным (origin) репозиторием'
+
+    c.action do |args, options|
+      repository     = Hub::Commands.send :local_repo
+      current_branch = repository.current_branch.short_name
+
+      api_user  = Hub::Commands.send(:git_reader).read_config('abak.apiuser').to_s
+      api_token = Hub::Commands.send(:git_reader).read_config('abak.apitoken').to_s
+
+      errors = 0
+
+      # Проверим, что у нас настроен origin
+      if repository.remote_by_name('origin').nil?
+        say 'Необходимо настроить репозиторий origin (форк) для текущего пользователя'
+        say '=> git remote add origin https://Developer@github.com/abak-press/sample.git'
+
+        errors += 1
+      end
+
+      # Проверим, что у нас настроен upstream
+      if repository.remote_by_name('upstream').nil?
+        say 'Необходимо настроить репозиторий upstream (главный) для текущего пользователя'
+        say '=> git remote add upstream https://Developer@github.com/abak-press/sample.git'
+
+        errors += 1
+      end
+
+      # Проверим, что у нас указан апи юзер
+      if api_user.empty?
+        say 'Необходимо указать своего пользователя API github'
+        say '=> https://github.com/Strech/abak-flow/blob/master/README.md'
+
+        errors += 1
+      end
+
+      # Проверим, что у нас указан токен
+      if api_token.empty?
+        say 'Необходимо указать токен своего пользователя API github'
+        say '=> https://github.com/Strech/abak-flow/blob/master/README.md'
+
+        errors += 1
+      end
+
+      say 'Хм ... кажется у вас все готово к работе' if errors.zero?
     end
   end
 end
