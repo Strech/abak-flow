@@ -25,15 +25,23 @@ Github-flow же наоборот ведет основную разработк
 
     $ gem install abak-flow
     $ git config --global alias.request '!request'
-    $ git config --global github.user AwesomeCoder
-    $ git config --global github.token 0123456789yourf0123456789token
+    $ git config --global abak.apiuser somebody@gmail.com
+    $ git config --global abak.apitoken 0123456789yourf0123456789token
     $ git remote add upstream git://github.com/anonimus/example.git
+
+**Заметьте:** В конфиге git, значением *abak.apiuser* должен являться тот email адрес, под которым вы заходите на github
 
 **Обратите внимание:** В данном контексте под **upstream** подразумевается адрес репозитория в который будут оформляться pull request. А репозиторием **origin** будет являться ваш форк 
 
 # С чего начать?
 
-    $ git request --help
+    $ git request readycheck
+
+или    
+    
+    $ git request help
+    
+**Примечание:** Вообще-то все комманды поддерживают опцию *--help*, но вот именно *git request --help* успевает перехватиться самим git и он конечно неодумевает как ему показать хэлп по внешней комманде
 
 # Примеры использования
 ### Самый простой способ начать новую задачу:
@@ -82,10 +90,10 @@ Github-flow же наоборот ведет основную разработк
     $ git co feature/TASK-001
     $ git request done --local
 
-### Маленькие хитрости
+## Маленькие хитрости
 Если сразу правильно именовать ветки, т.е ветку с задачей создавать с именем, такого формата TASK-001, то, в описание pull request автоматически вставится ссылка на задачу в jira, а в имя pull request сразу вставится название, состоящее из имени задачи, т.е TASK-001
 
-### А помощь?
+## А помощь?
 Многие команды имеют какие-то дополнительные опции. Но они нужны только в экзотических случаях. Но при любом раскладе подсказку и тонкий намек всегда можно получить воспользовавших такой командой:
 
     $ git request done --help
