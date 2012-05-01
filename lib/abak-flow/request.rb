@@ -16,6 +16,8 @@ module Abak::Flow
     c.option '--base STRING', String, 'Имя ветки, в которую нужно принять изменения'
 
     c.action do |args, options|
+      HighLine.color_scheme = HighLine::SampleColorScheme.new
+
       request_rules   = {:feature => :develop, :hotfix  => :master}
       jira_browse_url = 'http://jira.dev.apress.ru/browse/'
 
@@ -32,41 +34,41 @@ module Abak::Flow
 
       # Проверим, что мы не в мастере или девелопе
       if [:master, :develop].include? current_branch.to_sym
-        say 'Нельзя делать pull request из меток master или develop'
+        say color('Нельзя делать pull request из меток master или develop', :error).to_s
         exit
       end
 
       # Проверим, что у нас настроен origin
       if repository.remote_by_name('origin').nil?
-        say 'Необходимо настроить репозиторий origin (форк) для текущего пользователя'
-        say '=> git remote add origin https://Developer@github.com/abak-press/sample.git'
+        say color('Необходимо настроить репозиторий origin (форк) для текущего пользователя', :error).to_s
+        say color('=> git remote add origin https://Developer@github.com/abak-press/sample.git', :info).to_s
         exit
       end
 
       # Проверим, что у нас настроен upstream
       if repository.remote_by_name('upstream').nil?
-        say 'Необходимо настроить репозиторий upstream (главный) для текущего пользователя'
-        say '=> git remote add upstream https://Developer@github.com/abak-press/sample.git'
+        say color('Необходимо настроить репозиторий upstream (главный) для текущего пользователя', :error).to_s
+        say color('=> git remote add upstream https://Developer@github.com/abak-press/sample.git', :info).to_s
         exit
       end
 
       if title.empty?
-        say 'Пожалуйста, укажите что-нибудь для заголовка pull request, например номер вашей задачи вот так:'
-        say '=> git request publish "PC-001"'
+        say color('Пожалуйста, укажите что-нибудь для заголовка pull request, например номер вашей задачи вот так:', :error).to_s
+        say color('=> git request publish "PC-001"', :info).to_s
         exit
       end
 
       # Проверим, что у нас указан апи юзер
       if api_user.empty?
-        say 'Необходимо указать своего пользователя API github'
-        say '=> https://github.com/Strech/abak-flow/blob/master/README.md'
+        say color('Необходимо указать своего пользователя API github', :error).to_s
+        say color('=> https://github.com/Strech/abak-flow/blob/master/README.md', :info).to_s
         exit
       end
 
       # Проверим, что у нас указан токен
       if api_token.empty?
-        say 'Необходимо указать токен своего пользователя API github'
-        say '=> https://github.com/Strech/abak-flow/blob/master/README.md'
+        say color('Необходимо указать токен своего пользователя API github', :error).to_s
+        say color('=> https://github.com/Strech/abak-flow/blob/master/README.md', :info).to_s
         exit
       end
 
@@ -101,13 +103,15 @@ module Abak::Flow
     c.option '--branch STRING', String, 'Имя ветки, которую нужно обновить'
 
     c.action do |args, options|
+      HighLine.color_scheme = HighLine::SampleColorScheme.new
+
       repository     = Hub::Commands.send :local_repo
       current_branch = repository.current_branch.short_name
 
       # Проверим, что у нас настроен origin
       if repository.remote_by_name('origin').nil?
-        say 'Необходимо настроить репозиторий origin (форк) для текущего пользователя'
-        say '=> git remote add origin https://Developer@github.com/abak-press/sample.git'
+        say color('Необходимо настроить репозиторий origin (форк) для текущего пользователя', :error).to_s
+        say color('=> git remote add origin https://Developer@github.com/abak-press/sample.git', :info).to_s
         exit
       end
 
@@ -123,10 +127,12 @@ module Abak::Flow
     c.description = 'Создать ветку для выполнения задачи. Лучше всего, если название задачи, будет ее номером из jira'
 
     c.action do |args, options|
+      HighLine.color_scheme = HighLine::SampleColorScheme.new
+
       task = args.shift.to_s
 
       if task.empty?
-        say 'Необходимо указать имя задачи, а лучше всего ее номер из jira'
+        say color('Необходимо указать имя задачи, а лучше всего ее номер из jira', :error).to_s
         exit
       end
 
@@ -143,10 +149,12 @@ module Abak::Flow
     c.description = 'Создать ветку для выполнения bugfix задачи. Лучше всего, если название задачи, будет ее номером из jira'
 
     c.action do |args, options|
+      HighLine.color_scheme = HighLine::SampleColorScheme.new
+
       task = args.shift.to_s
 
       if task.empty?
-        say 'Необходимо указать имя задачи, а лучше всего ее номер из jira'
+        say color('Необходимо указать имя задачи, а лучше всего ее номер из jira', :error).to_s
         exit
       end
 
@@ -168,6 +176,8 @@ module Abak::Flow
     c.option '--origin', 'Удаляет ветку в удаленном репозитории (origin)'
 
     c.action do |args, options|
+      HighLine.color_scheme = HighLine::SampleColorScheme.new
+
       repository     = Hub::Commands.send :local_repo
       current_branch = repository.current_branch.short_name
       branch         = options.branch || current_branch
@@ -178,7 +188,7 @@ module Abak::Flow
       end
 
       if [:master, :develop].include? branch.to_sym
-        say 'Извините, но нельзя удалить ветку develop или master'
+        say color('Извините, но нельзя удалить ветку develop или master', :error).to_s
         exit
       end
 
@@ -254,7 +264,7 @@ module Abak::Flow
         say "#{color(error.first, :error)}\n#{color(error.last, :info)}"
       end
 
-      say 'Хм ... кажется у вас все готово к работе' if errors.count.zero?
+      say color('Хм ... кажется у вас все готово к работе', :debug).to_s if errors.count.zero?
     end
   end
 end
