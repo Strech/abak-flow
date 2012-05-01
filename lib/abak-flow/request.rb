@@ -209,47 +209,52 @@ module Abak::Flow
     c.description = 'Проверить все ли настроено для работы с github и удаленным (origin) репозиторием'
 
     c.action do |args, options|
+      HighLine.color_scheme = HighLine::SampleColorScheme.new
       repository     = Hub::Commands.send :local_repo
       current_branch = repository.current_branch.short_name
 
       api_user  = Hub::Commands.send(:git_reader).read_config('abak.apiuser').to_s
       api_token = Hub::Commands.send(:git_reader).read_config('abak.apitoken').to_s
 
-      errors = 0
+      errors = []
 
       # Проверим, что у нас настроен origin
       if repository.remote_by_name('origin').nil?
-        say 'Необходимо настроить репозиторий origin (форк) для текущего пользователя'
-        say '=> git remote add origin https://Developer@github.com/abak-press/sample.git'
-
-        errors += 1
+        errors << [
+          'Необходимо настроить репозиторий origin (форк) для текущего пользователя',
+          '=> git remote add origin https://Developer@github.com/abak-press/sample.git'
+        ]
       end
 
       # Проверим, что у нас настроен upstream
       if repository.remote_by_name('upstream').nil?
-        say 'Необходимо настроить репозиторий upstream (главный) для текущего пользователя'
-        say '=> git remote add upstream https://Developer@github.com/abak-press/sample.git'
-
-        errors += 1
+        errors << [
+          'Необходимо настроить репозиторий upstream (главный) для текущего пользователя',
+          '=> git remote add upstream https://Developer@github.com/abak-press/sample.git'
+        ]
       end
 
       # Проверим, что у нас указан апи юзер
       if api_user.empty?
-        say 'Необходимо указать своего пользователя API github'
-        say '=> https://github.com/Strech/abak-flow/blob/master/README.md'
-
-        errors += 1
+        errors << [
+          'Необходимо указать своего пользователя API github',
+          '=> https://github.com/Strech/abak-flow/blob/master/README.md'
+        ]
       end
 
       # Проверим, что у нас указан токен
       if api_token.empty?
-        say 'Необходимо указать токен своего пользователя API github'
-        say '=> https://github.com/Strech/abak-flow/blob/master/README.md'
-
-        errors += 1
+        errors << [
+          'Необходимо указать токен своего пользователя API github',
+          '=> https://github.com/Strech/abak-flow/blob/master/README.md'
+        ]
       end
 
-      say 'Хм ... кажется у вас все готово к работе' if errors.zero?
+      errors.each do |error|
+        say "#{color(error.first, :error)}\n#{color(error.last, :info)}"
+      end
+
+      say 'Хм ... кажется у вас все готово к работе' if errors.count.zero?
     end
   end
 end
