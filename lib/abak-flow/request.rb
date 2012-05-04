@@ -28,9 +28,15 @@ module Abak::Flow
       title = args.first.to_s.strip
       title = task if task =~ /^\w+\-\d{1,}$/ && title.empty?
 
-      api_user   = Hub::Commands.send(:git_reader).read_config('abak.apiuser')
-      api_token  = Hub::Commands.send(:git_reader).read_config('abak.apitoken')
-      api_client = Octokit::Client.new(:login => api_user, :oauth_token => api_token)
+      api_user     = Hub::Commands.send(:git_reader).read_config('abak.apiuser')
+      api_token    = Hub::Commands.send(:git_reader).read_config('abak.apitoken')
+      config_proxy = Hub::Commands.send(:git_reader).read_config('abak.proxy')
+      env_proxy    = ENV['http_proxy'] || ENV['HTTP_PROXY']
+
+      client_opts = {:proxy => config_proxy || env_proxy} if config_proxy || env_proxy
+      client_opts ||= {}
+
+      api_client = Octokit::Client.new({:login => api_user, :oauth_token => api_token}.merge(client_opts))
 
       # Проверим, что мы не в мастере или девелопе
       if [:master, :develop].include? current_branch.to_sym
@@ -223,8 +229,10 @@ module Abak::Flow
       repository     = Hub::Commands.send :local_repo
       current_branch = repository.current_branch.short_name
 
-      api_user  = Hub::Commands.send(:git_reader).read_config('abak.apiuser').to_s
-      api_token = Hub::Commands.send(:git_reader).read_config('abak.apitoken').to_s
+      api_user     = Hub::Commands.send(:git_reader).read_config('abak.apiuser').to_s
+      api_token    = Hub::Commands.send(:git_reader).read_config('abak.apitoken').to_s
+      config_proxy = Hub::Commands.send(:git_reader).read_config('abak.proxy')
+      env_proxy    = ENV['http_proxy'] || ENV['HTTP_PROXY']
 
       errors = []
 
@@ -258,6 +266,13 @@ module Abak::Flow
           'Необходимо указать токен своего пользователя API github',
           '=> https://github.com/Strech/abak-flow/blob/master/README.md'
         ]
+      end
+
+      if config_proxy || env_proxy
+        message = "== В качестве прокси будет установлено значение #{config_proxy || env_proxy} =="
+        say color('=' * message.length, :info).to_s
+        say color(message, :info).to_s
+        say color('=' * message.length + "\n", :info).to_s
       end
 
       errors.each do |error|

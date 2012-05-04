@@ -25,9 +25,18 @@ Github-flow же наоборот ведет основную разработк
 
     $ gem install abak-flow
     $ git config --global alias.request '!request'
-    $ git config --global abak.apiuser somebody@gmail.com
+    $ git config --global abak.apiuser your_github_mail@gmail.com
     $ git config --global abak.apitoken 0123456789yourf0123456789token
-    $ git remote add upstream git://github.com/anonimus/example.git
+    $ git remote add upstream git://github.com/github_user_name/project.git
+    
+### А если я использую прокси, как быть?
+    $ git config --global abak.proxy http://my-proxy.com:3129
+    
+Далее по приоритету идут переменные окружения. Сначала **http_proxy**, затем **HTTP_PROXY**
+
+Т.е если вы используете переменные окружения, то просто не указывайте прокси в конфиге
+
+---
 
 **Заметьте:** В конфиге git, значением *abak.apiuser* должен являться тот email адрес, под которым вы заходите на github
 
