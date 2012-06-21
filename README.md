@@ -25,9 +25,9 @@ Github-flow же наоборот ведет основную разработк
 
     $ gem install abak-flow
     $ git config --global alias.request '!request'
-    $ git config --global abak.apiuser your_github_mail@gmail.com
-    $ git config --global abak.apitoken 0123456789yourf0123456789token
-    $ git remote add upstream git://github.com/github_user_name/project.git
+    $ git config --global abak.apiuser YOUR_GITHUB_MAIL@gmail.com
+    $ git config --global abak.apitoken 0123456789YOUR_GITHUB_API_TOKEN
+    $ git remote add upstream git://github.com/GITHUB_PROJECT_USER/GITHUB_PROJECT_NAME.git
     
 ### А если я использую прокси, как быть?
     $ git config --global abak.proxy http://my-proxy.com:3129
@@ -46,7 +46,7 @@ Github-flow же наоборот ведет основную разработк
 
     $ git request readycheck
 
-или    
+или
     
     $ git request help
     
