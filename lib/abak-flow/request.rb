@@ -98,7 +98,7 @@ module Abak::Flow
 
       say '=> Делаю pull request на upstream'
       result = api_client.create_pull_request("#{upstream_project.owner}/#{upstream_project.name}", base, head, title, body)
-      say result._links.self.href
+      say result._links.html.href
     end
   end
 

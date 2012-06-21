@@ -1,7 +1,7 @@
-source "http://rubygems.org"
+source "https://rubygems.org"
 
 gemspec
 
-gem 'hub', '~> 1.8.1'
-gem 'commander', '~> 4.0.7'
-gem 'octokit', '~> 1.0.4'
+gem 'hub', '~> 1.8.4'
+gem 'commander', '~> 4.1.2'
+gem 'octokit', '~> 1.6.0'
