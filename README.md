@@ -2,6 +2,8 @@ Abak-flow
 =========
 Нет, это не новая идеология ведения проекта, это всего лишь набор утилит которые помогают связать использование [git-flow](https://github.com/nvie/gitflow) и [github flow](http://scottchacon.com/2011/08/31/github-flow.html)
 
+#### [Как пользоваться новой версией](https://github.com/Strech/abak-flow/wiki/How-start-work-with-new-abak-flow)
+
 # Концепция
 Идеология git-flow использует следующий набор веток:
 
