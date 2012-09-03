@@ -37,6 +37,10 @@ module Abak::Flow
         "#{upstream_project.owner}/#{upstream_project.name}"
       end
     end
+    
+    def origin_repo
+      @origin_repo ||= repository.main_project.remote.name
+    end
 
     def base
       exit unless validator.valid?
@@ -157,6 +161,15 @@ module Abak::Flow
           :tip     => '=> git checkout master'
         }
       end
+
+      def validate_deleted_branch
+        return unless [:master, :develop].include?(target_object.current_branch.to_sym)
+
+        @errors << {
+          :message => 'Извините, но нельзя удалить ветку develop или master',
+          :tip     => '=> git checkout feature/TASK-0001'
+        }
+      end
     end
 
     class Strategy
@@ -167,23 +180,29 @@ module Abak::Flow
 
     class StrategyFeature < Strategy
       def self.attributes
-        StrategyReadyCheck.attributes | [:title, :branch]
+        StrategyReadycheck.attributes | [:title, :branch]
       end
     end
 
     class StrategyPublish < Strategy
       def self.attributes
-        StrategyReadyCheck.attributes | [:title]
+        StrategyReadycheck.attributes | [:title]
       end
     end
 
     class StrategyUpdate < Strategy
       def self.attributes
-        StrategyReadyCheck.attributes
+        StrategyReadycheck.attributes
       end
     end
 
-    class StrategyReadyCheck < Strategy
+    class StrategyDone < Strategy
+      def self.attributes
+        StrategyReadycheck.attributes | [:deleted_branch]
+      end
+    end
+
+    class StrategyReadycheck < Strategy
       def self.attributes
         [:origin, :upstream, :api_user, :api_token]
       end
