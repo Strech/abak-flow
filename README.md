@@ -2,7 +2,7 @@ Abak-flow
 =========
 Нет, это не новая идеология ведения проекта, это всего лишь набор утилит которые помогают связать использование [git-flow](https://github.com/nvie/gitflow) и [github flow](http://scottchacon.com/2011/08/31/github-flow.html)
 
-#### [Как пользоваться новой версией](https://github.com/Strech/abak-flow/wiki/How-start-work-with-new-abak-flow)
+**Начиная с версии v0.2.1 используется авторизация OAuth2. [Как ей пользоваться](https://github.com/Strech/abak-flow/wiki/How-start-work-with-new-abak-flow)**
 
 # Концепция
 Идеология git-flow использует следующий набор веток:
@@ -63,6 +63,8 @@ Github-flow же наоборот ведет основную разработк
     $ git commit -a -m 'Hello world commit'
     $ git request publish
 
+**Внимание:** Не нужно называться ветку TASK. Используйте префикс задачь из jira
+
 Теперь то же самое, только словами:
 
 * Переключимся в ветку develop
@@ -88,17 +90,17 @@ Github-flow же наоборот ведет основную разработк
 ### Завершение текущей задачи:
 Вообще, завершать задачу лучше только после того, как ваш pull request был принят. Почему? На самом деле по ряду причин. По умолчанию эта команда удаляет как вашу текущую ветку с задачей в локальном репозитории и в добавок ко всему - на вашем удаленном репозитории (форке)
 
-    $ git co feature/TASK-001
+    $ git checkout feature/TASK-001
     $ git request done 
 
 Чтобы оставить какую либо ветку в живых возможно напрямую указать, какую копию ветки **удалить**, локальную или же удаленную (на origin)
 
-    $ git co feature/TASK-001
+    $ git checkout feature/TASK-001
     $ git request done --origin
 
 Или же так
 
-    $ git co feature/TASK-001
+    $ git checkout feature/TASK-001
     $ git request done --local
 
 ## Маленькие хитрости
