@@ -44,6 +44,8 @@ module Abak::Flow
         say color(result._links.html.href, :green).to_s
       rescue => e
         say color(e.message, :error).to_s
+        say "\nПроблемы? Попробуйте заглянуть сюда:"
+        say color('=> cписок кодов статуса ответа http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html', :info).to_s
       end
     end
   end
