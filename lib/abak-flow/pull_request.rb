@@ -47,7 +47,7 @@ module Abak::Flow
 
       branch = Abak::Flow::PullRequest.branch_by_prefix(branch_prefix)
 
-      request_params.body || "#{repository.remote_by_name('upstream').project.owner}:#{branch}"
+      request_params.base || "#{repository.remote_by_name('upstream').project.owner}:#{branch}"
     end
 
     def head
