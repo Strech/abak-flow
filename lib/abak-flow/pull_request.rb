@@ -37,6 +37,14 @@ module Abak::Flow
         "#{upstream_project.owner}/#{upstream_project.name}"
       end
     end
+    alias_method :upstream_project, :from_repo
+    
+    def origin_project
+      @origin_project ||= begin
+        origin_project = repository.remote_by_name('origin').project
+        "#{origin_project.owner}/#{origin_project.name}"
+      end
+    end
     
     def origin_repo
       @origin_repo ||= repository.main_project.remote.name
@@ -207,5 +215,7 @@ module Abak::Flow
         [:origin, :upstream, :api_user, :api_token]
       end
     end
+    
+    class StrategyStatus < StrategyReadycheck; end
   end
 end

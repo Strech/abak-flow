@@ -2,5 +2,7 @@
 .bundle
 Gemfile.lock
 pkg/*
+tmp/
 .idea/
 .rvmrc
+.DS_Store

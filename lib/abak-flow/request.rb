@@ -173,4 +173,58 @@ module Abak::Flow
       say color('Хм ... кажется у вас все готово к работе', :debug).to_s if request.valid?
     end
   end
+  
+  command :status do |c|
+    c.syntax      = 'git request status'
+    c.description = 'Проверить статус удаленных (origin) веток для возможности удаления'
+
+    c.action do |args, options|
+      config  = Abak::Flow::Config.current
+      github_client = Abak::Flow::GithubClient.connect(config)
+      request = Abak::Flow::PullRequest.new(config, :strategy => :status)
+      
+      exit unless request.valid?
+      
+      messages = {unused: ["отсутствует в upstream репозитории", :notice],
+                  differ: ["отличается от origin репозитория", :warning],
+                  missing: ["отсутствует в локальном репозитории", :warning]}
+      
+      say "=> Обновляю данные о репозитории upstream"
+      %w(origin upstream).each { |remote| Hub::Runner.execute('fetch', remote, '-p') }
+      
+      say "=> Загружаю список веток для origin\n"
+      github_client.branches(request.origin_project).each do |branch|
+        next if %w(master develop).include? branch.name
+        
+        base = Abak::Flow::PullRequest.branch_by_prefix branch.name.split('/').first
+        
+        upstream_branch = %x(git branch -r --contain #{branch.commit.sha} | grep upstream/#{base} 2> /dev/null).strip
+        local_sha = %x(git show #{branch.name} --format=%H --no-notes 2> /dev/null | head -n 1).strip
+
+        statuses = {
+          unused: upstream_branch.empty?,
+          differ: !local_sha.empty? && local_sha != branch.commit.sha,
+          missing: local_sha.empty?
+        }
+        
+        unless statuses.values.inject &:|
+          say color("#{branch.name} → можно удалить", :debug).to_s
+          say "\n"
+          next
+        end
+        
+        diagnoses = statuses.select { |_,bool| bool }.
+                             map { |name,_| messages[name].first }.
+                             map { |msg| "   ↪ #{msg}" }.
+                             join("\n")
+
+        if statuses.select { |_,bool| bool }.keys == [:missing]
+          say color("#{branch.name} → потенциально можно удалить", :warning).to_s
+          say "#{diagnoses}\n\n"
+        else
+          say "#{branch.name}\n#{diagnoses}\n\n"
+        end
+      end
+    end
+  end
 end
