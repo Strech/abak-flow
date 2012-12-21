@@ -176,7 +176,7 @@ module Abak::Flow
   
   command :garbage do |c|
     c.syntax      = 'git request status'
-    c.description = 'Проверить пригодность удаленных (origin) веток и возможность их уничтожения'
+    c.description = 'Проверить пригодность удаленных (origin) веток и возможность их уничтожения (ветки master, develop игнорируются)'
 
     c.action do |args, options|
       config  = Abak::Flow::Config.current
@@ -192,10 +192,14 @@ module Abak::Flow
       say "=> Обновляю данные о репозитории upstream"
       %w(origin upstream).each { |remote| Hub::Runner.execute('fetch', remote, '-p') }
       
-      say "=> Загружаю список веток для origin\n"
-      github_client.branches(request.origin_project).each do |branch|
-        next if %w(master develop).include? branch.name
-        
+      say "=> Загружаю список веток для origin"
+      branches = github_client.branches(request.origin_project).
+                               reject { |branch| %w(master develop).include? branch.name }
+
+      say "=> На origin найдено веток: #{branches.count}\n\n"
+      branches.each_with_index do |branch, index|
+        index += 1
+
         base = Abak::Flow::PullRequest.branch_by_prefix branch.name.split('/').first
         
         upstream_branch = %x(git branch -r --contain #{branch.commit.sha} | grep upstream/#{base} 2> /dev/null).strip
@@ -208,21 +212,21 @@ module Abak::Flow
         }
         
         unless statuses.values.inject &:|
-          say color("#{branch.name} → можно удалить", :debug).to_s
+          say color("#{index}) #{branch.name} → можно удалить", :debug).to_s
           say "\n"
           next
         end
         
         diagnoses = statuses.select { |_,bool| bool }.
                              map { |name,_| messages[name].first }.
-                             map { |msg| "   ↪ #{msg}" }.
+                             map { |msg| "#{' ' * (index.to_s.length + 2)}   ↪ #{msg}" }.
                              join("\n")
 
         if statuses.select { |_,bool| bool }.keys == [:missing]
-          say color("#{branch.name} → потенциально можно удалить", :warning).to_s
+          say color("#{index}) #{branch.name} → потенциально можно удалить", :warning).to_s
           say "#{diagnoses}\n\n"
         else
-          say "#{branch.name}\n#{diagnoses}\n\n"
+          say "#{index}) #{branch.name}\n#{diagnoses}\n\n"
         end
       end
     end
