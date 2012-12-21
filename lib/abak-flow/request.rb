@@ -174,9 +174,9 @@ module Abak::Flow
     end
   end
   
-  command :status do |c|
+  command :garbage do |c|
     c.syntax      = 'git request status'
-    c.description = 'Проверить статус удаленных (origin) веток для возможности удаления'
+    c.description = 'Проверить пригодность удаленных (origin) веток и возможность их уничтожения'
 
     c.action do |args, options|
       config  = Abak::Flow::Config.current
