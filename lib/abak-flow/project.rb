@@ -1,0 +1,31 @@
+module Abak::Flow
+  class Project
+    
+    def self.init
+      init_remotes
+    end
+    
+    def self.init_remotes
+      git.remotes.each do |remote|
+        self.class.send :define_method, remote.name, generate_proc(remote)        
+      end
+    end
+    
+    private
+    def self.git
+      Git.open('.')
+    end
+    
+    def self.generate_proc(remote)
+      matches = /.+.github\.com\:(?<owner>.+)\/(?<project>.+).git/.match(remote.url)
+      
+      if matches.nil? || matches.captures.length != 2
+        raise Exception, "You have incorrect github remotes. Check your git config"
+      end
+
+      proc { Remote.new(matches[:owner], matches[:project]) }
+    end
+    
+    class Remote < Struct.new(:owner, :project); end
+  end
+end
