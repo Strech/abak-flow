@@ -6,3 +6,4 @@ tmp/
 .idea/
 .rvmrc
 .DS_Store
+tmtags*
