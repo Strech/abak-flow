@@ -25,7 +25,6 @@ describe Abak::Flow::Project do
   
   let(:project_class) { Abak::Flow::Project }
   
-  
   describe "when init project" do
     it "should respond to init" do
       project_class.must_respond_to :init

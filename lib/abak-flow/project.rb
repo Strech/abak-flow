@@ -1,5 +1,5 @@
 module Abak::Flow
-  class Project
+  module Project
     
     def self.init
       init_remotes
