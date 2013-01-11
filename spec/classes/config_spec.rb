@@ -10,6 +10,7 @@ describe Abak::Flow::Config do
       described_class.must_respond_to :init
     end
 
-    # Прове
+    # Проверить api_user api_token
+    # Проверить proxy
   end
 end
