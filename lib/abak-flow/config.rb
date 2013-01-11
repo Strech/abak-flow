@@ -5,9 +5,15 @@
 module Abak::Flow
   module Config
     
+    def self.configuration
+      @@configuration
+    end
+    
     def self.init
       init_git_configuration
       init_environment_configuration
+      
+      check_requirements
     end
     
     def self.init_git_configuration
@@ -15,14 +21,21 @@ module Abak::Flow
                 git.config("abak-flow.oauth_token"),
                 git.config("abak-flow.proxy_server")]
       
-      @@configuration = Cfg.new(*config)
+      @@configuration = C.new(*config)
     end
     
     def self.init_environment_configuration
-      return unless @@configuration.proxy_server.nil?
-      return if environment_http_proxy.blank?
+      return unless configuration.proxy_server.nil?
       
       @@configuration.proxy_server = environment_http_proxy
+    end
+    
+    def self.check_requirements
+      conditions = [configuration.oauth_user, configuration.oauth_token].map(&:to_s)
+      
+      if conditions.any? { |c| c.empty? }
+        raise Exception, "You have incorrect git config. Check [abak-flow] namespace"
+      end
     end
     
     private
@@ -30,10 +43,14 @@ module Abak::Flow
       Git.open('.')
     end
     
-    def environment_http_proxy
-      (ENV['http_proxy'] || ENV['HTTP_PROXY']).strip
+    def self.environment_http_proxy
+      ENV['http_proxy'] || ENV['HTTP_PROXY']
     end
     
-    class Cfg < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
+    class C < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
+    
+    C.members.each do |name|
+      self.class.send :define_method, name, proc { @@configuration[name.to_sym] }
+    end
   end
 end
