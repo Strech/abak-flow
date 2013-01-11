@@ -1,3 +1,7 @@
+# coding: utf-8
+#
+# Module for access to github repos owner and project names
+# recieved from .git repo
 module Abak::Flow
   module Project
     
