@@ -27,9 +27,14 @@ module Abak::Flow
         raise Exception, "You have incorrect github remotes. Check your git config"
       end
 
-      proc { Remote.new(matches[:owner], matches[:project]) }
+      -> { Remote.new(matches[:owner], matches[:project]) }
     end
     
-    class Remote < Struct.new(:owner, :project); end
+    class Remote < Struct.new(:owner, :project)
+      def to_s
+        "#{owner}/project"
+      end
+    end
+    
   end
 end

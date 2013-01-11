@@ -20,4 +20,7 @@ require 'commander/import'
 
 
 # New requires
+# TODO Вынести в отдельный рекваер установки цветовой схемы
+# HighLine.color_scheme = HighLine::SampleColorScheme.new
 require 'abak-flow/project'
+require 'abak-flow/config'

@@ -8,4 +8,5 @@ group :development do
   
   gem "rb-fsevent"
   gem "terminal-notifier-guard"
+  gem "flog"
 end

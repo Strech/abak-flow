@@ -50,7 +50,7 @@ module Abak::Flow
     class C < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
     
     C.members.each do |name|
-      self.class.send :define_method, name, proc { @@configuration[name.to_sym] }
+      self.class.send :define_method, name, -> { configuration[name.to_sym] }
     end
   end
 end
