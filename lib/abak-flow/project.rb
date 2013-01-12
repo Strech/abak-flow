@@ -7,8 +7,12 @@ module Abak::Flow
 
     def self.init
       init_remotes
+
+      #check_remotes
     end
 
+    # TODO Выбирать только гитхаб ремоуты или сразу искать только origin/upstream
+    # И чтобы это был гитхаб
     def self.init_remotes
       git.remotes.each do |remote|
         self.class.send :define_method, remote.name, generate_proc(remote)
