@@ -10,11 +10,14 @@ describe Abak::Flow::Config do
   let(:proxy_server) { "http://www.super-proxy.net:4080/" }
   let(:environment) { "http://www.linux-proxy.net:6666/" }
 
-  let(:git) do
+  let(:git_without_proxy) do
     git = MiniTest::Mock.new
     git.expect :config, oauth_user, ["abak-flow.oauth_user"]
     git.expect :config, oauth_token, ["abak-flow.oauth_token"]
-    git.expect :config, nil, ["abak-flow.proxy_server"]
+  end
+
+  let(:git) do
+    git_without_proxy.expect :config, nil, ["abak-flow.proxy_server"]
   end
 
   describe "when init config" do
@@ -60,9 +63,31 @@ describe Abak::Flow::Config do
 
     it "should set proxy_server from environment" do
       described_class.stub(:git, git) do
-        described_class.stub(:environment_http_proxy, "http://www.linux-proxy.net:6666/") do
+        described_class.stub(:environment_http_proxy, environment) do
           described_class.init
           described_class.proxy_server.must_equal "http://www.linux-proxy.net:6666/"
+        end
+      end
+    end
+
+    it "should set proxy_server from git config" do
+      git_without_proxy.expect :config, proxy_server, ["abak-flow.proxy_server"]
+
+      described_class.stub(:git, git) do
+        described_class.stub(:environment_http_proxy, nil) do
+          described_class.init
+          described_class.proxy_server.must_equal "http://www.super-proxy.net:4080/"
+        end
+      end
+    end
+
+    it "should set proxy_server from git config not from environment" do
+      git_without_proxy.expect :config, proxy_server, ["abak-flow.proxy_server"]
+
+      described_class.stub(:git, git) do
+        described_class.stub(:environment_http_proxy, environment) do
+          described_class.init
+          described_class.proxy_server.must_equal "http://www.super-proxy.net:4080/"
         end
       end
     end
