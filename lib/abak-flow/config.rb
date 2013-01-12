@@ -2,13 +2,15 @@
 #
 # Module for access to global abak-flow gem config
 # recieved from .git config and environment
+#
+# Auto generated methods: oauth_user, oauth_token, proxy_server
+#
+# Example
+#
+#   Abak::Flow::Config.oauth_user #=> Strech
+#
 module Abak::Flow
   module Config
-
-    def self.configuration
-      @@configuration
-    end
-
     def self.init
       init_git_configuration
       init_environment_configuration
@@ -34,11 +36,15 @@ module Abak::Flow
       conditions = [configuration.oauth_user, configuration.oauth_token].map(&:to_s)
 
       if conditions.any? { |c| c.empty? }
-        raise Exception, "You have incorrect git config. Check [abak-flow] namespace"
+        raise Exception, "You have incorrect git config. Check [abak-flow] section"
       end
     end
 
     private
+    def self.configuration
+      @@configuration
+    end
+
     def self.git
       Git.open('.')
     end
