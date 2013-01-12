@@ -26,19 +26,19 @@ describe Abak::Flow::Config do
     end
 
     it "should raise Exception" do
-      class C < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
+      class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
 
       described_class.stub(:init_git_configuration, nil) do
         described_class.stub(:init_environment_configuration, nil) do
-          described_class.stub(:configuration, C.new) do
+          described_class.stub(:params, Params.new) do
             -> { described_class.init }.must_raise Exception
           end
 
-          described_class.stub(:configuration, C.new("hello")) do
+          described_class.stub(:params, Params.new("hello")) do
             -> { described_class.init }.must_raise Exception
           end
 
-          described_class.stub(:configuration, C.new("", "hello")) do
+          described_class.stub(:params, Params.new("", "hello")) do
             -> { described_class.init }.must_raise Exception
           end
         end

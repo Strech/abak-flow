@@ -18,22 +18,27 @@ module Abak::Flow
       check_requirements
     end
 
-    def self.init_git_configuration
-      config = [git.config("abak-flow.oauth_user"),
-                git.config("abak-flow.oauth_token"),
-                git.config("abak-flow.proxy_server")]
+    def self.params
+      @@params
+    end
 
-      @@configuration = C.new(*config)
+    protected
+    def self.init_git_configuration
+      git_config = [git.config("abak-flow.oauth_user"),
+                    git.config("abak-flow.oauth_token"),
+                    git.config("abak-flow.proxy_server")]
+
+      @@params = Params.new(*git_config)
     end
 
     def self.init_environment_configuration
-      return unless configuration.proxy_server.nil?
+      return unless params.proxy_server.nil?
 
-      @@configuration.proxy_server = environment_http_proxy
+      @@params.proxy_server = environment_http_proxy
     end
 
     def self.check_requirements
-      conditions = [configuration.oauth_user, configuration.oauth_token].map(&:to_s)
+      conditions = [params.oauth_user, params.oauth_token].map(&:to_s)
 
       if conditions.any? { |c| c.empty? }
         raise Exception, "You have incorrect git config. Check [abak-flow] section"
@@ -41,10 +46,6 @@ module Abak::Flow
     end
 
     private
-    def self.configuration
-      @@configuration
-    end
-
     def self.git
       Git.open('.')
     end
@@ -53,10 +54,10 @@ module Abak::Flow
       ENV['http_proxy'] || ENV['HTTP_PROXY']
     end
 
-    class C < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
+    class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
 
-    C.members.each do |name|
-      self.class.send :define_method, name, -> { configuration[name.to_sym] }
+    Params.members.each do |name|
+      self.class.send :define_method, name, -> { params[name.to_sym] }
     end
   end
 end
