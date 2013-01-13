@@ -45,7 +45,6 @@ module Abak::Flow
       end
     end
 
-    private
     def self.git
       Git.open('.')
     end

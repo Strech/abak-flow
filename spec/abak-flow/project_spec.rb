@@ -3,25 +3,19 @@ require "spec_helper"
 require "abak-flow/project"
 
 describe Abak::Flow::Project do
-  let(:origin) do
-    repo = MiniTest::Mock.new
-    repo.expect :name, "origin"
-    repo.expect :url, "git@github.com:Strech/abak-flow.git"
+  class RemoteMock < Struct.new(:name, :url); end
+  class GitMock < Struct.new(:remotes); end
 
-    repo
+  let(:origin) do
+    RemoteMock.new "origin", "git@github.com:Strech/abak-flow.git"
   end
 
   let(:upstream) do
-    repo = MiniTest::Mock.new
-    repo.expect :name, "upstream"
-    repo.expect :url, "git@github.com:Godlike/abak-flow-new.git"
-
-    repo
+    RemoteMock.new "upstream", "http://github.com/Godlike/abak-flow-new.git"
   end
 
   let(:git) do
-    git = MiniTest::Mock.new
-    git.expect :remotes, [origin, upstream]
+    GitMock.new [origin, upstream]
   end
 
   let(:described_class) { Abak::Flow::Project }
@@ -45,16 +39,19 @@ describe Abak::Flow::Project do
       end
     end
 
-    it "should raise Exception while init" do
-      repo = MiniTest::Mock.new
-      repo.expect :name, "wrong"
-      repo.expect :url, "git@wrong-site.com:Me/wrong-flow.git"
+    it "should return nil on incorrect url" do
+      remote = RemoteMock.new "wrong", "git@wrong-site.com:Me/wrong-flow.git"
 
-      git = MiniTest::Mock.new
-      git.expect :remotes, [repo]
+      described_class.send(:create_github_remote, remote).must_be_nil
+    end
 
-      described_class.stub(:git, git) do
-        -> { described_class.init }.must_raise Exception
+    it "should raise Exception when check requirements" do
+      remote = RemoteMock.new "wrong", "git@wrong-site.com:Me/wrong-flow.git"
+
+      described_class.stub(:init_remotes, nil) do
+        described_class.stub(:remotes, [remote]) do
+          -> { described_class.init }.must_raise Exception
+        end
       end
     end
   end

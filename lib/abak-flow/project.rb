@@ -8,36 +8,55 @@ module Abak::Flow
     def self.init
       init_remotes
 
-      #check_remotes
+      check_requirements
     end
 
-    # TODO Выбирать только гитхаб ремоуты или сразу искать только origin/upstream
-    # И чтобы это был гитхаб
+    def self.remotes
+      @@remotes
+    end
+
+    protected
     def self.init_remotes
-      git.remotes.each do |remote|
-        self.class.send :define_method, remote.name, generate_proc(remote)
-      end
+      @@remotes ||= Hash[fetch_remotes_from_git]
     end
 
-    private
+    def self.required_remote_names
+      [:origin, :upstream]
+    end
+
     def self.git
       Git.open('.')
     end
 
-    def self.generate_proc(remote)
-      matches = /.+.github\.com\:(?<owner>.+)\/(?<project>.+).git/.match(remote.url)
-
-      if matches.nil? || matches.captures.length != 2
+    def self.check_requirements
+      if remotes.length != 2
         raise Exception, "You have incorrect github remotes. Check your git config"
       end
+    end
 
-      -> { Remote.new(matches[:owner], matches[:project]) }
+    def self.fetch_remotes_from_git
+      git.remotes.
+          select { |remote| required_remote_names.include? remote.name.to_sym }.
+          map { |remote| create_github_remote remote }.
+          compact
+    end
+
+    def self.create_github_remote(remote)
+      matches = /.+.github\.com[\:|\/](?<owner>.+)\/(?<project>.+).git/.match(remote.url)
+
+      if !matches.nil? && matches.captures.length == 2
+        [remote.name.to_sym, Remote.new(matches[:owner], matches[:project])]
+      end
     end
 
     class Remote < Struct.new(:owner, :project)
       def to_s
         "#{owner}/#{project}"
       end
+    end
+
+    required_remote_names.each do |name|
+      self.class.send :define_method, name, -> { remotes[name] }
     end
 
   end
