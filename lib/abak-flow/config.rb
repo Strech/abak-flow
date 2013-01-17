@@ -46,7 +46,7 @@ module Abak::Flow
     end
 
     def self.git
-      Git.open('.')
+      Git.git
     end
 
     def self.environment_http_proxy

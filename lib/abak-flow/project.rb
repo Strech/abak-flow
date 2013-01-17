@@ -4,7 +4,6 @@
 # recieved from .git repo
 module Abak::Flow
   module Project
-
     def self.init
       init_remotes
 
@@ -25,7 +24,7 @@ module Abak::Flow
     end
 
     def self.git
-      Git.open('.')
+      Git.git
     end
 
     def self.check_requirements
