@@ -5,17 +5,43 @@
 module Abak::Flow
   module Branches
     
-    # def self.branches -> make new Branch list with names
-    # def self.git -> Git.git
+    def self.current_branch
+      Branch.new git.branches[git.current_branch]
+    end
+    
+    def self.git
+      Git.git
+    end
 
     # Wrapper class for git branch.
     # Provides access to branch prefix and task name
     # See Git::Branch
     class Branch
+      attr_reader :git_branch
       
-      # def prefix
-      # def task
-      # name -> Git::Branch#name
+      PREFIX_HOTFIX = "hotfix"
+      PREFIX_FEATURE = "feature"
+      
+      def initialize(branch)
+        @git_branch = branch
+      end
+      
+      def name
+        git_branch.full
+      end
+      
+      def prefix
+      end
+      
+      def task
+      end
+      
+      # methods:
+      # => hotfix?
+      # => feature?
+      #
+      #
+      #
       
     end
   end
