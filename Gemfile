@@ -3,15 +3,14 @@ source "https://rubygems.org"
 gemspec
 
 group :development do
-  gem "minitest"
   gem "guard-minitest"
-
   gem "rb-fsevent"
   gem "flog"
 end
 
 group :test do
   gem "rake"
+  gem "minitest"
 end
 
 group :linux do
