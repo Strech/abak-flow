@@ -10,6 +10,10 @@ group :development do
   gem "flog"
 end
 
+group :test do
+  gem "rake"
+end
+
 group :linux do
   gem "libnotify"
   gem "rb-inotify"
