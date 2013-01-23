@@ -2,10 +2,10 @@ language: ruby
 before_install:
   - gem update --system
   - gem --version
-bundler_args: --without development linux mac
+bundler_args: --without development
 rvm:
-	- 1.9.3
-	- 1.8.7
+  - 1.9.2
+  - 1.9.3
 branches:
   only:
     - release-1.0
