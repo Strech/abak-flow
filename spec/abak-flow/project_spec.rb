@@ -11,16 +11,11 @@ describe Abak::Flow::Project do
     RemoteMock.new "upstream", "http://github.com/Godlike/abak-flow-new.git"
   end
 
-  let(:git) do
-    GitMock.new [origin, upstream]
-  end
-
+  let(:git) { GitMock.new [origin, upstream] }
   let(:described_class) { Abak::Flow::Project }
 
   describe "when init project" do
-    it "should respond to init" do
-      described_class.must_respond_to :init
-    end
+    it { described_class.must_respond_to :init }
 
     it "should create method origin" do
       described_class.stub(:git, git) do
