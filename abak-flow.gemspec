@@ -18,8 +18,8 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ['lib']
 
+  s.add_runtime_dependency "octokit", '>= 1.22.0'
   s.add_runtime_dependency "git", ">= 1.2.5"
-  s.add_runtime_dependency "commander", '>= 4.1.2'
-  s.add_runtime_dependency "octokit", '>= 1.19.0'
+  s.add_runtime_dependency "commander", '>= 4.1.3'
   s.add_runtime_dependency "basic_decorator", '>= 0.2.0'
 end
