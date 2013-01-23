@@ -1,6 +1,6 @@
 language: ruby
-bundler_args: "--without development"
-script: "rake spec"
+install: bundle install --without development linux mac
+script: rake spec
 rvm:
 	- 1.9.3
 	- 1.8.7
