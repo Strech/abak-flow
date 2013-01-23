@@ -3,9 +3,6 @@ require "spec_helper"
 require "abak-flow/project"
 
 describe Abak::Flow::Project do
-  class RemoteMock < Struct.new(:name, :url); end
-  class GitMock < Struct.new(:remotes); end
-
   let(:origin) do
     RemoteMock.new "origin", "git@github.com:Strech/abak-flow.git"
   end

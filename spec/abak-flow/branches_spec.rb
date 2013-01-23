@@ -3,49 +3,21 @@ require "spec_helper"
 require "abak-flow/branches"
 
 describe Abak::Flow::Branches do
-  class GitMock < Struct.new(:branches, :current_branch); end
-  class BranchMock < Struct.new(:full); end
-  
   let(:described_class) { Abak::Flow::Branches }
   let(:develop) { BranchMock.new "develop" }
   let(:master) { BranchMock.new "master" }
   let(:hotfix) { BranchMock.new "hotfix/PR-2011" }
   let(:feature) { BranchMock.new "feature/JP-515" }
-  let(:noname) { BranchMock.new "my_own/branch_name" }
+  let(:noname) { BranchMock.new "my_own/what_i_want/branch_name" }
   
   describe "Interface" do
     it "should respond to current_branch" do
       described_class.must_respond_to :current_branch
     end
   end
-  
-  describe "#current_branch" do
-    let(:git) { GitMock.new({"hotfix/PR-2011" => hotfix}, "hotfix/PR-2011") }
-    
-    it "should return new wrapped Branch" do
-      described_class.stub(:git, git) do
-        described_class.current_branch.must_be_kind_of Abak::Flow::Branches::Branch
-      end
-    end
-  end
 
   describe Abak::Flow::Branches::Branch do
     let(:described_class) { Abak::Flow::Branches::Branch }
-    let(:described_instance) { Abak::Flow::Branches::Branch.new nil }
-    
-    describe "Interface" do
-      it "should respond to name" do
-        described_instance.must_respond_to :name
-      end
-    
-      it "should respond to prefix" do
-        described_instance.must_respond_to :prefix
-      end
-      
-      it "should respond to task" do
-        described_instance.must_respond_to :task
-      end
-    end
     
     describe "#name" do
       it "should return full name from complex branch" do
@@ -58,15 +30,90 @@ describe Abak::Flow::Branches do
     end
     
     describe "#prefix" do
+      it "should return nil for branch without prefix" do
+        described_class.new(develop).prefix.must_be_nil
+      end
+      
+      it "should return 'hotfix' for branch with hotfix-prefix" do
+        described_class.new(hotfix).prefix.must_equal "hotfix"
+      end
+      
+      it "should return 'feature' for branch with feature-prefix" do
+        described_class.new(feature).prefix.must_equal "feature"
+      end
+
+      it "should return 'my_own/what_i_want' for branch with noname-prefix" do
+        described_class.new(noname).prefix.must_equal "my_own/what_i_want"
+      end
     end
     
     describe "#task" do
+      it "should return nil for branch without task-postfix" do
+        described_class.new(develop).task.must_be_nil
+      end
+      
+      it "should return 'JP-515' for branch with task-postfix" do
+        described_class.new(feature).task.must_equal "JP-515"
+      end
+
+      it "should return 'branch_name' for branch with noname-postfix" do
+        described_class.new(noname).task.must_equal "branch_name"
+      end
     end
     
     describe "#hotfix?" do
+      it "should return false for branch without prefix" do
+        described_class.new(develop).hotfix?.must_be false
+      end
+      
+      it "should return false for branch with noname-prefix" do
+        described_class.new(noname).hotfix?.must_be false
+      end
+      
+      it "should return false for branch with feature-prefix" do
+        described_class.new(feature).hotfix?.must_be false
+      end
+
+      it "should return true for branch with hotfix-prefix" do
+        described_class.new(hotfix).hotfix?.must_be true
+      end
     end
 
     describe "#feature?" do
+      it "should return false for branch without prefix" do
+        described_class.new(master).feature?.must_be false
+      end
+      
+      it "should return false for branch with noname-prefix" do
+        described_class.new(noname).feature?.must_be false
+      end
+      
+      it "should return false for branch with hotfix-prefix" do
+        described_class.new(hotfix).feature?.must_be false
+      end
+
+      it "should return true for branch with feature-prefix" do
+        described_class.new(feature).feature?.must_be true
+      end
     end
+    
+    describe "#task?" do
+      it "should return false for branch without task" do
+        described_class.new(develop).task?.must_be false
+      end
+      
+      it "should return false for branch with noname-task" do
+        described_class.new(noname).task?.must_be false
+      end
+      
+      it "should return true for branch with hotfix-prefix and task-postfix" do
+        described_class.new(hotfix).task?.must_be true
+      end
+
+      it "should return true for branch with feature-prefix and task-postfix" do
+        described_class.new(feature).task?.must_be true
+      end
+    end
+    
   end
 end

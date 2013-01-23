@@ -2,6 +2,8 @@
 #
 # Wrapper class for git branches.
 # Provides access to git branches and also defines current_branch
+require "basic_decorator"
+
 module Abak::Flow
   module Branches
     
@@ -16,32 +18,31 @@ module Abak::Flow
     # Wrapper class for git branch.
     # Provides access to branch prefix and task name
     # See Git::Branch
-    class Branch
-      attr_reader :git_branch
-      
+    class Branch < ::BasicDecorator::Decorator
       PREFIX_HOTFIX = "hotfix"
       PREFIX_FEATURE = "feature"
-      
-      def initialize(branch)
-        @git_branch = branch
-      end
+      TASK_FORMAT = //
       
       def name
-        git_branch.full
+        @component.full
       end
       
       def prefix
+        "???"
       end
       
       def task
+        "???"
       end
       
-      # methods:
-      # => hotfix?
-      # => feature?
-      #
-      #
-      #
+      def hotfix?
+      end
+      
+      def feature?
+      end
+      
+      def task?
+      end
       
     end
   end
