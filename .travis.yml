@@ -1,5 +1,5 @@
 language: ruby
-bundler_args: --without development
+bundler_args: "--without development"
 script: "rake spec"
 rvm:
 	- 1.9.3
