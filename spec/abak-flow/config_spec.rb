@@ -21,9 +21,7 @@ describe Abak::Flow::Config do
   end
 
   describe "when init config" do
-    it "should respond to init" do
-      described_class.must_respond_to :init
-    end
+    it { described_class.must_respond_to :init }
 
     it "should raise Exception" do
       class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
