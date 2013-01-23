@@ -1,4 +1,8 @@
 # coding: utf-8
+unless ENV["travis_ci"] == "on"
+  require "simplecov"
+  SimpleCov.start :test_frameworks
+end
 
 require "minitest/autorun"
 require "minitest/spec"
