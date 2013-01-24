@@ -22,4 +22,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "git", ">= 1.2.5"
   s.add_runtime_dependency "commander", '>= 4.1.3'
   s.add_runtime_dependency "basic_decorator", '>= 0.2.0'
+  s.add_runtime_dependency "ruler", '>= 1.4.2'
 end
