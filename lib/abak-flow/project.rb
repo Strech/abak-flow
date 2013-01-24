@@ -16,7 +16,7 @@ module Abak::Flow
 
     protected
     def self.init_remotes
-      @@remotes ||= Hash[fetch_remotes_from_git]
+      @@remotes = Hash[fetch_remotes_from_git]
     end
 
     def self.required_remote_names
