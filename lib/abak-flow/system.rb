@@ -1,5 +1,7 @@
 # coding: utf-8
 #
+# TODO : Выделить сообщение в какую-то другую форму
+#
 # Module for Gem & Environment settings checking
 require "ruler"
 
@@ -73,23 +75,23 @@ module Abak::Flow
     end
     reset_variables
 
-    def recomendation_set_up_origin
+    def self.recomendation_set_up_origin
       "Set up your origin"
     end
 
-    def recomendation_set_up_upstream
+    def self.recomendation_set_up_upstream
       "Set up your upstream"
     end
 
-    def recomendation_set_up_oauth_user
+    def self.recomendation_set_up_oauth_user
       "Set up your abak-flow.oauth_user"
     end
 
-    def recomendation_set_up_oauth_token
+    def self.recomendation_set_up_oauth_token
       "Set up your abak-flow.oauth_token"
     end
 
-    def information_proxy_server_set_up
+    def self.information_proxy_server_set_up
       "You set up the custom proxy server"
     end
   end
