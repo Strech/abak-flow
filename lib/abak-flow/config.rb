@@ -26,9 +26,9 @@ module Abak::Flow
 
     protected
     def self.init_git_configuration
-      git_config = [git.config["abak-flow.oauth_user"],
-                    git.config["abak-flow.oauth_token"],
-                    git.config["abak-flow.proxy_server"]]
+      git_config = [git.config["abak-flow.oauth-user"],
+                    git.config["abak-flow.oauth-token"],
+                    git.config["abak-flow.proxy-server"]]
 
       @@params = Params.new(*git_config)
     end

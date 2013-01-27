@@ -66,6 +66,8 @@ module Abak::Flow
           @@information << information_proxy_server_set_up
         end
       end
+
+      recommendations.empty? ? true : false
     end
 
     private
@@ -78,11 +80,11 @@ module Abak::Flow
     end
 
     def self.recomendation_set_up_oauth_user
-      "Set up your abak-flow.oauth_user"
+      "Set up your abak-flow.oauth-user"
     end
 
     def self.recomendation_set_up_oauth_token
-      "Set up your abak-flow.oauth_token"
+      "Set up your abak-flow.oauth-token"
     end
 
     def self.information_proxy_server_set_up

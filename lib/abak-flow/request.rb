@@ -13,7 +13,7 @@ module Abak::Flow
     c.action do |args, options|
       if System.ready?
         say_ok "Yaw, you are ready!"
-        say System.information
+        say System.information.join("\n")
       else
         say_warning "You are not prepared!"
         say System.recommendations.join("\n")

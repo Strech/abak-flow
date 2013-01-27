@@ -12,17 +12,17 @@ describe Abak::Flow::Config do
 
   let(:git_without_proxy) do
     GitMock.new nil, nil, nil, {
-      "abak-flow.oauth_user" => oauth_user,
-      "abak-flow.oauth_token" => oauth_token,
-      "abak-flow.proxy_server" => nil
+      "abak-flow.oauth-user" => oauth_user,
+      "abak-flow.oauth-token" => oauth_token,
+      "abak-flow.proxy-server" => nil
     }
   end
 
   let(:git) do
     GitMock.new nil, nil, nil, {
-      "abak-flow.oauth_user" => oauth_user,
-      "abak-flow.oauth_token" => oauth_token,
-      "abak-flow.proxy_server" => proxy_server
+      "abak-flow.oauth-user" => oauth_user,
+      "abak-flow.oauth-token" => oauth_token,
+      "abak-flow.proxy-server" => proxy_server
     }
   end
 
@@ -94,7 +94,7 @@ describe Abak::Flow::Config do
     end
 
     it "should set proxy_server from environment" do
-      git.config.merge!({"abak-flow.proxy_server" => nil})
+      git.config.merge!({"abak-flow.proxy-server" => nil})
 
       described_class.stub(:git, git) do
         described_class.stub(:environment_http_proxy, environment) do
