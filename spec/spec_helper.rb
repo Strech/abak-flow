@@ -20,6 +20,6 @@ module Abak
   end
 end
 
-class GitMock < Struct.new(:remotes, :branches, :current_branch); end
+class GitMock < Struct.new(:remotes, :branches, :current_branch, :config); end
 class BranchMock < Struct.new(:full); end
 class RemoteMock < ::Struct.new(:name, :url); end

@@ -11,13 +11,19 @@ describe Abak::Flow::Config do
   let(:environment) { "http://www.linux-proxy.net:6666/" }
 
   let(:git_without_proxy) do
-    git = MiniTest::Mock.new
-    git.expect :config, oauth_user, ["abak-flow.oauth_user"]
-    git.expect :config, oauth_token, ["abak-flow.oauth_token"]
+    GitMock.new nil, nil, nil, {
+      "abak-flow.oauth_user" => oauth_user,
+      "abak-flow.oauth_token" => oauth_token,
+      "abak-flow.proxy_server" => nil
+    }
   end
 
   let(:git) do
-    git_without_proxy.expect :config, nil, ["abak-flow.proxy_server"]
+    GitMock.new nil, nil, nil, {
+      "abak-flow.oauth_user" => oauth_user,
+      "abak-flow.oauth_token" => oauth_token,
+      "abak-flow.proxy_server" => proxy_server
+    }
   end
 
   describe "when init config" do
@@ -50,10 +56,11 @@ describe Abak::Flow::Config do
   describe "when check config" do
     describe "when all config elements missing" do
       let(:git) do
-        git = MiniTest::Mock.new
-        git.expect :config, nil, ["abak-flow.oauth_user"]
-        git.expect :config, nil, ["abak-flow.oauth_token"]
-        git.expect :config, nil, ["abak-flow.proxy_server"]
+        git = GitMock.new nil, nil, nil, {
+          "abak-flow.oauth_user" => nil,
+          "abak-flow.oauth_token" => nil,
+          "abak-flow.proxy_server" => nil
+        }
       end
 
       it "should be nil when ask oauth_user" do
@@ -62,7 +69,7 @@ describe Abak::Flow::Config do
           described_class.oauth_user.must_equal nil
         end
       end
-      
+
       it "should be nil when ask oauth_token" do
         described_class.stub(:git, git) do
           described_class.init
@@ -70,7 +77,7 @@ describe Abak::Flow::Config do
         end
       end
     end
-    
+
     it "should take oauth_user from git config" do
       described_class.stub(:git, git) do
         described_class.init
@@ -86,6 +93,8 @@ describe Abak::Flow::Config do
     end
 
     it "should set proxy_server from environment" do
+      git.config.merge!({"abak-flow.proxy_server" => nil})
+
       described_class.stub(:git, git) do
         described_class.stub(:environment_http_proxy, environment) do
           described_class.init
@@ -95,8 +104,6 @@ describe Abak::Flow::Config do
     end
 
     it "should set proxy_server from git config" do
-      git_without_proxy.expect :config, proxy_server, ["abak-flow.proxy_server"]
-
       described_class.stub(:git, git) do
         described_class.stub(:environment_http_proxy, nil) do
           described_class.init
@@ -106,8 +113,6 @@ describe Abak::Flow::Config do
     end
 
     it "should set proxy_server from git config not from environment" do
-      git_without_proxy.expect :config, proxy_server, ["abak-flow.proxy_server"]
-
       described_class.stub(:git, git) do
         described_class.stub(:environment_http_proxy, environment) do
           described_class.init

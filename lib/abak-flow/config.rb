@@ -14,6 +14,8 @@
 module Abak::Flow
   module Config
     def self.init
+      reset_variables
+
       init_git_configuration
       init_environment_configuration
     end
@@ -24,9 +26,9 @@ module Abak::Flow
 
     protected
     def self.init_git_configuration
-      git_config = [git.config("abak-flow.oauth_user"),
-                    git.config("abak-flow.oauth_token"),
-                    git.config("abak-flow.proxy_server")]
+      git_config = [git.config["abak-flow.oauth_user"],
+                    git.config["abak-flow.oauth_token"],
+                    git.config["abak-flow.proxy_server"]]
 
       @@params = Params.new(*git_config)
     end
@@ -57,6 +59,11 @@ module Abak::Flow
 
     Params.members.each do |name|
       self.class.send :define_method, name, -> { params[name.to_sym] }
+    end
+
+    private
+    def self.reset_variables
+      @@params = {}
     end
   end
 end
