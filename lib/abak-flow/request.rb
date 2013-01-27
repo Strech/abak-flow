@@ -14,7 +14,7 @@ module Abak::Flow
       if System.ready?
         say System.information
       else
-        say System.recomendadtions.join("\n")
+        say System.recommendations.join("\n")
       end
     end
 
