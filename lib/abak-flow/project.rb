@@ -22,7 +22,7 @@ module Abak::Flow
     end
 
     def self.git
-      Git.git
+      Abak::Flow::Git.git
     end
 
     def self.check_requirements
