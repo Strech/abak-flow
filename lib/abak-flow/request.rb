@@ -1,0 +1,22 @@
+# -*- encoding: utf-8 -*-
+module Abak::Flow
+  program :name, "Утилита для оформления pull request на github.com"
+  program :version, Abak::Flow::VERSION
+  program :description, "Утилита, заточенная под git-flow но с использованием github.com"
+
+  default_command :help
+
+  command :checkup do |c|
+    c.syntax      = "git request checkup"
+    c.description = "Проверить все ли настроено для работы с github и удаленными репозиториями"
+
+    c.action do |args, options|
+      if System.ready?
+        say System.information
+      else
+        say System.recomendadtions.join("\n")
+      end
+    end
+
+  end
+end

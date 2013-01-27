@@ -1,4 +1,6 @@
 # coding: utf-8
+require "octokit"
+
 module Abak::Flow
   module GithubClient
 
