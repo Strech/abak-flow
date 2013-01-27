@@ -9,8 +9,8 @@ module Abak::Flow
   module System
     extend Ruler
 
-    def self.recomendations
-      @@recomendations.dup
+    def self.recommendations
+      @@recommendations.dup
     end
 
     def self.information
@@ -47,19 +47,19 @@ module Abak::Flow
 
         # Rules
         rule [:origin_not_set_up] do
-          @@recomendations << recomendation_set_up_origin
+          @@recommendations << recomendation_set_up_origin
         end
 
         rule [:upstream_not_set_up] do
-          @@recomendations << recomendation_set_up_upstream
+          @@recommendations << recomendation_set_up_upstream
         end
 
         rule [:oauth_user_not_set_up] do
-          @@recomendations << recomendation_set_up_oauth_user
+          @@recommendations << recomendation_set_up_oauth_user
         end
 
         rule [:oauth_token_not_set_up] do
-          @@recomendations << recomendation_set_up_oauth_token
+          @@recommendations << recomendation_set_up_oauth_token
         end
 
         rule [:proxy_server_set_up] do
@@ -70,7 +70,7 @@ module Abak::Flow
 
     private
     def self.reset_variables
-      @@recomendations = []
+      @@recommendations = []
       @@information = []
     end
     reset_variables
