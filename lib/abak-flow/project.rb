@@ -6,12 +6,10 @@ module Abak::Flow
   module Project
     def self.init
       init_remotes
-
-      check_requirements
     end
 
     def self.remotes
-      @@remotes
+      @@remotes.dup
     end
 
     protected

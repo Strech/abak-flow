@@ -42,7 +42,8 @@ describe Abak::Flow::Project do
 
       described_class.stub(:init_remotes, nil) do
         described_class.stub(:remotes, [remote]) do
-          -> { described_class.init }.must_raise Exception
+          described_class.init
+          -> { described_class.check_requirements }.must_raise Exception
         end
       end
     end

@@ -29,15 +29,18 @@ describe Abak::Flow::Config do
       described_class.stub(:init_git_configuration, nil) do
         described_class.stub(:init_environment_configuration, nil) do
           described_class.stub(:params, Params.new) do
-            -> { described_class.init }.must_raise Exception
+            described_class.init
+            -> { described_class.check_requirements }.must_raise Exception
           end
 
           described_class.stub(:params, Params.new("hello")) do
-            -> { described_class.init }.must_raise Exception
+            described_class.init
+            -> { described_class.check_requirements }.must_raise Exception
           end
 
           described_class.stub(:params, Params.new("", "hello")) do
-            -> { described_class.init }.must_raise Exception
+            described_class.init
+            -> { described_class.check_requirements }.must_raise Exception
           end
         end
       end
@@ -45,6 +48,29 @@ describe Abak::Flow::Config do
   end
 
   describe "when check config" do
+    describe "when all config elements missing" do
+      let(:git) do
+        git = MiniTest::Mock.new
+        git.expect :config, nil, ["abak-flow.oauth_user"]
+        git.expect :config, nil, ["abak-flow.oauth_token"]
+        git.expect :config, nil, ["abak-flow.proxy_server"]
+      end
+
+      it "should be nil when ask oauth_user" do
+        described_class.stub(:git, git) do
+          described_class.init
+          described_class.oauth_user.must_equal nil
+        end
+      end
+      
+      it "should be nil when ask oauth_token" do
+        described_class.stub(:git, git) do
+          described_class.init
+          described_class.oauth_token.must_equal nil
+        end
+      end
+    end
+    
     it "should take oauth_user from git config" do
       described_class.stub(:git, git) do
         described_class.init

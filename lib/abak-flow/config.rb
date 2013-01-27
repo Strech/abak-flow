@@ -5,6 +5,8 @@
 #
 # Auto generated methods: oauth_user, oauth_token, proxy_server
 #
+# TODO : Проверять что атрибут из конфига валиден
+#
 # Example
 #
 #   Abak::Flow::Config.oauth_user #=> Strech
@@ -14,12 +16,10 @@ module Abak::Flow
     def self.init
       init_git_configuration
       init_environment_configuration
-
-      check_requirements
     end
 
     def self.params
-      @@params
+      @@params.dup
     end
 
     protected
