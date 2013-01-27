@@ -8,4 +8,6 @@ describe Abak::Flow::System do
   it { described_class.must_respond_to :ready? }
   it { described_class.must_respond_to :recommendations }
   it { described_class.must_respond_to :information }
+
+  # TODO : Добавить проверки что без ready? доступны метода :recommendations, :information и они не nil
 end
