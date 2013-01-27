@@ -1,9 +1,11 @@
 # coding: utf-8
 #
 # Just an incapsulation of Git Class
+require "git"
+
 module Abak::Flow
   module Git
-    
+
     def self.git
       ::Git.open('.')
     end
