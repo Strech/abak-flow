@@ -69,12 +69,6 @@ module Abak::Flow
     end
 
     private
-    def self.reset_variables
-      @@recommendations = []
-      @@information = []
-    end
-    reset_variables
-
     def self.recomendation_set_up_origin
       "Set up your origin"
     end
@@ -94,5 +88,12 @@ module Abak::Flow
     def self.information_proxy_server_set_up
       "You set up the custom proxy server"
     end
+
+    def self.reset_variables
+      @@recommendations = []
+      @@information = []
+    end
+    reset_variables
+
   end
 end

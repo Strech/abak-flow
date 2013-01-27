@@ -65,5 +65,7 @@ module Abak::Flow
     def self.reset_variables
       @@params = {}
     end
+    reset_variables
+
   end
 end

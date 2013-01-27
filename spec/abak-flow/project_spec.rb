@@ -16,6 +16,7 @@ describe Abak::Flow::Project do
 
   describe "when init project" do
     it { described_class.must_respond_to :init }
+    it { described_class.must_respond_to :remotes }
 
     it "should create method origin" do
       described_class.stub(:git, git) do

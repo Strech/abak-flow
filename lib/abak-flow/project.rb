@@ -5,6 +5,7 @@
 module Abak::Flow
   module Project
     def self.init
+      reset_variables
       init_remotes
     end
 
@@ -55,6 +56,12 @@ module Abak::Flow
     required_remote_names.each do |name|
       self.class.send :define_method, name, -> { remotes[name] }
     end
+
+    private
+    def self.reset_variables
+      @@remotes = {}
+    end
+    reset_variables
 
   end
 end
