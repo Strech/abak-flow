@@ -20,8 +20,8 @@ module Abak::Flow
     def self.ready?
       reset_variables
 
-      ::Abak::Flow::Project.init
-      ::Abak::Flow::Config.init
+      Project.init
+      Config.init
 
       multi_ruleset do
         # Facts

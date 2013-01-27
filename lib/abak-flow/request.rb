@@ -12,8 +12,10 @@ module Abak::Flow
 
     c.action do |args, options|
       if System.ready?
+        say "Yaw, you are ready!"
         say System.information
       else
+        say "You are not prepared!"
         say System.recommendations.join("\n")
       end
     end

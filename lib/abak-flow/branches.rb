@@ -10,7 +10,7 @@ module Abak::Flow
     end
 
     def self.git
-      ::Abak::Flow::Git.git
+      Git.git
     end
 
   end
