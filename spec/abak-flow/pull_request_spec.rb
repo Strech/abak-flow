@@ -35,9 +35,10 @@ describe Abak::Flow::PullRequest do
 
     it { subject.must_respond_to :valid? }
     it { subject.must_respond_to :invalid? }
-    it { subject.must_respond_to :recommendations }
     it { subject.must_respond_to :publish }
     it { subject.must_respond_to :publish! }
+
+    it { subject.must_respond_to :recommendations }
   end
 
   describe "Initialize process" do
@@ -51,6 +52,37 @@ describe Abak::Flow::PullRequest do
 
     it { subject.options.wont_be_nil }
     it { subject.recommendations.must_be_empty }
+  end
+
+  describe "Inner methods" do
+    describe "#title" do
+      describe "when have only branch name" do
+        let(:branch) { CurrentBranchMock.new "hello" }
+        before { Abak::Flow::PullRequest::Branches.current_branch = branch }
+
+        subject { Abak::Flow::PullRequest.new }
+
+        it { subject.send(:title).must_equal "hello" }
+      end
+
+      describe "when have only option task" do
+        let(:branch) { CurrentBranchMock.new nil }
+        before { Abak::Flow::PullRequest::Branches.current_branch = branch }
+
+        subject { Abak::Flow::PullRequest.new({title: "megusta"}) }
+
+        it { subject.send(:title).must_equal "megusta" }
+      end
+
+      describe "when have option task and branch name" do
+        let(:branch) { CurrentBranchMock.new "tako" }
+        before { Abak::Flow::PullRequest::Branches.current_branch = branch }
+
+        subject { Abak::Flow::PullRequest.new({title: "burito"}) }
+
+        it { subject.send(:title).must_equal "tako :: burito" }
+      end
+    end
   end
 
   describe "Pushing process" do
@@ -175,9 +207,8 @@ describe Abak::Flow::PullRequest do
       end
 
       describe "when pull request is invalid" do
-        before do
-          Abak::Flow::PullRequest::Branches.current_branch = CurrentBranchMock.new(false)
-        end
+        let(:branch) { CurrentBranchMock.new(false) }
+        before { Abak::Flow::PullRequest::Branches.current_branch = branch }
 
         it "should not satisfy requirements" do
           subject.send(:requirements_satisfied?).must_equal false
@@ -191,6 +222,6 @@ describe Abak::Flow::PullRequest do
         end
       end
     end
-
   end
+
 end

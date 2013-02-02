@@ -49,6 +49,9 @@ module Abak::Flow
       raise Exception, "Pull request is invalid" if invalid? && raise_exceptions
       return false if invalid?
 
+      #git.push("origin", current_branch.name)
+      #connection.create_pull_request(upstream.to_s, target, current_branch.name, title, body)
+
       true
     end
 
@@ -57,7 +60,10 @@ module Abak::Flow
     end
 
     private
+    def_delegators "Git", :git
+    def_delegators "Project", :upstream
     def_delegators "Branches", :current_branch
+    def_delegators "GithubClient", :connection
 
     # Pull request must have title, title it's a branch name if branch is hotfix
     # or feature. Unless title option must be specify
@@ -69,7 +75,7 @@ module Abak::Flow
       multi_ruleset do
         # Facts
         fact :title_not_present do
-          !options.has_key? :title
+          !options.has_key?(:title) || options[:title].empty?
         end
 
         fact :invalid_task_name do
@@ -92,6 +98,10 @@ module Abak::Flow
 
     def specify_title_recommendation
       "Please specify title for your request"
+    end
+
+    def title
+      [current_branch.task, options[:title]].compact.join(" :: ")
     end
 
     # ==========================================================================
