@@ -6,10 +6,11 @@ require "ruler"
 module Abak::Flow
   class PullRequest
     include Ruler
+    extend Forwardable
 
     attr_reader :options
 
-    # Creates new pull request
+    # New pull request
     #
     # options - Hash with options
     #           target - target branch name
@@ -31,7 +32,9 @@ module Abak::Flow
     end
 
     def valid?
-      System.ready?
+      return false unless System.ready?
+
+      requirements_satisfied?
     end
 
     def invalid?
@@ -39,10 +42,16 @@ module Abak::Flow
     end
 
     def recommendations
-      @recommendations | System.recommendations
+      System.recommendations | @recommendations
     end
 
     private
+    def_delegators "Branches", :current_branch
+
+    # Pull request must have title, title it's a branch name if branch is hotfix
+    # or feature. Unless title option must be specify
+    #
+    # Returns TrueClass or FalseClass
     def requirements_satisfied?
       @recommendations = []
 
@@ -52,9 +61,13 @@ module Abak::Flow
           !options.has_key? :title
         end
 
+        fact :invalid_task_name do
+          !current_branch.task?
+        end
+
         # Rules
-        rule [:title_not_present] do
-          @recommendations << "???"
+        rule [:title_not_present, :invalid_task_name] do
+          @recommendations << specify_title_recommendation
         end
       end
 
@@ -64,6 +77,10 @@ module Abak::Flow
     def init_dependences
       Project.init
       Config.init
+    end
+
+    def specify_title_recommendation
+      "Please specify title for your request"
     end
 
     # ==========================================================================
