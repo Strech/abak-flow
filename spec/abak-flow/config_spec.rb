@@ -3,7 +3,7 @@ require "spec_helper"
 require "abak-flow/config"
 
 describe Abak::Flow::Config do
-  let(:described_class) { Abak::Flow::Config }
+  subject { Abak::Flow::Config }
 
   let(:oauth_user) { "Admin" }
   let(:oauth_token) { "0123456789" }
@@ -27,27 +27,27 @@ describe Abak::Flow::Config do
   end
 
   describe "when init config" do
-    it { described_class.must_respond_to :init }
-    it { described_class.must_respond_to :params }
+    it { subject.must_respond_to :init }
+    it { subject.must_respond_to :params }
 
     it "should raise Exception" do
       class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
 
-      described_class.stub(:init_git_configuration, nil) do
-        described_class.stub(:init_environment_configuration, nil) do
-          described_class.stub(:params, Params.new) do
-            described_class.init
-            -> { described_class.check_requirements }.must_raise Exception
+      subject.stub(:init_git_configuration, nil) do
+        subject.stub(:init_environment_configuration, nil) do
+          subject.stub(:params, Params.new) do
+            subject.init
+            -> { subject.check_requirements }.must_raise Exception
           end
 
-          described_class.stub(:params, Params.new("hello")) do
-            described_class.init
-            -> { described_class.check_requirements }.must_raise Exception
+          subject.stub(:params, Params.new("hello")) do
+            subject.init
+            -> { subject.check_requirements }.must_raise Exception
           end
 
-          described_class.stub(:params, Params.new("", "hello")) do
-            described_class.init
-            -> { described_class.check_requirements }.must_raise Exception
+          subject.stub(:params, Params.new("", "hello")) do
+            subject.init
+            -> { subject.check_requirements }.must_raise Exception
           end
         end
       end
@@ -65,59 +65,59 @@ describe Abak::Flow::Config do
       end
 
       it "should be nil when ask oauth_user" do
-        described_class.stub(:git, git) do
-          described_class.init
-          described_class.oauth_user.must_equal nil
+        subject.stub(:git, git) do
+          subject.init
+          subject.oauth_user.must_equal nil
         end
       end
 
       it "should be nil when ask oauth_token" do
-        described_class.stub(:git, git) do
-          described_class.init
-          described_class.oauth_token.must_equal nil
+        subject.stub(:git, git) do
+          subject.init
+          subject.oauth_token.must_equal nil
         end
       end
     end
 
     it "should take oauth_user from git config" do
-      described_class.stub(:git, git) do
-        described_class.init
-        described_class.oauth_user.must_equal "Admin"
+      subject.stub(:git, git) do
+        subject.init
+        subject.oauth_user.must_equal "Admin"
       end
     end
 
     it "should take oauth_token from git config" do
-      described_class.stub(:git, git) do
-        described_class.init
-        described_class.oauth_token.must_equal "0123456789"
+      subject.stub(:git, git) do
+        subject.init
+        subject.oauth_token.must_equal "0123456789"
       end
     end
 
     it "should set proxy_server from environment" do
       git.config.merge!({"abak-flow.proxy-server" => nil})
 
-      described_class.stub(:git, git) do
-        described_class.stub(:environment_http_proxy, environment) do
-          described_class.init
-          described_class.proxy_server.must_equal "http://www.linux-proxy.net:6666/"
+      subject.stub(:git, git) do
+        subject.stub(:environment_http_proxy, environment) do
+          subject.init
+          subject.proxy_server.must_equal "http://www.linux-proxy.net:6666/"
         end
       end
     end
 
     it "should set proxy_server from git config" do
-      described_class.stub(:git, git) do
-        described_class.stub(:environment_http_proxy, nil) do
-          described_class.init
-          described_class.proxy_server.must_equal "http://www.super-proxy.net:4080/"
+      subject.stub(:git, git) do
+        subject.stub(:environment_http_proxy, nil) do
+          subject.init
+          subject.proxy_server.must_equal "http://www.super-proxy.net:4080/"
         end
       end
     end
 
     it "should set proxy_server from git config not from environment" do
-      described_class.stub(:git, git) do
-        described_class.stub(:environment_http_proxy, environment) do
-          described_class.init
-          described_class.proxy_server.must_equal "http://www.super-proxy.net:4080/"
+      subject.stub(:git, git) do
+        subject.stub(:environment_http_proxy, environment) do
+          subject.init
+          subject.proxy_server.must_equal "http://www.super-proxy.net:4080/"
         end
       end
     end
