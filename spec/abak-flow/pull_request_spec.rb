@@ -36,6 +36,8 @@ describe Abak::Flow::PullRequest do
     it { subject.must_respond_to :valid? }
     it { subject.must_respond_to :invalid? }
     it { subject.must_respond_to :recommendations }
+    it { subject.must_respond_to :publish }
+    it { subject.must_respond_to :publish! }
   end
 
   describe "Initialize process" do
@@ -51,89 +53,144 @@ describe Abak::Flow::PullRequest do
     it { subject.recommendations.must_be_empty }
   end
 
-  describe "when system is not ready" do
-    before do
-      Abak::Flow::PullRequest::System.ready = false
-      Abak::Flow::PullRequest::System.recommendations = %w[one two three]
-    end
-
+  describe "Pushing process" do
     subject { Abak::Flow::PullRequest.new }
 
-    describe "when pull request is valid" do
-      it "should not be valid pull request" do
-        subject.stub(:requirements_satisfied?, true) do
-          subject.valid?.must_equal false
-        end
+    describe "when something goes wrong" do
+      describe "when system is not ready" do
+        before { Abak::Flow::PullRequest::System.ready = false }
+
+        it { subject.publish.must_equal false }
       end
 
-      it "should be invalid request" do
-        subject.stub(:requirements_satisfied?, true) do
-          subject.invalid?.must_equal true
-        end
-      end
+      describe "when pull request is invalid" do
+        before { Abak::Flow::PullRequest::System.ready = true }
 
-      it "should have system recommendations" do
-        subject.stub(:requirements_satisfied?, true) do
-          subject.valid?
-          subject.recommendations.must_equal %w[one two three]
+        it "should be false" do
+          subject.stub(:invalid?, true) do
+            subject.publish.must_equal false
+          end
         end
       end
     end
 
-    describe "when pull request is invalid" do
-      it "should have only system recommendations" do
-        subject.stub(:requirements_satisfied?, false) do
-          subject.valid?
-          subject.recommendations.must_equal %w[one two three]
+    describe "when all right" do
+      before { Abak::Flow::PullRequest::System.ready = true }
+
+      it "shoud return true" do
+        subject.stub(:requirements_satisfied?, true) do
+          subject.publish.must_equal true
+        end
+      end
+
+    end
+
+    describe "when use bang! method" do
+      describe "when something goes wrong" do
+        before { Abak::Flow::PullRequest::System.ready = false }
+
+        it { -> { subject.publish! }.must_raise Exception }
+      end
+
+      describe "when all right" do
+        before { Abak::Flow::PullRequest::System.ready = true }
+
+        it "shoud not raise Exception" do
+          subject.stub(:requirements_satisfied?, true) do
+            -> { subject.publish! }.must_be_silent
+          end
         end
       end
     end
+
   end
 
-  describe "when system is ready" do
-    before do
-      Abak::Flow::PullRequest::System.ready = true
-      Abak::Flow::PullRequest::System.recommendations = []
-    end
-
-    subject { Abak::Flow::PullRequest.new }
-
-    describe "when pull request is valid" do
-      it "should be valid pull request" do
-        subject.stub(:requirements_satisfied?, true) do
-          subject.valid?.must_equal true
-        end
-      end
-
-      it "should not be invalid request" do
-        subject.stub(:requirements_satisfied?, true) do
-          subject.invalid?.must_equal false
-        end
-      end
-
-      it "should not have system recommendations" do
-        subject.stub(:requirements_satisfied?, true) do
-          subject.valid?
-          subject.recommendations.must_be_empty
-        end
-      end
-    end
-
-    describe "when pull request is invalid" do
+  describe "Validation process" do
+    describe "when system is not ready" do
       before do
-        Abak::Flow::PullRequest::Branches.current_branch = CurrentBranchMock.new(false)
+        Abak::Flow::PullRequest::System.ready = false
+        Abak::Flow::PullRequest::System.recommendations = %w[one two three]
       end
 
-      it "should not satisfy requirements" do
-        subject.send(:requirements_satisfied?).must_equal false
+      subject { Abak::Flow::PullRequest.new }
+
+      describe "when pull request is valid" do
+        it "should not be valid pull request" do
+          subject.stub(:requirements_satisfied?, true) do
+            subject.valid?.must_equal false
+          end
+        end
+
+        it "should be invalid request" do
+          subject.stub(:requirements_satisfied?, true) do
+            subject.invalid?.must_equal true
+          end
+        end
+
+        it "should have system recommendations" do
+          subject.stub(:requirements_satisfied?, true) do
+            subject.valid?
+            subject.recommendations.must_equal %w[one two three]
+          end
+        end
       end
 
-      it "should have recommendations" do
-        subject.stub(:specify_title_recommendation, "hello") do
-          subject.valid?
-          subject.recommendations.must_equal %w[hello]
+      describe "when pull request is invalid" do
+        it "should have only system recommendations" do
+          subject.stub(:requirements_satisfied?, false) do
+            subject.valid?
+            subject.recommendations.must_equal %w[one two three]
+          end
         end
       end
     end
+
+    describe "when system is ready" do
+      before do
+        Abak::Flow::PullRequest::System.ready = true
+        Abak::Flow::PullRequest::System.recommendations = []
+      end
+
+      subject { Abak::Flow::PullRequest.new }
+
+      describe "when pull request is valid" do
+        it "should be valid pull request" do
+          subject.stub(:requirements_satisfied?, true) do
+            subject.valid?.must_equal true
+          end
+        end
+
+        it "should not be invalid request" do
+          subject.stub(:requirements_satisfied?, true) do
+            subject.invalid?.must_equal false
+          end
+        end
+
+        it "should not have system recommendations" do
+          subject.stub(:requirements_satisfied?, true) do
+            subject.valid?
+            subject.recommendations.must_be_empty
+          end
+        end
+      end
+
+      describe "when pull request is invalid" do
+        before do
+          Abak::Flow::PullRequest::Branches.current_branch = CurrentBranchMock.new(false)
+        end
+
+        it "should not satisfy requirements" do
+          subject.send(:requirements_satisfied?).must_equal false
+        end
+
+        it "should have recommendations" do
+          subject.stub(:specify_title_recommendation, "hello") do
+            subject.valid?
+            subject.recommendations.must_equal %w[hello]
+          end
+        end
+      end
+    end
+
   end
 end

@@ -42,7 +42,18 @@ module Abak::Flow
     end
 
     def recommendations
-      System.recommendations | @recommendations
+      System.recommendations | @recommendations.dup
+    end
+
+    def publish(raise_exceptions = false)
+      raise Exception, "Pull request is invalid" if invalid? && raise_exceptions
+      return false if invalid?
+
+      true
+    end
+
+    def publish!
+      publish(true)
     end
 
     private
