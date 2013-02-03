@@ -13,9 +13,9 @@ module Abak::Flow
     # New pull request
     #
     # options - Hash with options
-    #           target - target branch name
-    #           title  - pull request title
-    #           body   - pull request body
+    #           branch  - target branch name
+    #           title   - pull request title
+    #           comment - pull request additional comment
     #
     # Examples
     #   pr = PullRequest.new(*attrs)
@@ -49,8 +49,7 @@ module Abak::Flow
       raise Exception, "Pull request is invalid" if invalid? && raise_exceptions
       return false if invalid?
 
-      #git.push("origin", current_branch.name)
-      #connection.create_pull_request(upstream.to_s, target, current_branch.name, title, body)
+      publish_pull_request
 
       true
     end
@@ -74,17 +73,21 @@ module Abak::Flow
 
       multi_ruleset do
         # Facts
-        fact :title_not_present do
-          !options.has_key?(:title) || options[:title].empty?
+        fact :invalid_request_title do
+          title.empty?
         end
 
-        fact :invalid_task_name do
-          !current_branch.task?
+        fact :invalid_targe_branch do
+          branch.nil?
         end
 
         # Rules
-        rule [:title_not_present, :invalid_task_name] do
+        rule [:invalid_request_title] do
           @recommendations << specify_title_recommendation
+        end
+
+        rule [:invalid_targe_branch] do
+          @recommendations << specify_branch_recommendation
         end
       end
 
@@ -100,8 +103,44 @@ module Abak::Flow
       "Please specify title for your request"
     end
 
+    def specify_branch_recommendation
+      "Please specify target branch for your request"
+    end
+
+    def forgot_task_text
+      "Sorry, i forgot my task number. Ask me personally if you have any questions"
+    end
+
     def title
       [current_branch.task, options[:title]].compact.join(" :: ")
+    end
+
+    def comment
+      parts = [default_comment, options[:comment]].compact
+
+      parts.empty? ? forgot_task_text : parts.join("\n\n")
+    end
+
+    def branch
+      return options[:branch] unless options[:branch].nil?
+
+      branch_mapping.select { |method,_| current_branch.send "#{method}?" }.
+                     values.first
+    end
+
+    def publish_pull_request
+      git.push("origin", current_branch.name)
+
+      opts = [upstream.to_s, branch, current_branch.name, title, comment]
+      connection.create_pull_request(*opts)
+    end
+
+    def default_comment
+      "http://jira.dev.apress.ru/browse/#{current_branch.task}" if current_branch.task?
+    end
+
+    def branch_mapping
+      {feature: "develop", hotfix: "master"}
     end
 
     # ==========================================================================
@@ -109,7 +148,6 @@ module Abak::Flow
     # 2. Pull request publishing
     #
     # => pr = PullRequest.new(*attrs)
-    # => pr.published?
     # => pr.publish
     # => pr.url
 
