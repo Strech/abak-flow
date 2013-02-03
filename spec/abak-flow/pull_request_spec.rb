@@ -1,35 +1,48 @@
 # coding: utf-8
 require "spec_helper"
-require "abak-flow/pull_request"
+#require "abak-flow/pull_request"
 
 # Stubs
-module Abak::Flow::PullRequest::Project
-  def self.init; end
-end
+class Abak::Flow::PullRequest
+  module Git
+    def self.git; end
+  end
 
-module Abak::Flow::PullRequest::Config
-  def self.init; end
-end
+  module GithubClient
+    def self.connection; end
+  end
 
-module Abak::Flow::PullRequest::System
-  class << self
-    attr_accessor :ready, :recommendations
+  module Project
+    def self.init; end
+  end
 
-    def ready?; ready end
+  module Config
+    def self.init; end
+  end
+
+  module System
+    class << self
+      attr_accessor :ready, :recommendations
+
+      def ready?; ready end
+    end
+  end
+
+  module Branches
+    class << self
+      attr_accessor :current_branch
+    end
   end
 end
 
-module Abak::Flow::PullRequest::Branches
-  class << self
-    attr_accessor :current_branch
-  end
-end
-
-class CurrentBranchMock < Struct.new(:task, :type)
-  def task?; task end
+# TODO : Переписать
+class CurrentBranchMock < Struct.new(:tracker_task, :type)
+  def task?; tracker_task end
   def feature?; type == "feature" end
   def hotfix?; type == "hotfix" end
 end
+
+require "abak-flow/pull_request"
 
 describe Abak::Flow::PullRequest do
   describe "Methods of instance" do
@@ -42,6 +55,7 @@ describe Abak::Flow::PullRequest do
 
     it { subject.must_respond_to :recommendations }
     it { subject.must_respond_to :github_link }
+    it { subject.must_respond_to :exception }
   end
 
   describe "Initialize process" do
@@ -161,7 +175,7 @@ describe Abak::Flow::PullRequest do
     end
   end
 
-  describe "Pushing process" do
+  describe "Publishing process" do
     subject { Abak::Flow::PullRequest.new }
 
     describe "when something goes wrong" do
@@ -169,6 +183,13 @@ describe Abak::Flow::PullRequest do
         before { Abak::Flow::PullRequest::System.ready = false }
 
         it { subject.publish.must_equal false }
+
+        it "should store exception" do
+          subject.stub(:invalid?, true) do
+            subject.publish
+            subject.exception.wont_be_nil
+          end
+        end
       end
 
       describe "when pull request is invalid" do
@@ -177,6 +198,33 @@ describe Abak::Flow::PullRequest do
         it "should be false" do
           subject.stub(:invalid?, true) do
             subject.publish.must_equal false
+          end
+        end
+      end
+
+      describe "when something raise exception" do
+        before { Abak::Flow::PullRequest::System.ready = true }
+
+        it "should not raise exception" do
+          raise_object = NObject.new
+          raise_object.instance_eval { def _links; raise Exception end }
+
+          subject.stub(:invalid?, false) do
+            subject.stub(:publish_pull_request, raise_object) do
+              -> { subject.publish }.must_be_silent
+            end
+          end
+        end
+
+        it "should store exception" do
+          raise_object = NObject.new
+          raise_object.instance_eval { def _links; raise Exception end }
+
+          subject.stub(:invalid?, false) do
+            subject.stub(:publish_pull_request, raise_object) do
+              subject.publish
+              subject.exception.wont_be_nil
+            end
           end
         end
       end
@@ -192,14 +240,30 @@ describe Abak::Flow::PullRequest do
           end
         end
       end
-
     end
 
     describe "when use bang! method" do
       describe "when something goes wrong" do
-        before { Abak::Flow::PullRequest::System.ready = false }
+        describe "when we raise exception" do
+          before { Abak::Flow::PullRequest::System.ready = false }
 
-        it { -> { subject.publish! }.must_raise Exception }
+          it { -> { subject.publish! }.must_raise Exception }
+        end
+
+        describe "when something raise exception" do
+          before { Abak::Flow::PullRequest::System.ready = true }
+
+          it "should raise exception" do
+            raise_object = NObject.new
+            raise_object.instance_eval { def _links; raise Exception end }
+
+            subject.stub(:invalid?, false) do
+              subject.stub(:publish_pull_request, raise_object) do
+                -> { subject.publish! }.must_raise Exception
+              end
+            end
+          end
+        end
       end
 
       describe "when all right" do
@@ -232,7 +296,6 @@ describe Abak::Flow::PullRequest do
           end
         end
       end
-
     end
   end
 
@@ -358,5 +421,4 @@ describe Abak::Flow::PullRequest do
       end
     end
   end
-
 end

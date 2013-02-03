@@ -19,6 +19,35 @@ module Abak::Flow
         say System.recommendations.join("\n")
       end
     end
-
   end
+
+  command :publish do |c|
+    c.syntax      = "git request publish"
+    c.description = "Оформить pull request в upstream репозиторий"
+
+    c.option "-t", "--title STRING", String, "Заголовок для вашего pull request"
+    c.option "-c", "--comment STRING", String, "Комментарии для вашего pull request"
+    c.option "-b", "--branch STRING", String, "Имя ветки, в которую нужно принять изменения"
+
+    c.action do |args, options|
+      opts = {branch: options.branch, title: options.title, comment: options.comment}
+      request = PullRequest.new(opts)
+
+      if request.valid?
+        say "Let's do it!"
+        if request.publish
+          say_ok "Yaw, your request publishing"
+          say request.github_link
+        else
+          say_error "Goddamned, something goes wrong"
+          say request.exception.message
+          say request.exception.backtrace.join("\n")
+        end
+      else
+        say_warning "You are not prepared!"
+        say request.recommendations.join("\n")
+      end
+    end
+  end
+
 end

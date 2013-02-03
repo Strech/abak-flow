@@ -13,6 +13,9 @@
 #
 module Abak::Flow
   module Config
+
+    # TODO : Добавить проверку, что если инициализировано,
+    #        то повторно не делать этого
     def self.init
       reset_variables
 
@@ -55,7 +58,11 @@ module Abak::Flow
       ENV['http_proxy'] || ENV['HTTP_PROXY']
     end
 
-    class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
+    class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server)
+      def to_hash
+        Hash[members.map { |m| [m, self.send(m)] }]
+      end
+    end
 
     Params.members.each do |name|
       self.class.send :define_method, name, -> { params[name.to_sym] }

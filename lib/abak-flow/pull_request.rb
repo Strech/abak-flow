@@ -10,6 +10,7 @@ module Abak::Flow
 
     attr_reader :options
     attr_reader :github_link
+    attr_reader :exception
 
     # New pull request
     #
@@ -47,12 +48,24 @@ module Abak::Flow
     end
 
     def publish(raise_exceptions = false)
-      raise Exception, "Pull request is invalid" if invalid? && raise_exceptions
-      return false if invalid?
+      @exception = nil
 
-      response = publish_pull_request
+      if invalid?
+        @exception = Exception.new("Pull request is invalid")
 
-      @github_link = response._links.html.href
+        raise @exception if raise_exceptions
+        return false
+      end
+
+      begin
+        response = publish_pull_request
+        @github_link = response._links.html.href
+      rescue Exception => error
+        raise if raise_exceptions
+
+        @exception = error
+        return false
+      end
 
       true
     end
@@ -62,10 +75,10 @@ module Abak::Flow
     end
 
     private
-    def_delegators "Git", :git
-    def_delegators "Project", :upstream
-    def_delegators "Branches", :current_branch
-    def_delegators "GithubClient", :connection
+    def_delegators Git, :git
+    def_delegators Project, :upstream
+    def_delegators Branches, :current_branch
+    def_delegators GithubClient, :connection
 
     # Pull request must have title, title it's a branch name if branch is hotfix
     # or feature. Unless title option must be specify
@@ -115,7 +128,7 @@ module Abak::Flow
     end
 
     def title
-      [current_branch.task, options[:title]].compact.join(" :: ")
+      [current_branch.tracker_task, options[:title]].compact.join(" :: ")
     end
 
     def comment
@@ -131,15 +144,18 @@ module Abak::Flow
                      values.first
     end
 
+    # TODO : Вынести формирование имени ветки в отдельный метод
     def publish_pull_request
       git.push("origin", current_branch.name)
 
-      opts = [upstream.to_s, branch, current_branch.name, title, comment]
+      opts = [upstream.to_s, branch, "#{Project.origin.owner}:#{current_branch.name}", title, comment]
       connection.create_pull_request(*opts)
     end
 
+
+    # TODO : Вынести урл для трекера в отдельный метод
     def default_comment
-      "http://jira.dev.apress.ru/browse/#{current_branch.task}" if current_branch.task?
+      "http://jira.dev.apress.ru/browse/#{current_branch.tracker_task}" if current_branch.task?
     end
 
     def branch_mapping

@@ -50,4 +50,9 @@ describe Abak::Flow::Branch do
     it { subject.new(feature).task?.must_equal true }
   end
 
+  describe "#tracker_task" do
+    it { subject.new(develop).tracker_task.must_be_nil }
+    it { subject.new(feature).tracker_task.must_equal "JP-515" }
+    it { subject.new(noname).tracker_task.must_be_nil }
+  end
 end
