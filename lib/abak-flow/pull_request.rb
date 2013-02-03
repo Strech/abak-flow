@@ -147,13 +147,6 @@ module Abak::Flow
     end
 
     # ==========================================================================
-
-    # 2. Pull request publishing
-    #
-    # => pr = PullRequest.new(*attrs)
-    # => pr.publish
-    # => pr.url
-
     # 3. Statistics & Cleaning
     #
     # => PullRequest.garbage

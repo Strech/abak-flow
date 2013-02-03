@@ -215,6 +215,25 @@ describe Abak::Flow::PullRequest do
       end
     end
 
+    describe "#github_link" do
+      describe "when request not published" do
+        it { subject.github_link.must_be_nil }
+      end
+
+      describe "when request successfully published" do
+        before { Abak::Flow::PullRequest::System.ready = true }
+
+        it "shoud set github link" do
+          subject.stub(:requirements_satisfied?, true) do
+            subject.stub(:publish_pull_request, NObject.new({href: "wow"})) do
+              subject.publish
+              subject.github_link.must_equal "wow"
+            end
+          end
+        end
+      end
+
+    end
   end
 
   describe "Validation process" do

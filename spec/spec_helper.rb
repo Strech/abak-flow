@@ -30,14 +30,16 @@ class RemoteMock < ::Struct.new(:name, :url); end
 # NullObject based on OpenStruct class
 # All unexisting methods return self
 #
+# See OpenStruct
+#
 # Examples
 #
-# null = NObject.new
-# null.pew                  # => <NObject ...>
-# null.pew = 1              # => 1
-# null.pew                  # => 1
-# null.hello.this.is.me.pew # => 1
-# null.hello                # => <NObject pew=1...>
+#   null = NObject.new
+#   null.pew                  # => <NObject ...>
+#   null.pew = 1              # => 1
+#   null.pew                  # => 1
+#   null.hello.this.is.me.pew # => 1
+#   null.hello                # => <NObject pew=1...>
 #
 class NObject < OpenStruct
   def method_missing(m, *a, &b)
