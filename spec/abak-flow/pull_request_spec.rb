@@ -41,6 +41,7 @@ describe Abak::Flow::PullRequest do
     it { subject.must_respond_to :publish! }
 
     it { subject.must_respond_to :recommendations }
+    it { subject.must_respond_to :github_link }
   end
 
   describe "Initialize process" do
@@ -186,7 +187,7 @@ describe Abak::Flow::PullRequest do
 
       it "shoud return true" do
         subject.stub(:requirements_satisfied?, true) do
-          subject.stub(:publish_pull_request, nil) do
+          subject.stub(:publish_pull_request, NObject.new) do
             subject.publish.must_equal true
           end
         end
@@ -206,7 +207,7 @@ describe Abak::Flow::PullRequest do
 
         it "shoud not raise Exception" do
           subject.stub(:requirements_satisfied?, true) do
-            subject.stub(:publish_pull_request, nil) do
+            subject.stub(:publish_pull_request, NObject.new) do
               -> { subject.publish! }.must_be_silent
             end
           end

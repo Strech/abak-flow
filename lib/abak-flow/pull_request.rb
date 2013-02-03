@@ -9,6 +9,7 @@ module Abak::Flow
     extend Forwardable
 
     attr_reader :options
+    attr_reader :github_link
 
     # New pull request
     #
@@ -49,7 +50,9 @@ module Abak::Flow
       raise Exception, "Pull request is invalid" if invalid? && raise_exceptions
       return false if invalid?
 
-      publish_pull_request
+      response = publish_pull_request
+
+      @github_link = response._links.html.href
 
       true
     end
