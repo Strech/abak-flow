@@ -14,8 +14,7 @@
 module Abak::Flow
   module Config
 
-    # TODO : Добавить проверку, что если инициализировано,
-    #        то повторно не делать этого
+    # TODO : Уметь запоминать, что инициализация уже была
     def self.init
       reset_variables
 

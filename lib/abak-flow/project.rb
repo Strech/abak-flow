@@ -4,6 +4,8 @@
 # recieved from .git repo
 module Abak::Flow
   module Project
+
+    # TODO : Уметь запоминать, что инициализация уже была
     def self.init
       reset_variables
       init_remotes
