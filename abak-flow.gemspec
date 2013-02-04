@@ -23,4 +23,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "commander", '>= 4.1.3'
   s.add_runtime_dependency "basic_decorator", '>= 0.2.0'
   s.add_runtime_dependency "ruler", '>= 1.4.2'
+  s.add_runtime_dependency "i18n", '>= 0.6.1'
 end

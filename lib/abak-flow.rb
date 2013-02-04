@@ -17,3 +17,4 @@ require "abak-flow/pull_request"
 require "abak-flow/version"
 
 require "commander/import"
+require "i18n"

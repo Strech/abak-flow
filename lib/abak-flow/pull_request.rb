@@ -145,6 +145,7 @@ module Abak::Flow
     end
 
     # TODO : Вынести формирование имени ветки в отдельный метод
+    # TODO : Проверять, нет ли уже оформленного реквеста
     def publish_pull_request
       git.push("origin", current_branch.name)
 

@@ -20,6 +20,8 @@ module Abak::Flow
 
       init_git_configuration
       init_environment_configuration
+
+      #set_up_locale
     end
 
     def self.params
@@ -73,5 +75,9 @@ module Abak::Flow
     end
     reset_variables
 
+    def set_up_locale
+      # I18n.load_path += Dir.glob(File.dirname(__FILE__) + "../locales/*.{rb,yml}")
+      # I18n.locale = self.locale.to_sym || :en
+    end
   end
 end
