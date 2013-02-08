@@ -45,12 +45,23 @@ module Abak::Flow
     #
     # Returns Symbol
     def to_s
+      return "" if elements.empty?
+
+      all_elements = []
+      elements.each_with_index do |key, index|
+        all_elements << "#{index + 1}. #{translate(key)}"
+      end
+
+      all_elements * "\n"
     end
 
     # Print section header from locale scope and all elements from scope
     #
     # Returns String
     def pretty_print
+      return "" if elements.empty?
+
+      "#{header}\n\n#{to_s}"
     end
     alias :pp :pretty_print
 

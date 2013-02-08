@@ -11,11 +11,21 @@ class Abak::Flow::Messages
   end
 end
 
+def translate
+  ->(k) do
+    case k
+    when :header then "+HEADER+"
+    when :hello then "pew"
+    when :linux then "pow"
+    end
+  end
+end
+
 require "abak-flow/messages"
 describe Abak::Flow::Messages do
-  describe "Interface" do
-    subject { Abak::Flow::Messages.new "scope" }
+  subject { Abak::Flow::Messages.new "scope" }
 
+  describe "Interface" do
     it { subject.must_respond_to :to_s }
     it { subject.must_respond_to :each }
     it { subject.must_respond_to :push }
@@ -27,11 +37,9 @@ describe Abak::Flow::Messages do
 
   describe "Inner methods" do
     describe "#scope_key" do
-      subject { Abak::Flow::Messages.new "the_best_way" }
-
       it "should return scope with locale" do
         Abak::Flow::Messages::Config.stub(:locale, :ru) do
-          subject.send(:scope_key).must_equal "ru.the_best_way"
+          subject.send(:scope_key).must_equal "ru.scope"
         end
       end
     end
@@ -39,20 +47,14 @@ describe Abak::Flow::Messages do
 
   describe "Public methods" do
     describe "#header" do
-      subject { Abak::Flow::Messages.new "pretty_header" }
-
       it "should print +HEADER+" do
-        st = ->(k) { k == :header ? "+HEADER+" : nil }
-
-        subject.stub(:translate, st) do
+        subject.stub(:translate, translate) do
           subject.header.must_equal "+HEADER+"
         end
       end
     end
 
     describe "#push" do
-      subject { Abak::Flow::Messages.new "with_elements" }
-
       it { subject.elements.must_equal [] }
 
       it "should push one element" do
@@ -68,19 +70,11 @@ describe Abak::Flow::Messages do
     end
 
     describe "#each" do
-      subject { Abak::Flow::Messages.new "for_each" }
-
       it { -> { subject.each }.must_raise ArgumentError }
       it "should work with blocks and return array" do
         tested = []
-        st = ->(k) do
-          case k
-          when :hello then "pew"
-          when :linux then "pow"
-          end
-        end
 
-        subject.stub(:translate, st) do
+        subject.stub(:translate, translate) do
           subject.push "hello"
           subject.push "linux"
 
@@ -92,11 +86,37 @@ describe Abak::Flow::Messages do
     end
 
     describe "#to_s" do
+      it "should return empty string" do
+        subject.stub(:translate, translate) do
+          subject.to_s.must_be_empty
+        end
+      end
 
+      it "should translate all elements and concatinate them" do
+        subject.stub(:translate, translate) do
+          subject.push "hello"
+          subject.push "linux"
+
+          subject.to_s.must_equal "1. pew\n2. pow"
+        end
+      end
     end
 
     describe "#pretty_print" do
+      it "should return empty string" do
+        subject.stub(:translate, translate) do
+          subject.pretty_print.must_be_empty
+        end
+      end
 
+      it "should translate all elements and concatinate them with header" do
+        subject.stub(:translate, translate) do
+          subject.push "hello"
+          subject.push "linux"
+
+          subject.pretty_print.must_equal "+HEADER+\n\n1. pew\n2. pow"
+        end
+      end
     end
   end
 end
