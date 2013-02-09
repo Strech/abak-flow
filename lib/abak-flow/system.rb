@@ -10,10 +10,12 @@ module Abak::Flow
     extend Ruler
 
     def self.recommendations
+      # recommendations_storage.dup.freeze
       @@recommendations.dup
     end
 
     def self.information
+      # information_storage.dup.freeze
       @@information.dup
     end
 
@@ -48,22 +50,27 @@ module Abak::Flow
         # Rules
         rule [:origin_not_set_up] do
           @@recommendations << recomendation_set_up_origin
+          # recommendations_storage << :set_up_origin
         end
 
         rule [:upstream_not_set_up] do
           @@recommendations << recomendation_set_up_upstream
+          # recommendations_storage << :set_up_upstream
         end
 
         rule [:oauth_user_not_set_up] do
           @@recommendations << recomendation_set_up_oauth_user
+          # recommendations_storage << :set_up_oauth_user
         end
 
         rule [:oauth_token_not_set_up] do
           @@recommendations << recomendation_set_up_oauth_token
+          # recommendations_storage << :set_up_oauth_token
         end
 
         rule [:proxy_server_set_up] do
           @@information << information_proxy_server_set_up
+          # information_storage << :set_up_oauth_token
         end
       end
 
@@ -91,7 +98,18 @@ module Abak::Flow
       "You set up the custom proxy server"
     end
 
+    def self.recommendations_storage
+      @@recommendations
+    end
+
+    def self.information_storage
+      @@recommendations
+    end
+
     def self.reset_variables
+      # Messages.new "system.recommendations"
+      # Messages.new "system.information"
+      #
       @@recommendations = []
       @@information = []
     end

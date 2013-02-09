@@ -67,6 +67,7 @@ module Abak::Flow
 
     private
     def_delegators Config, :locale
+    def_delegators :elements, :empty?
 
     def init_dependences
       Config.init

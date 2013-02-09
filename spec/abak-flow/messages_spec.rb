@@ -33,6 +33,7 @@ describe Abak::Flow::Messages do
     it { subject.must_respond_to :header }
     it { subject.must_respond_to :pretty_print }
     it { subject.must_respond_to :pp }
+    it { subject.must_respond_to :empty? }
   end
 
   describe "Inner methods" do
