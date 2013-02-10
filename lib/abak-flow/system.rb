@@ -67,7 +67,7 @@ module Abak::Flow
         end
       end
 
-      recommendations.empty? ? true : false
+      recommendations_storage.empty? ? true : false
     end
 
     private

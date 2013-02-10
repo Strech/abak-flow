@@ -30,7 +30,7 @@ module Abak::Flow
       init_dependences
 
       @options = options
-      @recommendations = []
+      @recommendations_storage = Messages.new "pull_request.recommendations"
     end
 
     def valid?
@@ -44,7 +44,7 @@ module Abak::Flow
     end
 
     def recommendations
-      System.recommendations | @recommendations.dup
+      [System.recommendations, @recommendations_storage.dup.freeze]
     end
 
     def publish(raise_exceptions = false)
@@ -80,12 +80,15 @@ module Abak::Flow
     def_delegators Branches, :current_branch
     def_delegators GithubClient, :connection
 
+    attr_reader :recommendations_storage
+
     # Pull request must have title, title it's a branch name if branch is hotfix
     # or feature. Unless title option must be specify
     #
     # Returns TrueClass or FalseClass
     def requirements_satisfied?
-      @recommendations = []
+      # TODO : Написать метод по очистке Messages#flush
+      @recommendations_storage = Messages.new "pull_request.recommendations"
 
       multi_ruleset do
         # Facts
@@ -99,15 +102,15 @@ module Abak::Flow
 
         # Rules
         rule [:invalid_request_title] do
-          @recommendations << specify_title_recommendation
+          @recommendations_storage << :specify_title
         end
 
         rule [:invalid_targe_branch] do
-          @recommendations << specify_branch_recommendation
+          @recommendations_storage << :specify_branch
         end
       end
 
-      @recommendations.empty? ? true : false
+      recommendations_storage.empty? ? true : false
     end
 
     def init_dependences

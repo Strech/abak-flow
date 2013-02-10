@@ -33,6 +33,23 @@ class Abak::Flow::PullRequest
       attr_accessor :current_branch
     end
   end
+
+  class Messages
+    extend Forwardable
+
+    attr_reader :elements
+    def_delegators :elements, :empty?
+
+    def initialize(scope)
+      @elements = []
+    end
+
+    def push(element)
+      @elements << element.to_sym
+    end
+    alias :<< :push
+  end
+
 end
 
 # TODO : Переписать
@@ -68,7 +85,8 @@ describe Abak::Flow::PullRequest do
     subject { Abak::Flow::PullRequest.new(attributes) }
 
     it { subject.options.wont_be_nil }
-    it { subject.recommendations.must_be_empty }
+    it { subject.recommendations[0].must_be_empty }
+    it { subject.recommendations[1].must_be_empty }
   end
 
   describe "Inner methods" do
@@ -324,7 +342,7 @@ describe Abak::Flow::PullRequest do
         it "should have system recommendations" do
           subject.stub(:requirements_satisfied?, true) do
             subject.valid?
-            subject.recommendations.must_equal %w[one two three]
+            subject.recommendations[0].wont_be_empty
           end
         end
       end
@@ -333,7 +351,8 @@ describe Abak::Flow::PullRequest do
         it "should have only system recommendations" do
           subject.stub(:requirements_satisfied?, false) do
             subject.valid?
-            subject.recommendations.must_equal %w[one two three]
+            subject.recommendations[0].wont_be_empty
+            subject.recommendations[1].must_be_empty
           end
         end
       end
@@ -363,7 +382,7 @@ describe Abak::Flow::PullRequest do
         it "should not have system recommendations" do
           subject.stub(:requirements_satisfied?, true) do
             subject.valid?
-            subject.recommendations.must_be_empty
+            subject.recommendations[0].must_be_empty
           end
         end
       end
@@ -378,10 +397,8 @@ describe Abak::Flow::PullRequest do
           end
 
           it "should have recommendations" do
-            subject.stub(:specify_title_recommendation, "hello") do
-              subject.valid?
-              subject.recommendations.must_equal %w[hello]
-            end
+            subject.valid?
+            subject.recommendations[1].wont_be_empty
           end
         end
 
@@ -394,10 +411,8 @@ describe Abak::Flow::PullRequest do
           end
 
           it "should have recommendations" do
-            subject.stub(:specify_branch_recommendation, "unbelievable") do
-              subject.valid?
-              subject.recommendations.must_equal %w[unbelievable]
-            end
+            subject.valid?
+            subject.recommendations[1].wont_be_empty
           end
         end
 
@@ -410,12 +425,8 @@ describe Abak::Flow::PullRequest do
           end
 
           it "should have recommendations" do
-            subject.stub(:specify_title_recommendation, "that's") do
-              subject.stub(:specify_branch_recommendation, "unbelievable") do
-                subject.valid?
-                subject.recommendations.must_equal %w[that's unbelievable]
-              end
-            end
+            subject.valid?
+            subject.recommendations[1].wont_be_empty
           end
         end
       end

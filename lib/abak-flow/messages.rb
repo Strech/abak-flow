@@ -17,7 +17,7 @@ module Abak::Flow
 
     # Iterate elements from locale scope (translating online)
     #
-    #
+    # Returns nothing
     def each
       raise ArgumentError, "No block given" unless block_given?
 
