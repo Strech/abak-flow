@@ -1,5 +1,4 @@
 # coding : utf-8
-# TODO : Написать + реализовать
 require "i18n"
 
 module Abak::Flow

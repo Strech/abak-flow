@@ -118,6 +118,7 @@ module Abak::Flow
       Config.init
     end
 
+    # TODO : Вынести в i18n
     def forgot_task_text
       "Sorry, i forgot my task number. Ask me personally if you have any questions"
     end
