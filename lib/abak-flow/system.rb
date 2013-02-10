@@ -10,13 +10,11 @@ module Abak::Flow
     extend Ruler
 
     def self.recommendations
-      # recommendations_storage.dup.freeze
-      @@recommendations.dup
+      @@recommendations_storage.dup.freeze
     end
 
     def self.information
-      # information_storage.dup.freeze
-      @@information.dup
+      @@information_storage.dup.freeze
     end
 
     def self.ready?
@@ -49,28 +47,23 @@ module Abak::Flow
 
         # Rules
         rule [:origin_not_set_up] do
-          @@recommendations << recomendation_set_up_origin
-          # recommendations_storage << :set_up_origin
+          @@recommendations_storage << :set_up_origin
         end
 
         rule [:upstream_not_set_up] do
-          @@recommendations << recomendation_set_up_upstream
-          # recommendations_storage << :set_up_upstream
+          @@recommendations_storage << :set_up_upstream
         end
 
         rule [:oauth_user_not_set_up] do
-          @@recommendations << recomendation_set_up_oauth_user
-          # recommendations_storage << :set_up_oauth_user
+          @@recommendations_storage << :set_up_oauth_user
         end
 
         rule [:oauth_token_not_set_up] do
-          @@recommendations << recomendation_set_up_oauth_token
-          # recommendations_storage << :set_up_oauth_token
+          @@recommendations_storage << :set_up_oauth_token
         end
 
         rule [:proxy_server_set_up] do
-          @@information << information_proxy_server_set_up
-          # information_storage << :set_up_oauth_token
+          @@information_storage << :set_up_oauth_token
         end
       end
 
@@ -78,40 +71,17 @@ module Abak::Flow
     end
 
     private
-    def self.recomendation_set_up_origin
-      "Set up your origin"
-    end
-
-    def self.recomendation_set_up_upstream
-      "Set up your upstream"
-    end
-
-    def self.recomendation_set_up_oauth_user
-      "Set up your abak-flow.oauth-user"
-    end
-
-    def self.recomendation_set_up_oauth_token
-      "Set up your abak-flow.oauth-token"
-    end
-
-    def self.information_proxy_server_set_up
-      "You set up the custom proxy server"
-    end
-
     def self.recommendations_storage
-      @@recommendations
+      @@recommendations_storage
     end
 
     def self.information_storage
-      @@recommendations
+      @@information_storage
     end
 
     def self.reset_variables
-      # Messages.new "system.recommendations"
-      # Messages.new "system.information"
-      #
-      @@recommendations = []
-      @@information = []
+      @@recommendations_storage = Messages.new "system.recommendations"
+      @@information_storage = Messages.new "system.information"
     end
     reset_variables
 

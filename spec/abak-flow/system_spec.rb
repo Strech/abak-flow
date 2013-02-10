@@ -13,6 +13,22 @@ module Abak::Flow::System
       attr_reader :init, :oauth_user, :oauth_token, :proxy_server
     end
   end
+
+  class Messages
+    extend Forwardable
+
+    attr_reader :elements
+    def_delegators :elements, :empty?
+
+    def initialize(scope)
+      @elements = []
+    end
+
+    def push(element)
+      @elements << element.to_sym
+    end
+    alias :<< :push
+  end
 end
 
 require "abak-flow/system"
