@@ -21,7 +21,7 @@ module Abak::Flow
       init_git_configuration
       init_environment_configuration
 
-      #set_up_locale
+      setup_locale
     end
 
     def self.params
@@ -32,7 +32,8 @@ module Abak::Flow
     def self.init_git_configuration
       git_config = [git.config["abak-flow.oauth-user"],
                     git.config["abak-flow.oauth-token"],
-                    git.config["abak-flow.proxy-server"]]
+                    git.config["abak-flow.proxy-server"],
+                    git.config["abak-flow.locale"] || "en"]
 
       @@params = Params.new(*git_config)
     end
@@ -59,7 +60,7 @@ module Abak::Flow
       ENV['http_proxy'] || ENV['HTTP_PROXY']
     end
 
-    class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server)
+    class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server, :locale)
       def to_hash
         Hash[members.map { |m| [m, self.send(m)] }]
       end
@@ -75,9 +76,8 @@ module Abak::Flow
     end
     reset_variables
 
-    def set_up_locale
-      # I18n.load_path += Dir.glob(File.dirname(__FILE__) + "../locales/*.{rb,yml}")
-      # I18n.locale = self.locale.to_sym || :en
+    def self.setup_locale
+      I18n.load_path += Dir.glob(File.dirname(__FILE__) + "../locales/*.{rb,yml}")
     end
   end
 end

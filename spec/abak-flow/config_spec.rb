@@ -1,5 +1,14 @@
 # coding: utf-8
 require "spec_helper"
+
+module Abak::Flow::Config
+  class I18n
+    class << self
+      attr_accessor :load_path
+    end
+  end
+end
+
 require "abak-flow/config"
 
 describe Abak::Flow::Config do
@@ -14,7 +23,8 @@ describe Abak::Flow::Config do
     GitMock.new nil, nil, nil, {
       "abak-flow.oauth-user" => oauth_user,
       "abak-flow.oauth-token" => oauth_token,
-      "abak-flow.proxy-server" => nil
+      "abak-flow.proxy-server" => nil,
+      "abak-flow.locale" => nil
     }
   end
 
@@ -22,16 +32,19 @@ describe Abak::Flow::Config do
     GitMock.new nil, nil, nil, {
       "abak-flow.oauth-user" => oauth_user,
       "abak-flow.oauth-token" => oauth_token,
-      "abak-flow.proxy-server" => proxy_server
+      "abak-flow.proxy-server" => proxy_server,
+      "abak-flow.locale" => "ru"
     }
   end
+
+  before { Abak::Flow::Config::I18n.load_path = [] }
 
   describe "when init config" do
     it { subject.must_respond_to :init }
     it { subject.must_respond_to :params }
 
     it "should raise Exception" do
-      class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server); end
+      class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server, :locale); end
 
       subject.stub(:init_git_configuration, nil) do
         subject.stub(:init_environment_configuration, nil) do
@@ -60,7 +73,8 @@ describe Abak::Flow::Config do
         git = GitMock.new nil, nil, nil, {
           "abak-flow.oauth_user" => nil,
           "abak-flow.oauth_token" => nil,
-          "abak-flow.proxy_server" => nil
+          "abak-flow.proxy_server" => nil,
+          "abak-flow.locale" => nil
         }
       end
 
@@ -77,6 +91,13 @@ describe Abak::Flow::Config do
           subject.oauth_token.must_equal nil
         end
       end
+
+      it "should set locale to default en" do
+        subject.stub(:git, git) do
+          subject.init
+          subject.locale.must_equal "en"
+        end
+      end
     end
 
     it "should take oauth_user from git config" do
@@ -90,6 +111,13 @@ describe Abak::Flow::Config do
       subject.stub(:git, git) do
         subject.init
         subject.oauth_token.must_equal "0123456789"
+      end
+    end
+
+    it "should set locale to :en" do
+      subject.stub(:git, git) do
+        subject.init
+        subject.locale.must_equal "ru"
       end
     end
 
