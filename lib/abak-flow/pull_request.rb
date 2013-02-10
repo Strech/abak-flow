@@ -118,14 +118,6 @@ module Abak::Flow
       Config.init
     end
 
-    def specify_title_recommendation
-      "Please specify title for your request"
-    end
-
-    def specify_branch_recommendation
-      "Please specify target branch for your request"
-    end
-
     def forgot_task_text
       "Sorry, i forgot my task number. Ask me personally if you have any questions"
     end
