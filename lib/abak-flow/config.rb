@@ -16,12 +16,16 @@ module Abak::Flow
 
     # TODO : Уметь запоминать, что инициализация уже была
     def self.init
+      return unless need_initialize?
+
       reset_variables
 
       init_git_configuration
       init_environment_configuration
 
       setup_locale
+
+      @@initialized = true
     end
 
     def self.params
@@ -71,8 +75,17 @@ module Abak::Flow
     end
 
     private
+    def self.initialized
+      @@initialized
+    end
+
+    def self.need_initialize?
+      initialized != true
+    end
+
     def self.reset_variables
       @@params = {}
+      @@initialized = false
     end
     reset_variables
 

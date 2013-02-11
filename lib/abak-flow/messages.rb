@@ -1,6 +1,7 @@
 # coding : utf-8
 require "i18n"
 
+# TODO : Нужен простой метод, для перевода без скоупа
 module Abak::Flow
   class Messages
     extend Forwardable

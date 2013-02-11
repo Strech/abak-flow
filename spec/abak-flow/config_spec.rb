@@ -48,20 +48,38 @@ describe Abak::Flow::Config do
 
       subject.stub(:init_git_configuration, nil) do
         subject.stub(:init_environment_configuration, nil) do
-          subject.stub(:params, Params.new) do
-            subject.init
-            -> { subject.check_requirements }.must_raise Exception
-          end
+          subject.stub(:need_initialize?, true) do
+            subject.stub(:params, Params.new) do
+              subject.init
+              -> { subject.check_requirements }.must_raise Exception
+            end
 
-          subject.stub(:params, Params.new("hello")) do
-            subject.init
-            -> { subject.check_requirements }.must_raise Exception
-          end
+            subject.stub(:params, Params.new("hello")) do
+              subject.init
+              -> { subject.check_requirements }.must_raise Exception
+            end
 
-          subject.stub(:params, Params.new("", "hello")) do
-            subject.init
-            -> { subject.check_requirements }.must_raise Exception
+            subject.stub(:params, Params.new("", "hello")) do
+              subject.init
+              -> { subject.check_requirements }.must_raise Exception
+            end
           end
+        end
+      end
+    end
+
+    it "should not initialize config if already initialized" do
+      subject.stub(:initialized, true) do
+        subject.stub(:init_git_configuration, -> { raise Exception }) do
+          -> { subject.init }.must_be_silent
+        end
+      end
+    end
+
+    it "should initialize config if not initialized" do
+      subject.stub(:initialized, false) do
+        subject.stub(:init_git_configuration, -> { raise Exception }) do
+          -> { subject.init }.must_raise Exception
         end
       end
     end
@@ -80,44 +98,56 @@ describe Abak::Flow::Config do
 
       it "should be nil when ask oauth_user" do
         subject.stub(:git, git) do
-          subject.init
-          subject.oauth_user.must_equal nil
+          subject.stub(:need_initialize?, true) do
+            subject.init
+            subject.oauth_user.must_equal nil
+          end
         end
       end
 
       it "should be nil when ask oauth_token" do
         subject.stub(:git, git) do
-          subject.init
-          subject.oauth_token.must_equal nil
+          subject.stub(:need_initialize?, true) do
+            subject.init
+            subject.oauth_token.must_equal nil
+          end
         end
       end
 
       it "should set locale to default en" do
         subject.stub(:git, git) do
-          subject.init
-          subject.locale.must_equal "en"
+          subject.stub(:need_initialize?, true) do
+            subject.init
+            subject.locale.must_equal "en"
+          end
         end
       end
     end
 
     it "should take oauth_user from git config" do
       subject.stub(:git, git) do
-        subject.init
-        subject.oauth_user.must_equal "Admin"
+        subject.stub(:need_initialize?, true) do
+          subject.init
+          subject.oauth_user.must_equal "Admin"
+        end
       end
     end
 
     it "should take oauth_token from git config" do
       subject.stub(:git, git) do
-        subject.init
-        subject.oauth_token.must_equal "0123456789"
+        subject.stub(:need_initialize?, true) do
+          subject.init
+          subject.oauth_token.must_equal "0123456789"
+        end
       end
     end
 
     it "should set locale to :en" do
       subject.stub(:git, git) do
-        subject.init
-        subject.locale.must_equal "ru"
+        subject.stub(:need_initialize?, true) do
+          subject.init
+          subject.locale.must_equal "ru"
+        end
       end
     end
 
@@ -126,8 +156,10 @@ describe Abak::Flow::Config do
 
       subject.stub(:git, git) do
         subject.stub(:environment_http_proxy, environment) do
-          subject.init
-          subject.proxy_server.must_equal "http://www.linux-proxy.net:6666/"
+          subject.stub(:need_initialize?, true) do
+            subject.init
+            subject.proxy_server.must_equal "http://www.linux-proxy.net:6666/"
+          end
         end
       end
     end
@@ -135,8 +167,10 @@ describe Abak::Flow::Config do
     it "should set proxy_server from git config" do
       subject.stub(:git, git) do
         subject.stub(:environment_http_proxy, nil) do
-          subject.init
-          subject.proxy_server.must_equal "http://www.super-proxy.net:4080/"
+          subject.stub(:need_initialize?, true) do
+            subject.init
+            subject.proxy_server.must_equal "http://www.super-proxy.net:4080/"
+          end
         end
       end
     end
@@ -144,8 +178,10 @@ describe Abak::Flow::Config do
     it "should set proxy_server from git config not from environment" do
       subject.stub(:git, git) do
         subject.stub(:environment_http_proxy, environment) do
-          subject.init
-          subject.proxy_server.must_equal "http://www.super-proxy.net:4080/"
+          subject.stub(:need_initialize?, true) do
+            subject.init
+            subject.proxy_server.must_equal "http://www.super-proxy.net:4080/"
+          end
         end
       end
     end
