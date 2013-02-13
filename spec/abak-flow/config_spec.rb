@@ -4,7 +4,7 @@ require "spec_helper"
 module Abak::Flow::Config
   class I18n
     class << self
-      attr_accessor :load_path
+      attr_accessor :load_path, :locale
     end
   end
 end

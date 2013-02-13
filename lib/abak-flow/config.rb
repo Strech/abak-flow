@@ -6,6 +6,7 @@
 # Auto generated methods: oauth_user, oauth_token, proxy_server
 #
 # TODO : Проверять что атрибут из конфига валиден
+# TODO : Переименовать модуль
 #
 # Example
 #
@@ -71,7 +72,7 @@ module Abak::Flow
     end
 
     Params.members.each do |name|
-      self.class.send :define_method, name, -> { params[name.to_sym] }
+      self.class.send :define_method, name, -> { @@params[name.to_sym] }
     end
 
     private
@@ -90,7 +91,8 @@ module Abak::Flow
     reset_variables
 
     def self.setup_locale
-      I18n.load_path += Dir.glob(File.dirname(__FILE__) + "../locales/*.{rb,yml}")
+      I18n.load_path += Dir.glob(File.join File.dirname(__FILE__), "locales/*.{rb,yml}")
+      I18n.locale = locale
     end
   end
 end
