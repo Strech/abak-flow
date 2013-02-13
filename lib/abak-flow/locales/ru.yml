@@ -1,0 +1,11 @@
+ru:
+  system:
+    recommendations:
+      header: "== Рекомендации по конфигурации =="
+      set_up_origin: "Укажите origin репозиторий"
+      set_up_upstream: "Укажите upstream репозиторий"
+      set_up_oauth_user: "Пропишите git конфигурацию abak-flow.oauth-user"
+      set_up_oauth_token: "Пропишите git конфигурацию abak-flow.oauth-token"
+    information:
+      header: "== Информация по конфигурации =="
+      proxy_server_set_up: "Вы указали свой proxy server"

@@ -1,0 +1,11 @@
+en:
+  system:
+    recommendations:
+      header: "== System recommendations =="
+      set_up_origin: "Set up your origin"
+      set_up_upstream: "Set up your upstream"
+      set_up_oauth_user: "Set up your abak-flow.oauth-user"
+      set_up_oauth_token: "Set up your abak-flow.oauth-token"
+    information:
+      header: "== System information =="
+      proxy_server_set_up: "You set up the custom proxy server"
