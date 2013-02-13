@@ -74,11 +74,7 @@ module Abak::Flow
     end
 
     def translate(key)
-      I18n.t key, scope: scope_key
-    end
-
-    def scope_key
-      [locale, scope] * "."
+      I18n.t key, scope: scope
     end
   end
 end

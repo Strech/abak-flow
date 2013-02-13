@@ -36,16 +36,6 @@ describe Abak::Flow::Messages do
     it { subject.must_respond_to :empty? }
   end
 
-  describe "Inner methods" do
-    describe "#scope_key" do
-      it "should return scope with locale" do
-        Abak::Flow::Messages::Config.stub(:locale, :ru) do
-          subject.send(:scope_key).must_equal "ru.scope"
-        end
-      end
-    end
-  end
-
   describe "Public methods" do
     describe "#header" do
       it "should print +HEADER+" do
