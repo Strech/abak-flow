@@ -10,7 +10,7 @@ module Abak::Flow
 
     private
     def self.params
-      Config.params
+      Configuration.params
     end
   end
 end

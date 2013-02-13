@@ -115,7 +115,7 @@ module Abak::Flow
 
     def init_dependences
       Project.init
-      Config.init
+      Configuration.init
     end
 
     # TODO : Вынести в i18n

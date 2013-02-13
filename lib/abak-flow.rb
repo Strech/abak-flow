@@ -9,7 +9,7 @@ end
 require "abak-flow/git"
 require "abak-flow/messages"
 require "abak-flow/project"
-require "abak-flow/config"
+require "abak-flow/configuration"
 require "abak-flow/system"
 require "abak-flow/github_client"
 require "abak-flow/branches"

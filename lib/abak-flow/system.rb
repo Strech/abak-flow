@@ -21,7 +21,7 @@ module Abak::Flow
       reset_variables
 
       Project.init
-      Config.init
+      Configuration.init
 
       multi_ruleset do
         # Facts
@@ -34,15 +34,15 @@ module Abak::Flow
         end
 
         fact :oauth_user_not_set_up do
-          Config.oauth_user.nil?
+          Configuration.oauth_user.nil?
         end
 
         fact :oauth_token_not_set_up do
-          Config.oauth_token.nil?
+          Configuration.oauth_token.nil?
         end
 
         fact :proxy_server_set_up do
-          !Config.proxy_server.nil?
+          !Configuration.proxy_server.nil?
         end
 
         # Rules

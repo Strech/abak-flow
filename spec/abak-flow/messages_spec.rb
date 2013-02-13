@@ -2,7 +2,7 @@
 require "spec_helper"
 
 class Abak::Flow::Messages
-  module Config
+  module Configuration
     def self.init; end
 
     class << self

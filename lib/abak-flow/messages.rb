@@ -66,11 +66,11 @@ module Abak::Flow
     alias :pp :pretty_print
 
     private
-    def_delegators Config, :locale
+    def_delegators Configuration, :locale
     def_delegators :elements, :empty?
 
     def init_dependences
-      Config.init
+      Configuration.init
     end
 
     def translate(key)

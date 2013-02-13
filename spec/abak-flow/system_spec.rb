@@ -8,7 +8,7 @@ module Abak::Flow::System
     end
   end
 
-  module Config
+  module Configuration
     class << self
       attr_reader :init, :oauth_user, :oauth_token, :proxy_server
     end
@@ -68,8 +68,8 @@ describe Abak::Flow::System do
       it "should be ready when unknown config proxy" do
         Abak::Flow::System::Project.stub(:origin, "not_nil") do
           Abak::Flow::System::Project.stub(:upstream, "not_nil") do
-            Abak::Flow::System::Config.stub(:oauth_user, "not_nil") do
-              Abak::Flow::System::Config.stub(:oauth_token, "not_nil") do
+            Abak::Flow::System::Configuration.stub(:oauth_user, "not_nil") do
+              Abak::Flow::System::Configuration.stub(:oauth_token, "not_nil") do
                 subject.ready?.must_equal true
               end
             end
@@ -80,9 +80,9 @@ describe Abak::Flow::System do
       it "should be ready when config proxy is set" do
         Abak::Flow::System::Project.stub(:origin, "not_nil") do
           Abak::Flow::System::Project.stub(:upstream, "not_nil") do
-            Abak::Flow::System::Config.stub(:oauth_user, "not_nil") do
-              Abak::Flow::System::Config.stub(:oauth_token, "not_nil") do
-                Abak::Flow::System::Config.stub(:proxy_server, "not_nil") do
+            Abak::Flow::System::Configuration.stub(:oauth_user, "not_nil") do
+              Abak::Flow::System::Configuration.stub(:oauth_token, "not_nil") do
+                Abak::Flow::System::Configuration.stub(:proxy_server, "not_nil") do
                   subject.ready?.must_equal true
                 end
               end
@@ -104,8 +104,8 @@ describe Abak::Flow::System do
         it "should be empty" do
           Abak::Flow::System::Project.stub(:origin, "not_nil") do
             Abak::Flow::System::Project.stub(:upstream, "not_nil") do
-              Abak::Flow::System::Config.stub(:oauth_user, "not_nil") do
-                Abak::Flow::System::Config.stub(:oauth_token, "not_nil") do
+              Abak::Flow::System::Configuration.stub(:oauth_user, "not_nil") do
+                Abak::Flow::System::Configuration.stub(:oauth_token, "not_nil") do
                   subject.ready?
                   subject.recommendations.must_be_empty
                 end
@@ -123,7 +123,7 @@ describe Abak::Flow::System do
       end
 
       it "should't be empty'" do
-        Abak::Flow::System::Config.stub(:proxy_server, "not_nil") do
+        Abak::Flow::System::Configuration.stub(:proxy_server, "not_nil") do
           subject.ready?
           subject.information.wont_be_empty
         end

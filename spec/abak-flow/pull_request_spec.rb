@@ -16,7 +16,7 @@ class Abak::Flow::PullRequest
     def self.init; end
   end
 
-  module Config
+  module Configuration
     def self.init; end
   end
 

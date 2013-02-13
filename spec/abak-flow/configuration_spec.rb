@@ -1,7 +1,7 @@
 # coding: utf-8
 require "spec_helper"
 
-module Abak::Flow::Config
+module Abak::Flow::Configuration
   class I18n
     class << self
       attr_accessor :load_path, :locale
@@ -9,10 +9,10 @@ module Abak::Flow::Config
   end
 end
 
-require "abak-flow/config"
+require "abak-flow/configuration"
 
-describe Abak::Flow::Config do
-  subject { Abak::Flow::Config }
+describe Abak::Flow::Configuration do
+  subject { Abak::Flow::Configuration }
 
   let(:oauth_user) { "Admin" }
   let(:oauth_token) { "0123456789" }
@@ -37,7 +37,7 @@ describe Abak::Flow::Config do
     }
   end
 
-  before { Abak::Flow::Config::I18n.load_path = [] }
+  before { Abak::Flow::Configuration::I18n.load_path = [] }
 
   describe "when init config" do
     it { subject.must_respond_to :init }

@@ -10,10 +10,10 @@
 #
 # Example
 #
-#   Abak::Flow::Config.oauth_user #=> Strech
+#   Abak::Flow::Configuration.oauth_user #=> Strech
 #
 module Abak::Flow
-  module Config
+  module Configuration
 
     # TODO : Уметь запоминать, что инициализация уже была
     def self.init
