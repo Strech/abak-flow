@@ -1,4 +1,5 @@
 # coding: utf-8
+# FIXME : Гем гит на каждый апстрим читает конфиг файл, это ПИЗДЕЦ
 #
 # Module for access to github repos owner and project names
 # recieved from .git repo
