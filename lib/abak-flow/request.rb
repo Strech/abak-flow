@@ -19,7 +19,7 @@ module Abak::Flow
         say System.recommendations.pp
       end
     end
-  end
+  end # checkup command
 
   command :publish do |c|
     c.syntax      = "git request publish"
@@ -48,6 +48,9 @@ module Abak::Flow
         say request.recommendations.join("\n")
       end
     end
-  end
+  end  # publish command
+
+  # TODO : command garbage
+  # TODO : command clean (without options)
 
 end

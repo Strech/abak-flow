@@ -8,6 +8,9 @@ module Abak::Flow
       @@connection ||= Octokit::Client.new(params)
     end
 
+    # TODO : Метод для получения SHA1 - пул реквест
+    # def
+
     private
     def self.params
       Configuration.params
