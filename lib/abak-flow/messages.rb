@@ -65,16 +65,17 @@ module Abak::Flow
     end
     alias :pp :pretty_print
 
+    def translate(key)
+      I18n.t key, scope: scope
+    end
+    alias :t :translate
+
     private
     def_delegators Configuration, :locale
     def_delegators :elements, :empty?
 
     def init_dependences
       Configuration.init
-    end
-
-    def translate(key)
-      I18n.t key, scope: scope
     end
   end
 end

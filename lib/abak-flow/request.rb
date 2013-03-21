@@ -11,11 +11,13 @@ module Abak::Flow
     c.description = "Проверить все ли настроено для работы с github и удаленными репозиториями"
 
     c.action do |args, options|
+      message = Messages.new "commands.checkup"
+
       if System.ready?
-        say_ok "Yaw, you are ready!"
+        say_ok message.t(:you_are_ready)
         say System.information.pp
       else
-        say_warning "You are not prepared!"
+        say_warning message.t(:you_are_not_prepared)
         say System.recommendations.pp
       end
     end
@@ -33,19 +35,23 @@ module Abak::Flow
       opts = {branch: options.branch, title: options.title, comment: options.comment}
       request = PullRequest.new(opts)
 
+      message = Messages.new "commands.publish"
+
       if request.valid?
-        say "Let's do it!"
+        say message.t(:lets_do_it)
+
         if request.publish
-          say_ok "Yaw, your request publishing"
+          say_ok message.t(:request_published)
           say request.github_link
         else
-          say_error "Goddamned, something goes wrong"
+          say_error message.t(:something_goes_wrong)
           say request.exception.message
-          say request.exception.backtrace.join("\n")
+          say request.exception.backtrace * "\n"
         end
       else
-        say_warning "You are not prepared!"
-        say request.recommendations.join("\n")
+        say_warning message.t(:you_are_not_prepared)
+        say request.recommendations.select { |m| !m.empty? }
+                                   .collect(&:pp) * "\n"
       end
     end
   end  # publish command

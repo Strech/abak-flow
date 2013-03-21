@@ -1,4 +1,13 @@
 en:
+  commands:
+    checkup: &command_checkup
+      you_are_ready: "Yaw, you are ready!"
+      you_are_not_prepared: "You are not prepared!"
+    publish:
+      <<: *command_checkup
+      lets_do_it: "Let's do it!"
+      request_published: "Yaw, your request published!"
+      something_goes_wrong: "Goddamned, something goes wrong ..."
   system:
     recommendations:
       header: "== System recommendations =="

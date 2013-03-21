@@ -1,4 +1,13 @@
 ru:
+  commands:
+    checkup: &command_checkup
+      you_are_ready: "Ура, все готово!"
+      you_are_not_prepared: "Кажется вы все еще не готовы!"
+    publish:
+      <<: *command_checkup
+      lets_do_it: "Начинаю публиковать пул реквест"
+      request_published: "Ура, пул реквест опубликован!"
+      something_goes_wrong: "Так, кажется что-то пошло не так ..."
   system:
     recommendations:
       header: "== Рекомендации по конфигурации =="

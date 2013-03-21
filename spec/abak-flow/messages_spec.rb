@@ -34,6 +34,8 @@ describe Abak::Flow::Messages do
     it { subject.must_respond_to :pretty_print }
     it { subject.must_respond_to :pp }
     it { subject.must_respond_to :empty? }
+    it { subject.must_respond_to :translate }
+    it { subject.must_respond_to :t }
   end
 
   describe "Public methods" do
