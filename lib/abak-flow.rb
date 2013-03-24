@@ -13,6 +13,3 @@ module Abak
 end
 
 require "abak-flow/version"
-
-require "i18n"
-require "commander/import"

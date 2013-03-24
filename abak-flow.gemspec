@@ -24,4 +24,14 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "basic_decorator", '>= 0.2.0'
   s.add_runtime_dependency "ruler", '>= 1.4.2'
   s.add_runtime_dependency "i18n", '>= 0.6.1'
+
+  s.add_development_dependency "rake"
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "simplecov"
+  s.add_development_dependency "yard"
+  s.add_development_dependency "yard-tomdoc"
+  s.add_development_dependency "cane"
+  s.add_development_dependency "guard"
+  s.add_development_dependency "guard-rspec"
+  s.add_development_dependency "rb-fsevent"
 end

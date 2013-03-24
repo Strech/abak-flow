@@ -4,6 +4,4 @@ rvm:
 branches:
   only:
     - release-1.0
-env:
-  - travis_ci=on
-bundler_args: --without development linux mac
+bundler_args: --without linux mac
