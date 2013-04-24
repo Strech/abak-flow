@@ -1,6 +1,5 @@
 # coding: utf-8
 require "spec_helper"
-require "abak-flow/git"
 
 describe Abak::Flow::Git do
   subject { described_class.instance }
