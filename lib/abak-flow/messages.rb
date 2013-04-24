@@ -30,7 +30,7 @@ module Abak::Flow
     #
     # Returns Symbol
     def push(element)
-      @elements << element.to_sym
+      @elements << element
     end
     alias :<< :push
 
@@ -47,9 +47,15 @@ module Abak::Flow
     def to_s
       return "" if elements.empty?
 
+      elements.collect { |element| translate *element } * "\n"
+    end
+
+    def print
+      return "" if elements.empty?
+
       all_elements = []
-      elements.each_with_index do |key, index|
-        all_elements << "#{index + 1}. #{translate(key)}"
+      elements.each_with_index do |element, index|
+        all_elements << "#{index + 1}. #{translate(*element)}"
       end
 
       all_elements * "\n"
@@ -61,17 +67,17 @@ module Abak::Flow
     def pretty_print
       return "" if elements.empty?
 
-      "#{header}\n\n#{to_s}"
+      [header, print] * "\n\n"
     end
     alias :pp :pretty_print
 
-    def translate(key)
-      I18n.t key, scope: scope
+    def translate(key, options = {})
+      I18n.t key, {scope: scope}.merge!(options)
     end
     alias :t :translate
 
     private
-    def_delegators Configuration, :locale
+    #def_delegators Configuration, :elements
     def_delegators :elements, :empty?
 
     def init_dependences

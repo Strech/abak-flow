@@ -1,114 +1,126 @@
 # coding: utf-8
 require "spec_helper"
 
-class Abak::Flow::Messages
-  module Configuration
-    def self.init; end
-
-    class << self
-      attr_accessor :locale
-    end
-  end
-end
-
-def translate
-  ->(k) do
-    case k
-    when :header then "+HEADER+"
-    when :hello then "pew"
-    when :linux then "pow"
-    end
-  end
-end
-
-require "abak-flow/messages"
 describe Abak::Flow::Messages do
-  subject { Abak::Flow::Messages.new "scope" }
+  let(:messages) { Abak::Flow::Messages.new "my_scope" }
+  subject { messages }
 
   describe "Interface" do
-    it { subject.must_respond_to :to_s }
-    it { subject.must_respond_to :each }
-    it { subject.must_respond_to :push }
-    it { subject.must_respond_to :<< }
-    it { subject.must_respond_to :header }
-    it { subject.must_respond_to :pretty_print }
-    it { subject.must_respond_to :pp }
-    it { subject.must_respond_to :empty? }
-    it { subject.must_respond_to :translate }
-    it { subject.must_respond_to :t }
+    it { should respond_to :each }
+    it { should respond_to :push }
+    it { should respond_to :<< }
+    it { should respond_to :to_s }
+    it { should respond_to :header }
+    it { should respond_to :print }
+    it { should respond_to :pretty_print }
+    it { should respond_to :pp }
+    it { should respond_to :empty? }
+    it { should respond_to :translate }
+    it { should respond_to :t }
   end
 
   describe "Public methods" do
     describe "#header" do
-      it "should print +HEADER+" do
-        subject.stub(:translate, translate) do
-          subject.header.must_equal "+HEADER+"
-        end
-      end
+      before { I18n.should_receive(:t).with(:header, scope: "my_scope").and_return "+HEADER+" }
+      subject { messages.header}
+
+      it { should eq "+HEADER+" }
     end
 
     describe "#push" do
-      it { subject.elements.must_equal [] }
-
-      it "should push one element" do
-        subject.push "hello"
-        subject.elements.must_equal [:hello]
+      context "when no elements pushed" do
+        its(:elements) { should be_empty }
       end
 
-      it "should push two elements" do
-        subject.push "hello"
-        subject.push "world"
-        subject.elements.must_equal [:hello, :world]
+      context "when push only one element" do
+        before { messages.push :hello }
+
+        its(:elements) { should eq [:hello] }
+      end
+
+      context "when push more than one element" do
+        before { messages.push :hello }
+        before { messages.push :world }
+
+        its(:elements) { should eq [:hello, :world] }
       end
     end
 
     describe "#each" do
-      it { -> { subject.each }.must_raise ArgumentError }
-      it "should work with blocks and return array" do
-        tested = []
+      context "when no block given" do
+        it { expect { messages.each }.to raise_error ArgumentError }
+      end
 
-        subject.stub(:translate, translate) do
-          subject.push "hello"
-          subject.push "linux"
+      context "when block given" do
+        before do
+          messages.push :hello
+          messages.push :linux
 
-          subject.each { |e| tested << "*#{e}*" }
+          I18n.should_receive(:t).with(:linux, scope: "my_scope").and_return "linux_t"
+          I18n.should_receive(:t).with(:hello, scope: "my_scope").and_return "hello_t"
         end
 
-        tested.must_equal %w[*pew* *pow*]
+        it { expect { |b| messages.each(&b) }.to yield_successive_args("hello_t", "linux_t") }
       end
     end
 
     describe "#to_s" do
-      it "should return empty string" do
-        subject.stub(:translate, translate) do
-          subject.to_s.must_be_empty
-        end
+      subject { messages.to_s }
+
+      context "when messages are empty" do
+        it { should be_empty }
       end
 
-      it "should translate all elements and concatinate them" do
-        subject.stub(:translate, translate) do
-          subject.push "hello"
-          subject.push "linux"
+      context "when messages are not empty" do
+        before do
+          messages.push :hello
+          messages.push :linux
 
-          subject.to_s.must_equal "1. pew\n2. pow"
+          I18n.should_receive(:t).with(:linux, scope: "my_scope").and_return "linux_t"
+          I18n.should_receive(:t).with(:hello, scope: "my_scope").and_return "hello_t"
         end
+
+        it { should include "hello_t" }
+        it { should include "linux_t" }
       end
     end
 
     describe "#pretty_print" do
-      it "should return empty string" do
-        subject.stub(:translate, translate) do
-          subject.pretty_print.must_be_empty
-        end
+      subject { messages.pp }
+
+      context "when messages are empty" do
+        it { should be_empty }
       end
 
-      it "should translate all elements and concatinate them with header" do
-        subject.stub(:translate, translate) do
-          subject.push "hello"
-          subject.push "linux"
+      context "when messages are not empty" do
+        before do
+          messages.push :hello
+          messages.push :linux
 
-          subject.pretty_print.must_equal "+HEADER+\n\n1. pew\n2. pow"
+          I18n.should_receive(:t).with(:header, scope: "my_scope").and_return "+HEADER+"
+          I18n.should_receive(:t).with(:linux, scope: "my_scope").and_return "linux_t"
+          I18n.should_receive(:t).with(:hello, scope: "my_scope").and_return "hello_t"
         end
+
+        it { should include "hello_t" }
+        it { should include "linux_t" }
+        it { should include "+HEADER+" }
+      end
+    end
+
+    describe "#translate" do
+      context "when translate from current scope" do
+        before { I18n.should_receive(:t).with(:word, scope: "my_scope").and_return "WORD" }
+        subject { messages.t :word }
+
+        it { should eq "WORD" }
+      end
+
+      context "when translate from different scope" do
+        before { I18n.should_receive(:t).with(:hello, scope: "diff_scope").and_return "HELLO" }
+        subject { messages.t :hello, {scope: "diff_scope"} }
+
+        it { should eq "HELLO" }
       end
     end
   end
