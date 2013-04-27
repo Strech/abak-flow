@@ -1,11 +1,20 @@
 # coding: utf-8
 require "spec_helper"
-require "abak-flow/branches"
 
 describe Abak::Flow::Branches do
-  subject { Abak::Flow::Branches }
-
   describe "Interface" do
-    it { subject.must_respond_to :current_branch }
+    subject { described_class }
+
+    it { should respond_to :current_branch }
+  end
+
+  describe "#current_branch" do
+    let(:branch) { double("Branch") }
+    let(:git) { double("Git", current_branch: "my_branch", branches: {"my_branch" => branch}) }
+
+    before { described_class.stub(:git).and_return git }
+    subject { described_class.current_branch }
+
+    it { should be_kind_of Abak::Flow::Branch }
   end
 end
