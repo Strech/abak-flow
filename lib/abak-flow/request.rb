@@ -1,4 +1,6 @@
-# -*- encoding: utf-8 -*-
+# coding: utf-8
+require "commander/import"
+
 module Abak::Flow
   program :name, "Утилита для оформления pull request на github.com"
   program :version, Abak::Flow::VERSION
@@ -14,10 +16,10 @@ module Abak::Flow
       message = Messages.new "commands.checkup"
 
       if System.ready?
-        say_ok message.t(:you_are_ready)
+        say_ok message.t :you_are_ready
         say System.information.pp
       else
-        say_warning message.t(:you_are_not_prepared)
+        say_warning message.t :you_are_not_prepared
         say System.recommendations.pp
       end
     end
@@ -27,12 +29,12 @@ module Abak::Flow
     c.syntax      = "git request publish"
     c.description = "Оформить pull request в upstream репозиторий"
 
-    c.option "-t", "--title STRING", String, "Заголовок для вашего pull request"
-    c.option "-c", "--comment STRING", String, "Комментарии для вашего pull request"
-    c.option "-b", "--branch STRING", String, "Имя ветки, в которую нужно принять изменения"
+    c.option "-t STRING", String, "Заголовок для вашего pull request"
+    c.option "-c STRING", String, "Комментарии для вашего pull request"
+    c.option "-b STRING", String, "Имя ветки, в которую нужно принять изменения"
 
     c.action do |args, options|
-      opts = {branch: options.branch, title: options.title, comment: options.comment}
+      opts = {base: options.b, title: options.t, comment: options.c}
       request = PullRequest.new(opts)
 
       message = Messages.new "commands.publish"
@@ -56,7 +58,25 @@ module Abak::Flow
     end
   end  # publish command
 
-  # TODO : command garbage
+  # command :garbage do |c|
+  #   c.syntax      = "git request garbage"
+  #   c.description = "Проверить пригодность удаленных (origin) веток и возможность их уничтожения (ветки master, develop игнорируются)"
+  #
+  #   c.action do |args, options|
+  #     message = Messages.new "commands.garbage"
+  #
+  #     garbage = Branches.garbage
+  #
+  #     say message.t :searching_for_garbage
+  #     if garbage.empty?
+  #       say_ok message.t :no_garbage_detected
+  #     else
+  #       say message.t :garbage_detected
+  #       say garbage.to_s
+  #     end
+  #   end
+  # end # garbage command
+
   # TODO : command clean (without options)
 
 end
