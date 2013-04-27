@@ -1,99 +1,52 @@
 # coding: utf-8
 require "spec_helper"
-require "abak-flow/project"
 
 describe Abak::Flow::Project do
-  subject { Abak::Flow::Project }
+  let(:origin) { double("Origin", name: "origin", url: "git@github.com:Strech/abak-flow.git") }
+  let(:upstream) { double("Upstream", name: "upstream", url: "http://github.com/Godlike/abak-flow-new.git") }
+  let(:git) { double("Git", remotes: [origin, upstream]) }
+  let(:instance) { Abak::Flow::Project.clone.instance }
 
-  let(:origin) do
-    RemoteMock.new "origin", "git@github.com:Strech/abak-flow.git"
+  context "when initialize project with two remote repositories" do
+    before { Abak::Flow::Project.any_instance.stub(:git).and_return git }
+
+    subject { instance.remotes }
+
+    it { should have_key :origin }
+    it { should have_key :upstream }
   end
 
-  let(:upstream) do
-    RemoteMock.new "upstream", "http://github.com/Godlike/abak-flow-new.git"
+  context "when initialize project with some wrong repositories" do
+    let(:wrong) { double("Wrong", name: "wrong", url: "git@wrong-site.com:Me/wrong-flow.git") }
+    let(:git) { double("Git", remotes: [origin, wrong]) }
+
+    before { Abak::Flow::Project.any_instance.stub(:git).and_return git }
+
+    subject { instance.remotes }
+
+    it { should have_key :origin }
+    it { should_not have_key :upstream }
   end
 
-  let(:git) { GitMock.new [origin, upstream] }
+  describe "#Remote" do
+    before { Abak::Flow::Project.any_instance.stub(:git).and_return git }
 
-  describe "when init project" do
-    it { subject.must_respond_to :init }
-    it { subject.must_respond_to :remotes }
+    describe "#origin" do
+      subject { instance.remotes[:origin] }
 
-    it "should create method origin" do
-      subject.stub(:git, git) do
-        subject.init
-        subject.must_respond_to :origin
-      end
+      its(:owner) { should eq "Strech" }
+      its(:project) { should eq "abak-flow" }
+      its(:repo) { should eq origin }
+      its(:to_s) { should eq "Strech/abak-flow" }
     end
 
-    it "should create method upstream" do
-      subject.stub(:git, git) do
-        subject.init
-        subject.must_respond_to :upstream
-      end
-    end
+    describe "#upstream" do
+      subject { instance.remotes[:upstream] }
 
-    it "should return nil on incorrect url" do
-      remote = RemoteMock.new "wrong", "git@wrong-site.com:Me/wrong-flow.git"
-
-      subject.send(:create_github_remote, remote).must_be_nil
-    end
-
-    it "should raise Exception when check requirements" do
-      remote = RemoteMock.new "wrong", "git@wrong-site.com:Me/wrong-flow.git"
-
-      subject.stub(:init_remotes, nil) do
-        subject.stub(:remotes, [remote]) do
-          subject.init
-          -> { subject.check_requirements }.must_raise Exception
-        end
-      end
-    end
-  end
-
-  describe "when ask for owner and project" do
-    it "should have origin owner as Strech" do
-      subject.stub(:git, git) do
-        subject.init
-        subject.origin.owner.must_equal "Strech"
-      end
-    end
-
-    it "should have origin project as abak-flow" do
-      subject.stub(:git, git) do
-        subject.init
-        subject.origin.project.must_equal "abak-flow"
-      end
-    end
-
-    it "should have upstream owner as Godlike" do
-      subject.stub(:git, git) do
-        subject.init
-        subject.upstream.owner.must_equal "Godlike"
-      end
-    end
-
-    it "should have upstream project as abak-flow-new" do
-      subject.stub(:git, git) do
-        subject.init
-        subject.upstream.project.must_equal "abak-flow-new"
-      end
-    end
-  end
-
-  describe "Remote" do
-    it "should respond #to_s" do
-      subject.stub(:git, git) do
-        subject.init
-        subject.upstream.must_respond_to :to_s
-      end
-    end
-
-    it "should return owner/project" do
-      subject.stub(:git, git) do
-        subject.init
-        subject.upstream.to_s.must_equal "Godlike/abak-flow-new"
-      end
+      its(:owner) { should eq "Godlike" }
+      its(:project) { should eq "abak-flow-new" }
+      its(:repo) { should eq upstream }
+      its(:to_s) { should eq "Godlike/abak-flow-new" }
     end
   end
 end

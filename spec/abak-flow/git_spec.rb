@@ -2,7 +2,7 @@
 require "spec_helper"
 
 describe Abak::Flow::Git do
-  subject { described_class.instance }
+  subject { described_class.clone.instance }
 
   describe "Interface" do
     it { should respond_to :git }
