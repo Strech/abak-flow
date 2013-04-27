@@ -8,6 +8,11 @@ en:
       lets_do_it: "Let's do it!"
       request_published: "Yaw, your request published!"
       something_goes_wrong: "Goddamned, something goes wrong ..."
+    garbage:
+      searching_for_garbage: "Searching for garbage ..."
+      garbage_detected: "Some part of garbage detected"
+      no_garbage_detected: "Yaw, no garbage detected!"
+
   system:
     recommendations:
       header: "== System recommendations =="
@@ -18,3 +23,13 @@ en:
     information:
       header: "== System information =="
       proxy_server_set_up: "You set up the custom proxy server"
+
+  pull_request:
+    garbage:
+      collected_branches: "Branches collected: %{count}"
+      deletion_allowed: "%{index}. %{branch_name} → deletion allowed"
+      deletion_possibly: "%{index}. %{branch_name} → deletion possibly\n%{diagnoses}"
+      deletion_restricted: "%{index}. %{branch_name} → deletion restricted\n%{diagnoses}"
+      branch_unused: "Branch is unused in upstream"
+      branch_differ: "Branch is differ than origin"
+      branch_missing: "Branch is missing in local repo"
