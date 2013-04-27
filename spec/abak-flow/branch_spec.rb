@@ -1,58 +1,55 @@
 # coding: utf-8
 require "spec_helper"
-require "abak-flow/branch"
 
 describe Abak::Flow::Branch do
-  subject { Abak::Flow::Branch }
-
-  let(:develop) { BranchMock.new "develop" }
-  let(:master) { BranchMock.new "master" }
-  let(:hotfix) { BranchMock.new "hotfix/PR-2011" }
-  let(:feature) { BranchMock.new "feature/JP-515" }
-  let(:noname) { BranchMock.new "my_own/what_i_want/branch_name" }
+  let(:develop) { double("Branch", full: "develop") }
+  let(:master) { double("Branch", full: "master") }
+  let(:hotfix) { double("Branch", full: "hotfix/PR-2011") }
+  let(:feature) { double("Branch", full: "feature/JP-515") }
+  let(:noname) { double("Branch", full: "my_own/what_i_want/branch_name") }
 
   describe "#name" do
-    it { subject.new(feature).name.must_equal "feature/JP-515" }
-    it { subject.new(develop).name.must_equal "develop" }
+    it { described_class.new(feature).name.should eq "feature/JP-515" }
+    it { described_class.new(develop).name.should eq "develop" }
   end
 
   describe "#prefix" do
-    it { subject.new(develop).prefix.must_be_nil }
-    it { subject.new(hotfix).prefix.must_equal "hotfix" }
-    it { subject.new(feature).prefix.must_equal "feature" }
-    it { subject.new(noname).prefix.must_equal "my_own/what_i_want" }
+    it { described_class.new(develop).prefix.should be_nil }
+    it { described_class.new(hotfix).prefix.should eq "hotfix" }
+    it { described_class.new(feature).prefix.should eq "feature" }
+    it { described_class.new(noname).prefix.should eq "my_own/what_i_want" }
   end
 
   describe "#task" do
-    it { subject.new(develop).task.must_be_nil }
-    it { subject.new(feature).task.must_equal "JP-515" }
-    it { subject.new(noname).task.must_equal "branch_name" }
+    it { described_class.new(develop).task.should be_nil }
+    it { described_class.new(feature).task.should eq "JP-515" }
+    it { described_class.new(noname).task.should eq "branch_name" }
   end
 
   describe "#hotfix?" do
-    it { subject.new(develop).hotfix?.must_equal false }
-    it { subject.new(noname).hotfix?.must_equal false }
-    it { subject.new(feature).hotfix?.must_equal false }
-    it { subject.new(hotfix).hotfix?.must_equal true }
+    it { described_class.new(develop).hotfix?.should eq false }
+    it { described_class.new(noname).hotfix?.should eq false }
+    it { described_class.new(feature).hotfix?.should eq false }
+    it { described_class.new(hotfix).hotfix?.should eq true }
   end
 
   describe "#feature?" do
-    it { subject.new(master).feature?.must_equal false }
-    it { subject.new(noname).feature?.must_equal false }
-    it { subject.new(hotfix).feature?.must_equal false }
-    it { subject.new(feature).feature?.must_equal true }
+    it { described_class.new(master).feature?.should eq false }
+    it { described_class.new(noname).feature?.should eq false }
+    it { described_class.new(hotfix).feature?.should eq false }
+    it { described_class.new(feature).feature?.should eq true }
   end
 
   describe "#task?" do
-    it { subject.new(develop).task?.must_equal false }
-    it { subject.new(noname).task?.must_equal false }
-    it { subject.new(hotfix).task?.must_equal true }
-    it { subject.new(feature).task?.must_equal true }
+    it { described_class.new(develop).task?.should eq false }
+    it { described_class.new(noname).task?.should eq false }
+    it { described_class.new(hotfix).task?.should eq true }
+    it { described_class.new(feature).task?.should eq true }
   end
 
   describe "#tracker_task" do
-    it { subject.new(develop).tracker_task.must_be_nil }
-    it { subject.new(feature).tracker_task.must_equal "JP-515" }
-    it { subject.new(noname).tracker_task.must_be_nil }
+    it { described_class.new(develop).tracker_task.should be_nil }
+    it { described_class.new(feature).tracker_task.should eq "JP-515" }
+    it { described_class.new(noname).tracker_task.should be_nil }
   end
 end
