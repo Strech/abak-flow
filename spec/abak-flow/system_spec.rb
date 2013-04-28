@@ -1,134 +1,97 @@
 # coding: utf-8
 require "spec_helper"
 
-module Abak::Flow::System
-  module Project
-    class << self
-      attr_reader :init, :origin, :upstream
-    end
-  end
-
-  module Configuration
-    class << self
-      attr_reader :init, :oauth_user, :oauth_token, :proxy_server
-    end
-  end
-
-  class Messages
-    extend Forwardable
-
-    attr_reader :elements
-    def_delegators :elements, :empty?
-
-    def initialize(scope)
-      @elements = []
-    end
-
-    def push(element)
-      @elements << element.to_sym
-    end
-    alias :<< :push
-  end
-end
-
-require "abak-flow/system"
 describe Abak::Flow::System do
-  subject { Abak::Flow::System }
+  let(:instance) { described_class.clone.instance }
+  let(:remotes) { {origin: "origin_repo", upstream: "upstream_repo"} }
+  let(:params) { double("Params", oauth_user: "User", oauth_token: "Token", proxy_server: "http://proxy.com", locale: "en") }
+  let(:empty_params) { double("Params", oauth_user: nil, oauth_token: nil, proxy_server: nil, locale: nil) }
 
-  describe "Interface" do
-    it { subject.must_respond_to :ready? }
-    it { subject.must_respond_to :recommendations }
-    it { subject.must_respond_to :information }
+  describe "#ready?" do
+    subject { instance.ready? }
+
+    context "when all requirements is not set" do
+      before do
+        Abak::Flow::Project.any_instance.stub(:remotes).and_return({})
+        Abak::Flow::Configuration.any_instance.stub(:params).and_return empty_params
+      end
+
+      it { should be_false }
+    end
+
+    context "when upstream is not set" do
+      before do
+        Abak::Flow::Project.any_instance.stub(:remotes).and_return({origin: "not_nil"})
+        Abak::Flow::Configuration.any_instance.stub(:params).and_return params
+      end
+
+      it { should be_false }
+    end
+
+    context "when origin is not set" do
+      before do
+        Abak::Flow::Project.any_instance.stub(:remotes).and_return({upstream: "not_nil"})
+        Abak::Flow::Configuration.any_instance.stub(:params).and_return params
+      end
+
+      it { should be_false }
+    end
+
+    context "when all config params is not set" do
+      before do
+        Abak::Flow::Project.any_instance.stub(:remotes).and_return remotes
+        Abak::Flow::Configuration.any_instance.stub(:params).and_return empty_params
+      end
+
+      it { should be_false }
+    end
+
+    context "when proxy server config is not set" do
+      before do
+        params.stub(:proxy).and_return nil
+
+        Abak::Flow::Project.any_instance.stub(:remotes).and_return remotes
+        Abak::Flow::Configuration.any_instance.stub(:params).and_return params
+      end
+
+      it { should be_true }
+    end
+
+    context "when all config params is set" do
+      before do
+        Abak::Flow::Project.any_instance.stub(:remotes).and_return remotes
+        Abak::Flow::Configuration.any_instance.stub(:params).and_return params
+      end
+
+      it { should be_true }
+    end
   end
 
-  describe "Public methods" do
-    describe "#ready?" do
-      it { subject.ready?.must_equal false }
-
-      it "should't be ready when unknown upstream" do
-        Abak::Flow::System::Project.stub(:origin, "not_nil") do
-          subject.ready?.must_equal false
-        end
+  describe "#information" do
+    context "when proxy is set" do
+      before do
+        Abak::Flow::Project.any_instance.stub(:remotes).and_return remotes
+        Abak::Flow::Configuration.any_instance.stub(:params).and_return params
       end
 
-      it "should't be ready when unknown origin" do
-        Abak::Flow::System::Project.stub(:upstream, "not_nil") do
-          subject.ready?.must_equal false
-        end
-      end
+      before { instance.ready? }
+      subject { instance.information }
 
-      it "should't be ready when unknown config options" do
-        Abak::Flow::System::Project.stub(:origin, "not_nil") do
-          Abak::Flow::System::Project.stub(:upstream, "not_nil") do
-            subject.ready?.must_equal false
-          end
-        end
-      end
-
-      it "should be ready when unknown config proxy" do
-        Abak::Flow::System::Project.stub(:origin, "not_nil") do
-          Abak::Flow::System::Project.stub(:upstream, "not_nil") do
-            Abak::Flow::System::Configuration.stub(:oauth_user, "not_nil") do
-              Abak::Flow::System::Configuration.stub(:oauth_token, "not_nil") do
-                subject.ready?.must_equal true
-              end
-            end
-          end
-        end
-      end
-
-      it "should be ready when config proxy is set" do
-        Abak::Flow::System::Project.stub(:origin, "not_nil") do
-          Abak::Flow::System::Project.stub(:upstream, "not_nil") do
-            Abak::Flow::System::Configuration.stub(:oauth_user, "not_nil") do
-              Abak::Flow::System::Configuration.stub(:oauth_token, "not_nil") do
-                Abak::Flow::System::Configuration.stub(:proxy_server, "not_nil") do
-                  subject.ready?.must_equal true
-                end
-              end
-            end
-          end
-        end
-      end
+      it { should_not be_empty }
     end
 
-    describe "#recommendations" do
-      describe "when system not ready" do
-        it "should not be empty" do
-          subject.ready?
-          subject.recommendations.wont_be_empty
-        end
+    context "when proxy is not set" do
+      before do
+        params.stub(:proxy_server).and_return nil
+
+        Abak::Flow::Project.any_instance.stub(:remotes).and_return remotes
+        Abak::Flow::Configuration.any_instance.stub(:params).and_return params
       end
 
-      describe "when system ready" do
-        it "should be empty" do
-          Abak::Flow::System::Project.stub(:origin, "not_nil") do
-            Abak::Flow::System::Project.stub(:upstream, "not_nil") do
-              Abak::Flow::System::Configuration.stub(:oauth_user, "not_nil") do
-                Abak::Flow::System::Configuration.stub(:oauth_token, "not_nil") do
-                  subject.ready?
-                  subject.recommendations.must_be_empty
-                end
-              end
-            end
-          end
-        end
-      end
+      before { instance.ready? }
+      subject { instance.information }
+
+      it { should be_empty }
     end
-
-    describe "#information" do
-      it "should be empty" do
-        subject.ready?
-        subject.information.must_be_empty
-      end
-
-      it "should't be empty'" do
-        Abak::Flow::System::Configuration.stub(:proxy_server, "not_nil") do
-          subject.ready?
-          subject.information.wont_be_empty
-        end
-      end
-    end
-
   end
 end

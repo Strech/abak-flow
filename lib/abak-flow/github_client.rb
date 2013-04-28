@@ -18,8 +18,8 @@ module Abak::Flow
     def connection_options
       params = Configuration.instance.params
 
-      {login: params[:oauth_user], oauth_token: params[:oauth_token],
-       proxy: params[:proxy_server]}
+      {login: params.oauth_user, oauth_token: params.oauth_token,
+       proxy: params.proxy_server}
     end
   end
 end
