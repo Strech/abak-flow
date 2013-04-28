@@ -9,7 +9,7 @@ module Abak::Flow
     attr_reader :scope, :elements
 
     def initialize(scope)
-      init_dependences
+      Configuration.instance
 
       @scope = scope
       @elements = []
@@ -77,11 +77,6 @@ module Abak::Flow
     alias :t :translate
 
     private
-    #def_delegators Configuration, :elements
-    def_delegators :elements, :empty?
-
-    def init_dependences
-      Configuration.init
-    end
+    def_delegator :elements, :empty?
   end
 end

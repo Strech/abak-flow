@@ -6,7 +6,7 @@ module Abak::Flow
   module Branches
     extend Forwardable
 
-    def_delegator "Git.instance", :git
+    def_delegator "Abak::Flow::Git.instance", :git
 
     def self.current_branch
       Branch.new git.branches[git.current_branch]

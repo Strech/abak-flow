@@ -21,7 +21,7 @@ module Abak::Flow
     include Singleton
     extend Forwardable
 
-    def_delegator "Git.instance", :git
+    def_delegator "Abak::Flow::Git.instance", :git
 
     attr_reader :params
 
