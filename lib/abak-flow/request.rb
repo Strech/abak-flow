@@ -58,24 +58,24 @@ module Abak::Flow
     end
   end  # publish command
 
-  # command :garbage do |c|
-  #   c.syntax      = "git request garbage"
-  #   c.description = "Проверить пригодность удаленных (origin) веток и возможность их уничтожения (ветки master, develop игнорируются)"
-  #
-  #   c.action do |args, options|
-  #     message = Messages.new "commands.garbage"
-  #
-  #     garbage = Branches.garbage
-  #
-  #     say message.t :searching_for_garbage
-  #     if garbage.empty?
-  #       say_ok message.t :no_garbage_detected
-  #     else
-  #       say message.t :garbage_detected
-  #       say garbage.to_s
-  #     end
-  #   end
-  # end # garbage command
+  command :garbage do |c|
+    c.syntax      = "git request garbage"
+    c.description = "Проверить пригодность удаленных (origin) веток и возможность их уничтожения (ветки master, develop игнорируются)"
+
+    c.action do |args, options|
+      message = Messages.new "commands.garbage"
+
+      garbage = Branches.garbage
+
+      say message.t :searching_for_garbage
+      if garbage.empty?
+        say_ok message.t :no_garbage_detected
+      else
+        say message.t :garbage_detected
+        say garbage.to_s
+      end
+    end
+  end # garbage command
 
   # TODO : command clean (without options)
 

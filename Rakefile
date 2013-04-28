@@ -9,12 +9,13 @@ desc "Ready check"
 task default: [:quality, :coverage, :doc]
 
 RSpec::Core::RakeTask.new(:coverage) do |rspec|
-  ENV['COVERAGE'] = "true"
+  ENV["COVERAGE"] = "true"
 end
 
 Cane::RakeTask.new(:quality) do |cane|
   cane.abc_max = 15
-  cane.abc_glob = cane.style_glob = cane.doc_glob = '{lib}/**/*.rb'
+  cane.abc_glob = cane.style_glob = cane.doc_glob = "{lib}/abak-flow/*.rb"
+  cane.style_exclude = %w({lib}/abak-flow/request.rb)
   cane.style_measure = 120
   cane.parallel = false
 end
