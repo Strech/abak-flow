@@ -12,11 +12,12 @@ module Abak::Flow
     attr_reader :recommendations, :information
 
     def initialize
-      reset_variables
+      @recommendations = Messages.new "system.recommendations"
+      @information = Messages.new "system.information"
     end
 
     def ready?
-      reset_variables
+      [recommendations, information].map(&:purge!)
 
       multi_ruleset do
         # Facts
@@ -63,12 +64,6 @@ module Abak::Flow
       end
 
       recommendations.empty? ? true : false
-    end
-
-    private
-    def reset_variables
-      @recommendations = Messages.new "system.recommendations"
-      @information = Messages.new "system.information"
     end
   end
 end

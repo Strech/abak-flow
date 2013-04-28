@@ -25,6 +25,8 @@ en:
       proxy_server_set_up: "You set up the custom proxy server"
 
   pull_request:
+    publish:
+      forgot_task: "Sorry, i forgot my task number. Ask me personally if you have any questions"
     garbage:
       collected_branches: "Branches collected: %{count}"
       deletion_allowed: "%{index}. %{branch_name} → deletion allowed"
