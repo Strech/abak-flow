@@ -1,189 +1,73 @@
 # coding: utf-8
 require "spec_helper"
 
-module Abak::Flow::Configuration
-  class I18n
-    class << self
-      attr_accessor :load_path, :locale
-    end
-  end
-end
-
-require "abak-flow/configuration"
-
 describe Abak::Flow::Configuration do
-  subject { Abak::Flow::Configuration }
-
   let(:oauth_user) { "Admin" }
   let(:oauth_token) { "0123456789" }
   let(:proxy_server) { "http://www.super-proxy.net:4080/" }
   let(:environment) { "http://www.linux-proxy.net:6666/" }
-
-  let(:git_without_proxy) do
-    GitMock.new nil, nil, nil, {
-      "abak-flow.oauth-user" => oauth_user,
-      "abak-flow.oauth-token" => oauth_token,
-      "abak-flow.proxy-server" => nil,
-      "abak-flow.locale" => nil
-    }
-  end
+  let(:instance) { described_class.clone.instance }
 
   let(:git) do
-    GitMock.new nil, nil, nil, {
+    double("Git Config", config: {
       "abak-flow.oauth-user" => oauth_user,
       "abak-flow.oauth-token" => oauth_token,
       "abak-flow.proxy-server" => proxy_server,
       "abak-flow.locale" => "ru"
-    }
+    })
   end
 
-  before { Abak::Flow::Configuration::I18n.load_path = [] }
+  context "when all config elements missing" do
+    let(:git) { double("Git Config", config: {}) }
 
-  describe "when init config" do
-    it { subject.must_respond_to :init }
-    it { subject.must_respond_to :params }
-
-    it "should raise Exception" do
-      class Params < Struct.new(:oauth_user, :oauth_token, :proxy_server, :locale); end
-
-      subject.stub(:init_git_configuration, nil) do
-        subject.stub(:init_environment_configuration, nil) do
-          subject.stub(:need_initialize?, true) do
-            subject.stub(:params, Params.new) do
-              subject.init
-              -> { subject.check_requirements }.must_raise Exception
-            end
-
-            subject.stub(:params, Params.new("hello")) do
-              subject.init
-              -> { subject.check_requirements }.must_raise Exception
-            end
-
-            subject.stub(:params, Params.new("", "hello")) do
-              subject.init
-              -> { subject.check_requirements }.must_raise Exception
-            end
-          end
-        end
-      end
+    before do
+      described_class.any_instance.stub(:environment_http_proxy).and_return nil
+      described_class.any_instance.stub(:git).and_return git
+      described_class.any_instance.stub(:setup_locale)
     end
 
-    it "should not initialize config if already initialized" do
-      subject.stub(:initialized, true) do
-        subject.stub(:init_git_configuration, -> { raise Exception }) do
-          -> { subject.init }.must_be_silent
-        end
-      end
-    end
+    subject { instance.params }
 
-    it "should initialize config if not initialized" do
-      subject.stub(:initialized, false) do
-        subject.stub(:init_git_configuration, -> { raise Exception }) do
-          -> { subject.init }.must_raise Exception
-        end
-      end
-    end
+    its(:oauth_user) { should be_nil }
+    its(:oauth_token) { should be_nil }
+    its(:proxy_server) { should be_nil }
+    its(:locale) { should eq "en" }
   end
 
-  describe "when check config" do
-    describe "when all config elements missing" do
-      let(:git) do
-        git = GitMock.new nil, nil, nil, {
-          "abak-flow.oauth_user" => nil,
-          "abak-flow.oauth_token" => nil,
-          "abak-flow.proxy_server" => nil,
-          "abak-flow.locale" => nil
-        }
-      end
-
-      it "should be nil when ask oauth_user" do
-        subject.stub(:git, git) do
-          subject.stub(:need_initialize?, true) do
-            subject.init
-            subject.oauth_user.must_equal nil
-          end
-        end
-      end
-
-      it "should be nil when ask oauth_token" do
-        subject.stub(:git, git) do
-          subject.stub(:need_initialize?, true) do
-            subject.init
-            subject.oauth_token.must_equal nil
-          end
-        end
-      end
-
-      it "should set locale to default en" do
-        subject.stub(:git, git) do
-          subject.stub(:need_initialize?, true) do
-            subject.init
-            subject.locale.must_equal "en"
-          end
-        end
-      end
+  context "when all config elements exists" do
+    before do
+      described_class.any_instance.stub(:environment_http_proxy).and_return nil
+      described_class.any_instance.stub(:git).and_return git
+      described_class.any_instance.stub(:setup_locale)
     end
 
-    it "should take oauth_user from git config" do
-      subject.stub(:git, git) do
-        subject.stub(:need_initialize?, true) do
-          subject.init
-          subject.oauth_user.must_equal "Admin"
-        end
-      end
+    subject { instance.params }
+
+    its(:oauth_user) { should eq "Admin" }
+    its(:oauth_token) { should eq "0123456789" }
+    its(:locale) { should eq "ru" }
+    its(:proxy_server) { should eq "http://www.super-proxy.net:4080/" }
+  end
+
+  context "when various proxy server set" do
+    before do
+      described_class.any_instance.stub(:git).and_return git
+      described_class.any_instance.stub(:setup_locale)
     end
 
-    it "should take oauth_token from git config" do
-      subject.stub(:git, git) do
-        subject.stub(:need_initialize?, true) do
-          subject.init
-          subject.oauth_token.must_equal "0123456789"
-        end
-      end
+    subject { instance.params.proxy_server }
+
+    context "when ENV and git config setup proxy server" do
+      before { described_class.any_instance.stub(:environment_http_proxy).and_return environment }
+
+      it { should eq "http://www.super-proxy.net:4080/" }
     end
 
-    it "should set locale to :en" do
-      subject.stub(:git, git) do
-        subject.stub(:need_initialize?, true) do
-          subject.init
-          subject.locale.must_equal "ru"
-        end
-      end
-    end
+    context "when only ENV setup proxy server" do
+      before { described_class.any_instance.stub(:environment_http_proxy).and_return environment }
+      before { git.stub(:config).and_return({}) }
 
-    it "should set proxy_server from environment" do
-      git.config.merge!({"abak-flow.proxy-server" => nil})
-
-      subject.stub(:git, git) do
-        subject.stub(:environment_http_proxy, environment) do
-          subject.stub(:need_initialize?, true) do
-            subject.init
-            subject.proxy_server.must_equal "http://www.linux-proxy.net:6666/"
-          end
-        end
-      end
-    end
-
-    it "should set proxy_server from git config" do
-      subject.stub(:git, git) do
-        subject.stub(:environment_http_proxy, nil) do
-          subject.stub(:need_initialize?, true) do
-            subject.init
-            subject.proxy_server.must_equal "http://www.super-proxy.net:4080/"
-          end
-        end
-      end
-    end
-
-    it "should set proxy_server from git config not from environment" do
-      subject.stub(:git, git) do
-        subject.stub(:environment_http_proxy, environment) do
-          subject.stub(:need_initialize?, true) do
-            subject.init
-            subject.proxy_server.must_equal "http://www.super-proxy.net:4080/"
-          end
-        end
-      end
+      it { should eq "http://www.linux-proxy.net:6666/" }
     end
   end
 end
