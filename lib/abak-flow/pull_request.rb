@@ -8,9 +8,10 @@ module Abak::Flow
     include Ruler
     extend Forwardable
 
-    attr_reader :options
-    attr_reader :github_link
-    attr_reader :exception
+    attr_reader :options, :github_link, :exception
+    attr_reader :recommendations
+
+    BRANCH_MAPPING = {feature: "develop", hotfix: "master"}.freeze
 
     # New pull request
     #
@@ -27,14 +28,12 @@ module Abak::Flow
     #
     # Rerurns nil
     def initialize(options = {})
-      init_dependences
-
       @options = options
-      @recommendations_storage = Messages.new "pull_request.recommendations"
+      @recommendations = Messages.new "pull_request.recommendations"
     end
 
     def valid?
-      return false unless System.ready?
+      return false unless System.instance.ready?
 
       requirements_satisfied?
     end
@@ -44,7 +43,7 @@ module Abak::Flow
     end
 
     def recommendations
-      [System.recommendations, @recommendations_storage.dup.freeze]
+      [System.instance.recommendations, @recommendations]
     end
 
     def publish(raise_exceptions = false)
@@ -75,53 +74,9 @@ module Abak::Flow
     end
 
     private
-    def_delegators Git, :git
-    def_delegators Project, :upstream
-    def_delegators Branches, :current_branch
-    def_delegators GithubClient, :connection
-
-    attr_reader :recommendations_storage
-
-    # Pull request must have title, title it's a branch name if branch is hotfix
-    # or feature. Unless title option must be specify
-    #
-    # Returns TrueClass or FalseClass
-    def requirements_satisfied?
-      # TODO : Написать метод по очистке Messages#flush
-      @recommendations_storage = Messages.new "pull_request.recommendations"
-
-      multi_ruleset do
-        # Facts
-        fact :invalid_request_title do
-          title.empty?
-        end
-
-        fact :invalid_targe_branch do
-          branch.nil?
-        end
-
-        # Rules
-        rule [:invalid_request_title] do
-          @recommendations_storage << :specify_title
-        end
-
-        rule [:invalid_targe_branch] do
-          @recommendations_storage << :specify_branch
-        end
-      end
-
-      recommendations_storage.empty? ? true : false
-    end
-
-    def init_dependences
-      Project.init
-      Configuration.init
-    end
-
-    # TODO : Вынести в i18n
-    def forgot_task_text
-      "Sorry, i forgot my task number. Ask me personally if you have any questions"
-    end
+    def_delegator "Abak::Flow::Git.instance", :git
+    def_delegator "Abak::Flow::Branches", :current_branch
+    def_delegator "Abak::Flow::Project.instance", :remotes
 
     def title
       [current_branch.tracker_task, options[:title]].compact.join(" :: ")
@@ -136,41 +91,54 @@ module Abak::Flow
     def branch
       return options[:branch] unless options[:branch].nil?
 
-      branch_mapping.select { |method,_| current_branch.send "#{method}?" }.
-                     values.first
+      BRANCH_MAPPING.select { |type,_| current_branch.send "#{type}?" }.values.first
     end
 
     # TODO : Вынести формирование имени ветки в отдельный метод
-    # TODO : Проверять, нет ли уже оформленного реквеста
-    # TODO : Делегировать отправку и прочую еботу отктокиту
-    #
-    # 1. Получаем SHA удаленной ветки для той, в которой мы находимся
-    # 2. Получаем все реквесты и их SHA
-    # 3. Смотрим, что из данной ветки, был оформлен реквест, сравнением по SHA
-    # 4. Если нет - делаем реквест, если есть - обновляем ветку
-    #
     def publish_pull_request
       git.push("origin", current_branch.name)
 
-      opts = [upstream.to_s, branch, "#{Project.origin.owner}:#{current_branch.name}", title, comment]
-      connection.create_pull_request(*opts)
+      opts = [remotes[:upstream].to_s, branch, "#{remotes[:origin].owner}:#{current_branch.name}", title, comment]
+      GithubClient.instance.connection.create_pull_request(*opts)
     end
-
 
     # TODO : Вынести урл для трекера в отдельный метод
     def default_comment
       "http://jira.dev.apress.ru/browse/#{current_branch.tracker_task}" if current_branch.task?
     end
 
-    def branch_mapping
-      {feature: "develop", hotfix: "master"}
+    def forgot_task_text
+      Messages.new("pull_request.publish").t :forgot_task
     end
 
-    # ==========================================================================
-    # 3. Statistics & Cleaning
+    # Pull request must have title, title it's a branch name if branch is hotfix
+    # or feature. Unless title option must be specify
     #
-    # => PullRequest.garbage
-    # => PullRequest.clean
-    # => PullRequest.clean(hard: true)
+    # Returns TrueClass or FalseClass
+    def requirements_satisfied?
+      recommendations.purge!
+
+      multi_ruleset do
+        # Facts
+        fact :invalid_request_title do
+          title.empty?
+        end
+
+        fact :invalid_targe_branch do
+          branch.nil?
+        end
+
+        # Rules
+        rule [:invalid_request_title] do
+          @recommendations << :specify_title
+        end
+
+        rule [:invalid_targe_branch] do
+          @recommendations << :specify_branch
+        end
+      end
+
+      recommendations.empty? ? true : false
+    end
   end
 end
