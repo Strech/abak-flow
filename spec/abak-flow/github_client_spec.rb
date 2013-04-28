@@ -2,7 +2,14 @@
 require "spec_helper"
 
 describe Abak::Flow::GithubClient do
-  subject { described_class }
+  let(:instance) { described_class.clone.instance }
 
-  it { should respond_to :connection }
+  describe "#connection" do
+    let(:options) { {login: "login", password: "password"} }
+
+    before { described_class.any_instance.stub(:connection_options).and_return options }
+    after { instance.connection }
+
+    it { Octokit::Client.should_receive(:new).with({login: "login", password: "password"}) }
+  end
 end
