@@ -76,6 +76,10 @@ module Abak::Flow
     end
     alias :t :translate
 
+    def purge!
+      @elements = []
+    end
+
     private
     def_delegator :elements, :empty?
   end

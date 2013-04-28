@@ -123,5 +123,24 @@ describe Abak::Flow::Messages do
         it { should eq "HELLO" }
       end
     end
+
+    describe "#purge!" do
+      context "when message have elements" do
+        before { messages.push :hello }
+        before { messages.push :linux }
+        before { messages.purge! }
+
+        subject { messages }
+
+        it { should be_empty }
+      end
+
+      context "when message have no elements" do
+        before { messages.purge! }
+        subject { messages }
+
+        it { should be_empty }
+      end
+    end
   end
 end
