@@ -136,130 +136,105 @@ describe Abak::Flow::PullRequest do
   end
 
 
-  # describe "Publishing process" do
-  #   subject { Abak::Flow::PullRequest.new }
-  #
-  #   describe "when something goes wrong" do
-  #     describe "when system is not ready" do
-  #       before { Abak::Flow::PullRequest::System.ready = false }
-  #
-  #       it { subject.publish.must_equal false }
-  #
-  #       it "should store exception" do
-  #         subject.stub(:invalid?, true) do
-  #           subject.publish
-  #           subject.exception.wont_be_nil
-  #         end
-  #       end
-  #     end
-  #
-  #     describe "when pull request is invalid" do
-  #       before { Abak::Flow::PullRequest::System.ready = true }
-  #
-  #       it "should be false" do
-  #         subject.stub(:invalid?, true) do
-  #           subject.publish.must_equal false
-  #         end
-  #       end
-  #     end
-  #
-  #     describe "when something raise exception" do
-  #       before { Abak::Flow::PullRequest::System.ready = true }
-  #
-  #       it "should not raise exception" do
-  #         raise_object = NObject.new
-  #         raise_object.instance_eval { def _links; raise Exception end }
-  #
-  #         subject.stub(:invalid?, false) do
-  #           subject.stub(:publish_pull_request, raise_object) do
-  #             -> { subject.publish }.must_be_silent
-  #           end
-  #         end
-  #       end
-  #
-  #       it "should store exception" do
-  #         raise_object = NObject.new
-  #         raise_object.instance_eval { def _links; raise Exception end }
-  #
-  #         subject.stub(:invalid?, false) do
-  #           subject.stub(:publish_pull_request, raise_object) do
-  #             subject.publish
-  #             subject.exception.wont_be_nil
-  #           end
-  #         end
-  #       end
-  #     end
-  #   end
-  #
-  #   describe "when all right" do
-  #     before { Abak::Flow::PullRequest::System.ready = true }
-  #
-  #     it "shoud return true" do
-  #       subject.stub(:requirements_satisfied?, true) do
-  #         subject.stub(:publish_pull_request, NObject.new) do
-  #           subject.publish.must_equal true
-  #         end
-  #       end
-  #     end
-  #   end
-  #
-  #   describe "when use bang! method" do
-  #     describe "when something goes wrong" do
-  #       describe "when we raise exception" do
-  #         before { Abak::Flow::PullRequest::System.ready = false }
-  #
-  #         it { -> { subject.publish! }.must_raise Exception }
-  #       end
-  #
-  #       describe "when something raise exception" do
-  #         before { Abak::Flow::PullRequest::System.ready = true }
-  #
-  #         it "should raise exception" do
-  #           raise_object = NObject.new
-  #           raise_object.instance_eval { def _links; raise Exception end }
-  #
-  #           subject.stub(:invalid?, false) do
-  #             subject.stub(:publish_pull_request, raise_object) do
-  #               -> { subject.publish! }.must_raise Exception
-  #             end
-  #           end
-  #         end
-  #       end
-  #     end
-  #
-  #     describe "when all right" do
-  #       before { Abak::Flow::PullRequest::System.ready = true }
-  #
-  #       it "shoud not raise Exception" do
-  #         subject.stub(:requirements_satisfied?, true) do
-  #           subject.stub(:publish_pull_request, NObject.new) do
-  #             -> { subject.publish! }.must_be_silent
-  #           end
-  #         end
-  #       end
-  #     end
-  #   end
-  #
-  #   describe "#github_link" do
-  #     describe "when request not published" do
-  #       it { subject.github_link.must_be_nil }
-  #     end
-  #
-  #     describe "when request successfully published" do
-  #       before { Abak::Flow::PullRequest::System.ready = true }
-  #
-  #       it "shoud set github link" do
-  #         subject.stub(:requirements_satisfied?, true) do
-  #           subject.stub(:publish_pull_request, NObject.new({href: "wow"})) do
-  #             subject.publish
-  #             subject.github_link.must_equal "wow"
-  #           end
-  #         end
-  #       end
-  #     end
-  #   end
-  # end
-  #
+  describe "Publishing process" do
+    let(:pull_request) { Abak::Flow::PullRequest.new }
+
+    subject { pull_request }
+
+    describe "when something goes wrong" do
+      describe "when system is not ready" do
+        before { Abak::Flow::System.any_instance.stub(:ready).and_return false }
+        before { pull_request.stub(:invalid?).and_return true }
+
+        its(:publish) { should be_false }
+
+        describe "#exception" do
+          before { pull_request.publish }
+
+          its(:exception) { should_not be_nil }
+        end
+      end
+
+      describe "when pull request is invalid" do
+        before { Abak::Flow::System.any_instance.stub(:ready).and_return true }
+        before { pull_request.stub(:invalid?).and_return true }
+
+        its(:publish) { should be_false }
+      end
+
+      describe "when something raise exception" do
+        before do
+          Abak::Flow::System.any_instance.stub(:ready).and_return true
+          pull_request.stub(:invalid?).and_return false
+          pull_request.stub(:publish_pull_request).and_raise Exception
+        end
+
+        it { expect { pull_request.publish }.not_to raise_error }
+
+        describe "#exception" do
+          before { pull_request.publish }
+
+          its(:exception) { should_not be_nil }
+        end
+      end
+    end
+
+    describe "when all right" do
+      before do
+        Abak::Flow::System.any_instance.stub(:ready).and_return true
+        pull_request.stub(:invalid?).and_return false
+        pull_request.stub(:publish_pull_request).and_return double("Result").as_null_object
+      end
+
+      its(:publish) { should be_true }
+    end
+
+    describe "when use bang! method" do
+      describe "when something goes wrong" do
+        describe "when we raise exception" do
+          before { Abak::Flow::System.any_instance.stub(:ready).and_return false }
+
+          it { expect { pull_request.publish! }.to raise_error Exception }
+        end
+
+        describe "when something raise exception" do
+          before { Abak::Flow::System.any_instance.stub(:ready).and_return false }
+          before { pull_request.stub(:publish_pull_request).and_raise Exception }
+
+          it { expect { pull_request.publish! }.to raise_error Exception }
+        end
+      end
+
+      describe "when all right" do
+        before do
+          Abak::Flow::System.any_instance.stub(:ready).and_return true
+          pull_request.stub(:invalid?).and_return false
+          pull_request.stub(:publish_pull_request).and_return double("Result").as_null_object
+        end
+
+        it { expect { pull_request.publish! }.not_to raise_error }
+      end
+    end
+
+    describe "#github_link" do
+      describe "when request not published" do
+        its(:github_link) { should be_nil }
+      end
+
+      describe "when request successfully published" do
+        before do
+          Abak::Flow::System.any_instance.stub(:ready).and_return true
+          pull_request.stub(:invalid?).and_return false
+          pull_request.stub(:publish_pull_request).and_return double("Result", href: "wow").as_null_object
+
+          pull_request.publish
+        end
+
+        its(:github_link) { should eq "wow" }
+      end
+    end
+  end
+
   # describe "Validation process" do
   #   describe "when system is not ready" do
   #     before do
