@@ -1,59 +1,68 @@
 # coding: utf-8
-#
-# Module for access to global abak-flow gem config
-# recieved from .git config and environment
-#
-# Auto generated methods: oauth_user, oauth_token, proxy_server
-#
-# TODO : Проверять что атрибут из конфига валиден
-# TODO : Переименовать модуль
-#
-# Example
-#
-#   Abak::Flow::Configuration.oauth_user #=> Strech
-#
-require "singleton"
+require "i18n"
+require "ruler"
 require "forwardable"
-require "ostruct"
 
 module Abak::Flow
   class Configuration
-    include Singleton
+    include Ruler
     extend Forwardable
 
-    def_delegator "Abak::Flow::Git.instance", :git
+    OPTIONS = [:oauth_user, :oauth_token, :locale, :http_proxy].freeze
+    LOCALE_FILES = File.join(File.dirname(__FILE__), "locales/*.{rb,yml}").freeze
 
-    attr_reader :params
+    def_delegators :@manager, :git
 
-    def initialize
-      load_git_configuration
+    attr_reader :errors
+
+    def initialize(manager)
+      @manager = manager
+      @errors = []
+
+      configure!
+    end
+
+    def ready?
+      @errors = []
+
+      multi_ruleset do
+        fact(:oauth_user_not_setup) { oauth_user.nil? }
+        fact(:oauth_token_not_setup) { oauth_token.nil? }
+
+        rule([:oauth_user_not_setup]) { @errors << I18n.t("configuration.errors.oauth_user_not_setup") }
+        rule([:oauth_token_not_setup]) { @errors << I18n.t("configuration.errors.oauth_token_not_setup") }
+      end
+
+      @errors.empty? ? true : false
+    end
+
+    def configure!
+      load_gitconfig
       setup_locale
     end
 
     private
-    def load_git_configuration
-      git_config = git.config.select { |k, _| k.include? "abak-flow." }
-                             .map { |k,v| [convert_param_name_to_method_name(k), v] }
+    def setup_locale
+      I18n.load_path += Dir.glob(LOCALE_FILES)
+      I18n.locale = locale
+    end
 
-      @params = Params.new(Hash[git_config]).tap do |p|
-        p.locale ||= "en"
-        p.proxy_server ||= environment_http_proxy
+    def load_gitconfig
+      git_config = git.config.select { |k, _| k.include? "abak-flow." }
+                             .map { |k,v| [to_method_name(k), v] }
+
+
+      config = Hash[git_config]
+      config[:locale] ||= "en"
+      config[:http_proxy] ||= ENV["http_proxy"] || ENV["HTTP_PROXY"]
+
+      OPTIONS.each do |name|
+        define_singleton_method(name) { config[name] }
       end
     end
 
-    def setup_locale
-      I18n.load_path += Dir.glob(File.join File.dirname(__FILE__), "locales/*.{rb,yml}")
-      I18n.locale = params.locale
+    def to_method_name(name)
+      name.sub(/abak-flow./, "").gsub(/\W/, "_").to_sym
     end
-
-    def environment_http_proxy
-      ENV["http_proxy"] || ENV["HTTP_PROXY"]
-    end
-
-    def convert_param_name_to_method_name(name)
-      name.sub(/abak-flow./, "").gsub(/\W/, "_")
-    end
-
-    class Params < OpenStruct; end
   end
 end

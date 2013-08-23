@@ -1,20 +1,19 @@
 ru:
+  configuration:
+    name: Корфигурация
+    errors:
+      oauth_user_not_setup: Не установлена опция oauth_user
+      oauth_token_not_setup: Не установлена опция oauth_token
+    recommendations: "Проверьте секцию [abak-flow] в файле ~/.gitcofig"
+
+  repository:
+    name: Репозиторий
+    errors:
+      origin_not_setup: Репозиторий с именем 'origin' не найден
+      upstream_not_setup: Репозиторий с именем 'upstream' не найден
+    recommendations: Проверьте файл .git/cofig
+
   commands:
-    checkup: &command_checkup
-      you_are_ready: "Ура, все готово!"
-      you_are_not_prepared: "Кажется вы все еще не готовы!"
-    publish:
-      <<: *command_checkup
-      lets_do_it: "Начинаю публиковать пул реквест"
-      request_published: "Ура, пул реквест опубликован!"
-      something_goes_wrong: "Так, кажется что-то пошло не так ..."
-  system:
-    recommendations:
-      header: "== Рекомендации по конфигурации =="
-      set_up_origin: "Укажите origin репозиторий"
-      set_up_upstream: "Укажите upstream репозиторий"
-      set_up_oauth_user: "Пропишите git конфигурацию abak-flow.oauth-user"
-      set_up_oauth_token: "Пропишите git конфигурацию abak-flow.oauth-token"
-    information:
-      header: "== Информация по конфигурации =="
-      proxy_server_set_up: "Вы указали свой proxy server"
+    checkup:
+      fail: "Вы не готовы!"
+      success: "Поздравляем, вы готовы чтобы жечь :)"
