@@ -35,6 +35,10 @@ module Abak::Flow
       @errors.empty? ? true : false
     end
 
+    def display_name
+      I18n.t("repository.name")
+    end
+
     private
     def configure!
       remotes = Hash[fetch_remotes_from_git]

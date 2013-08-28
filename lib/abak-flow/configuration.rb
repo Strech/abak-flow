@@ -36,12 +36,16 @@ module Abak::Flow
       @errors.empty? ? true : false
     end
 
+    def display_name
+      I18n.t("configuration.name")
+    end
+
+    private
     def configure!
       load_gitconfig
       setup_locale
     end
 
-    private
     def setup_locale
       I18n.load_path += Dir.glob(LOCALE_FILES)
       I18n.locale = locale

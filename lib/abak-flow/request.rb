@@ -14,27 +14,14 @@ module Abak::Flow
     c.description = "Проверить все ли настроено для работы с github и удаленными репозиториями"
 
     c.action do |args, options|
-      Manager.new do |m|
+      m = Manager.new
+      v = Visitor.new(m.configuration, m.repository, ask: :ready?, look_for: :errors)
 
-        ready = [:configuration, :repository].map { |x| m.send(x).ready? }.uniq
-        ready = ready.size == 1 && ready.first
-
-        if ready
-          say ANSI.green { I18n.t("commands.checkup.success") }
-        else
-          say ANSI.red { I18n.t("commands.checkup.fail") }
-          
-          [:configuration, :repository].each do |x|
-            next if m.send(x).errors.empty?
-
-            say "\n"
-            say ANSI.yellow { I18n.t("name", scope: x) }
-
-            m.send(x).errors.each_with_index do |e, i|
-              say ANSI.yellow { "  #{i + 1}. #{e}" }
-            end
-          end
-        end
+      if v.ready?
+        say ANSI.green { I18n.t("commands.checkup.success") }
+      else
+        say ANSI.red { I18n.t("commands.checkup.fail") }
+        say ANSI.yellow { v.output }
       end
     end
   end # checkup command
