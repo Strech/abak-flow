@@ -1,5 +1,6 @@
 # coding: utf-8
 require "git"
+require "octokit"
 
 module Abak::Flow
   class Manager
@@ -18,6 +19,12 @@ module Abak::Flow
 
     def repository
       @repository ||= Repository.new(self)
+    end
+
+    def github
+      @github ||= Octokit::Client.new(login: configuration.oauth_user,
+        oauth_token: configuration.oauth_token,
+        proxy: configuration.http_proxy)
     end
 
     def git

@@ -26,15 +26,40 @@ module Abak::Flow
     end
   end # checkup command
 
-  #command :publish do |c|
-    #c.syntax      = "git request publish"
-    #c.description = "Оформить pull request в upstream репозиторий"
+  command :compare do |c|
+    c.syntax      = "git request compare"
+    c.description = "Сравнить свою ветку с веткой upstream репозитория"
 
-    #c.option "-t STRING", String, "Заголовок для вашего pull request"
-    #c.option "-c STRING", String, "Комментарии для вашего pull request"
-    #c.option "-b STRING", String, "Имя ветки, в которую нужно принять изменения"
+    c.option "--base STRING", String, "Имя ветки с которой нужно сравнить"
+    c.option "--head STRING", String, "Имя ветки которую нужно сравнить"
 
-    #c.action do |args, options|
+    c.action do |args, options|
+      m = Manager.new
+
+      head = options.head || m.git.branches[m.git.current_branch]
+
+      link = [
+        m.github.web_endpoint,
+        m.repository.origin.to_s,
+        "compare",
+        "#{m.repository.upstream.owner}:#{options.base}...#{head}",
+      ]
+
+      say ANSI.green { File.join(link) }
+    end
+  end
+
+  command :publish do |c|
+    c.syntax      = "git request publish"
+    c.description = "Оформить pull request в upstream репозиторий"
+
+    c.option "--title STRING", String, "Заголовок для вашего pull request"
+    c.option "--body STRING", String, "Текст для вашего pull request"
+    c.option "--base STRING", String, "Имя ветки, в которую нужно принять изменения"
+
+    c.action do |args, options|
+      p [args, options]
+
       #opts = {base: options.b, title: options.t, comment: options.c}
       #request = PullRequest.new(opts)
 
@@ -56,6 +81,6 @@ module Abak::Flow
         #say request.recommendations.select { |m| !m.empty? }
                                    #.collect(&:pp) * "\n"
       #end
-    #end
-  #end  # publish command
+    end
+  end  # publish command
 end
