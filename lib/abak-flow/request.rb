@@ -36,13 +36,27 @@ module Abak::Flow
     c.action do |args, options|
       m = Manager.new
 
-      head = options.head || m.git.branches[m.git.current_branch]
+      # TODO : Вот первый участок использования веток
+      #        Хочется чтобы из названия можно было соорудить Branch
+      #        и у него были бы методы update, current?, compare
+      branch = m.git.current_branch
+      head = options.head || m.git.branches[branch].name
+      base = options.base || "master"
+
+      if head == branch
+        origin = m.git.remote("origin")
+
+        say ANSI.white { I18n.t("commands.compare.updating", branch: head, upstream: origin) }
+        m.git.push(origin, head)
+      else
+        say ANSI.yellow { I18n.t("commands.compare.diverging", branch: head) }
+      end
 
       link = [
         m.github.web_endpoint,
         m.repository.origin.to_s,
         "compare",
-        "#{m.repository.upstream.owner}:#{options.base}...#{head}",
+        "#{m.repository.upstream.owner}:#{base}...#{head}",
       ]
 
       say ANSI.green { File.join(link) }

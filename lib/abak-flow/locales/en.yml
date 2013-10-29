@@ -15,5 +15,8 @@ en:
 
   commands:
     checkup:
-      fail: "You are not prepared!"
+      fail: You are not prepared!
       success: "Congratulations, you are ready to ROCK :)"
+    compare:
+      updating: "Updating %{branch} in %{upstream}"
+      diverging: "Branches may diverging\nAdvice: switch to branch '%{branch}' and retry operation"
