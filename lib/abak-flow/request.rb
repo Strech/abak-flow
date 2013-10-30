@@ -24,7 +24,7 @@ module Abak::Flow
         say ANSI.yellow { v.output }
       end
     end
-  end # checkup command
+  end # command :checkup
 
   command :compare do |c|
     c.syntax      = "git request compare"
@@ -36,32 +36,23 @@ module Abak::Flow
     c.action do |args, options|
       m = Manager.new
 
-      # TODO : Вот первый участок использования веток
-      #        Хочется чтобы из названия можно было соорудить Branch
-      #        и у него были бы методы update, current?, compare
-      branch = m.git.current_branch
-      head = options.head || m.git.branches[branch].name
-      base = options.base || "master"
+      current = m.git.current_branch
+      head = options.head || Branch.new(current, m)
 
-      if head == branch
-        origin = m.git.remote("origin")
+      # TODO : Вот тут хочется спросить, является ли head.mappable? и если
+      # да, то просто взять его отмапленную ветку
+      base = options.base || Branch.new("master", m)
 
-        say ANSI.white { I18n.t("commands.compare.updating", branch: head, upstream: origin) }
-        m.git.push(origin, head)
+      if head.current?
+        say ANSI.white { I18n.t("commands.compare.updating", branch: head, upstream: "origin") }
+        head.update
       else
         say ANSI.yellow { I18n.t("commands.compare.diverging", branch: head) }
       end
 
-      link = [
-        m.github.web_endpoint,
-        m.repository.origin.to_s,
-        "compare",
-        "#{m.repository.upstream.owner}:#{base}...#{head}",
-      ]
-
-      say ANSI.green { File.join(link) }
+      say ANSI.green { head.compare_link(base) }
     end
-  end
+  end # command :compare
 
   command :publish do |c|
     c.syntax      = "git request publish"
