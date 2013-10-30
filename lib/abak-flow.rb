@@ -6,5 +6,6 @@ require "abak-flow/version" # ✔
 require "abak-flow/manager"
 require "abak-flow/configuration"
 require "abak-flow/repository"
+require "abak-flow/branch"
 require "abak-flow/request"
 require "abak-flow/visitor"

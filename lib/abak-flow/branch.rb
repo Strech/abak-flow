@@ -9,26 +9,10 @@ module Abak::Flow
     DEVELOPMENT = "develop".freeze
     MASTER      = "master".freeze
 
-    # def compare_link
-    # File.join [
-    #   m.github.web_endpoint,
-    #   m.repository.origin.to_s,
-    #   "compare",
-    #   "#{m.repository.upstream.owner}:#{base}...#{head}",
-    # ] 
-    # end
-
-    # def current?
-    # ...
-    # end
-
-    # def update
-    # ...
-    # end
-
     def initialize(branch, manager)
       @manager = manager
-      @branch = branch.is_a?(Git::Branch) ? branch : manager.git.branch(name)
+      @branch = branch.is_a?(Git::Branch) ? branch
+                                          : manager.git.branch(branch)
     end
 
     def name
@@ -41,6 +25,25 @@ module Abak::Flow
 
     def task
       split_prefix_and_task.last
+    end
+
+    def compare_link(branch)
+      diff = "#{@manager.repository.upstream.owner}:#{branch}...#{@branch}"
+
+      File.join [
+        @manager.github.web_endpoint,
+        @manager.repository.origin.to_s,
+        "compare", diff
+      ]
+    end
+
+    def update
+      origin = @manager.repository.origin.repo
+      @manager.git.push(origin, @branch)
+    end
+
+    def to_s
+      @branch.to_s
     end
 
     def hotfix?
@@ -57,6 +60,10 @@ module Abak::Flow
 
     def mappable?
       hotfix? || feature?
+    end
+
+    def current?
+      @branch.to_s == @manager.git.current_branch.to_s
     end
 
     private

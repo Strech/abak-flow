@@ -37,11 +37,11 @@ module Abak::Flow
       m = Manager.new
 
       current = m.git.current_branch
-      head = options.head || Branch.new(current, m)
+      head = Branch.new(options.head || current, m)
 
       # TODO : Вот тут хочется спросить, является ли head.mappable? и если
       # да, то просто взять его отмапленную ветку
-      base = options.base || Branch.new("master", m)
+      base = Branch.new(options.base || "master", m)
 
       if head.current?
         say ANSI.white { I18n.t("commands.compare.updating", branch: head, upstream: "origin") }
