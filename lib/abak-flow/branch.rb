@@ -2,12 +2,17 @@
 
 module Abak::Flow
   class Branch
-    PREFIX_HOTFIX  = "hotfix".freeze
-    PREFIX_FEATURE = "feature".freeze
+    FOLDER_HOTFIX  = "hotfix".freeze
+    FOLDER_FEATURE = "feature".freeze
     TASK_FORMAT    = /^\w+\-\d{1,}$/.freeze
 
     DEVELOPMENT = "develop".freeze
     MASTER      = "master".freeze
+
+    MAPPING = {
+      FOLDER_HOTFIX  => MASTER,
+      FOLDER_FEATURE => DEVELOPMENT
+    }.freeze
 
     def initialize(branch, manager)
       @manager = manager
@@ -17,6 +22,10 @@ module Abak::Flow
 
     def name
       @branch.full
+    end
+
+    def message
+      @branch.gcommit.message
     end
 
     def folder
@@ -42,16 +51,28 @@ module Abak::Flow
       @manager.git.push(origin, @branch)
     end
 
-    def to_s
-      @branch.to_s
+    def pick_up_base_name
+      mappable? ? MAPPING[folder]
+                : name
+    end
+
+    def pick_up_title
+      tracker_task? ? task
+                    : message
+    end
+
+    # TODO : Вынести в i18n
+    def pick_up_body
+      tracker_task? ? "http://jira.railsc.ru/browse/#{task}"
+                    : nil
     end
 
     def hotfix?
-      prefix == PREFIX_HOTFIX
+      folder == FOLDER_HOTFIX
     end
 
     def feature?
-      prefix == PREFIX_FEATURE
+      folder == FOLDER_FEATURE
     end
 
     def tracker_task?
@@ -63,7 +84,15 @@ module Abak::Flow
     end
 
     def current?
-      @branch.to_s == @manager.git.current_branch.to_s
+      @branch.current
+    end
+
+    def valid?
+      !@branch.name.empty?
+    end
+
+    def to_s
+      @branch.to_s
     end
 
     private

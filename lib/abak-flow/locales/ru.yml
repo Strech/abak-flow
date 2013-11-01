@@ -13,10 +13,20 @@ ru:
       upstream_not_setup: Репозиторий с именем 'upstream' не найден
     recommendations: Проверьте файл .git/cofig
 
+  pull_request:
+    name: Пулл реквест
+
   commands:
     checkup:
       fail: "Вы не готовы!"
       success: "Поздравляем, вы готовы чтобы жечь :)"
     compare:
-      updating: "Обновление %{branch} в %{upstream}"
+      fail: Что-то пошло не так!
+      updating: "Обновление %{branch} → %{upstream}"
       diverging: "Ветки могут расходиться.\nСовет: переключитесь в ветку '%{branch}' и повторите операцию"
+    publish:
+      fail: Что-то пошло не так!
+      success: "Пулл реквест успешно создан %{link}"
+      requesting: "Создание пулл реквеста %{branch} → %{upstream}"
+      updating: "Обновление %{branch} → %{upstream}"
+      nothing: Мне нечего добавить ...

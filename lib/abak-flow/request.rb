@@ -15,7 +15,7 @@ module Abak::Flow
 
     c.action do |args, options|
       m = Manager.new
-      v = Visitor.new(m.configuration, m.repository, ask: :ready?, look_for: :errors)
+      v = Visitor.new(m.configuration, m.repository, call: :ready?, look_for: :errors)
 
       if v.ready?
         say ANSI.green { I18n.t("commands.checkup.success") }
@@ -34,20 +34,32 @@ module Abak::Flow
     c.option "--head STRING", String, "Имя ветки которую нужно сравнить"
 
     c.action do |args, options|
+      # TODO : Вот это дубль, хочется его как-то более красиво
       m = Manager.new
+      v = Visitor.new(m.configuration, m.repository, call: :ready?, look_for: :errors)
+
+      unless v.ready?
+        say ANSI.red { I18n.t("commands.compare.fail") }
+        say ANSI.yellow { v.output }
+
+        exit 1
+      end
 
       current = m.git.current_branch
       head = Branch.new(options.head || current, m)
-
-      # TODO : Вот тут хочется спросить, является ли head.mappable? и если
-      # да, то просто взять его отмапленную ветку
-      base = options.base || Branch.new(current, m)
+      base = Branch.new(options.base || head.pick_up_base_name, m)
 
       if head.current?
-        say ANSI.white { I18n.t("commands.compare.updating", branch: head, upstream: "origin") }
+        say ANSI.white {
+          I18n.t("commands.compare.updating",
+            branch: ANSI.bold { head },
+            upstream: ANSI.bold { "#{m.repository.origin}" }) }
+
         head.update
       else
-        say ANSI.yellow { I18n.t("commands.compare.diverging", branch: head) }
+        say ANSI.yellow {
+          I18n.t("commands.compare.diverging",
+            branch: ANSI.bold { head }) }
       end
 
       say ANSI.green { head.compare_link(base) }
@@ -63,29 +75,50 @@ module Abak::Flow
     c.option "--base STRING", String, "Имя ветки, в которую нужно принять изменения"
 
     c.action do |args, options|
-      p [args, options]
+      m = Manager.new
 
-      #opts = {base: options.b, title: options.t, comment: options.c}
-      #request = PullRequest.new(opts)
+      head = Branch.new(m.git.current_branch, m)
+      base = Branch.new(options.base || head.pick_up_base_name, m)
 
-      #message = Messages.new "commands.publish"
+      title = options.title || head.pick_up_title
+      body = [
+        options.body || (head.mappable? ? nil : I18n.t("commands.publish.nothing")),
+        head.pick_up_body
+      ].compact * "\n\n"
 
-      #if request.valid?
-        #say message.t(:lets_do_it)
+      p = PullRequest.new({base: base, head: head, title: title, body: body}, m)
+      v = Visitor.new(m.configuration, m.repository, p, call: :ready?, look_for: :errors)
 
-        #if request.publish
-          #say_ok message.t(:request_published)
-          #say request.github_link
-        #else
-          #say_error message.t(:something_goes_wrong)
-          #say request.exception.message
-          #say request.exception.backtrace * "\n"
-        #end
-      #else
-        #say_warning message.t(:you_are_not_prepared)
-        #say request.recommendations.select { |m| !m.empty? }
-                                   #.collect(&:pp) * "\n"
-      #end
+      unless v.ready?
+        say ANSI.red { I18n.t("commands.publish.fail") }
+        say ANSI.yellow { v.output }
+
+        exit 1
+      end
+
+      say ANSI.white {
+        I18n.t("commands.publish.updating",
+          branch: ANSI.bold { head },
+          upstream: ANSI.bold { "#{m.repository.origin}" }) }
+
+      head.update
+
+      say ANSI.white {
+        I18n.t("commands.publish.requesting",
+          branch: ANSI.bold { "#{m.repository.origin.owner}:#{head}" },
+          upstream: ANSI.bold { "#{m.repository.upstream.owner}:#{base}" }) }
+
+      v = Visitor.new(p, call: :publish, look_for: :errors)
+      if v.ready?
+        say ANSI.green {
+          I18n.t("commands.publish.success",
+            link: ANSI.bold { p.link }) }
+      else
+        say ANSI.red { I18n.t("commands.publish.fail") }
+        say ANSI.yellow { v.output }
+
+        exit 3
+      end
     end
-  end  # publish command
+  end # command :publish
 end

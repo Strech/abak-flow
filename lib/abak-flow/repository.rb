@@ -25,10 +25,10 @@ module Abak::Flow
       @errors = []
 
       multi_ruleset do
-        fact(:origin_not_setup) { origin.nil? }
+        fact(:origin_not_setup)   { origin.nil? }
         fact(:upstream_not_setup) { upstream.nil? }
 
-        rule([:origin_not_setup]) { @errors << I18n.t("repository.errors.origin_not_setup") }
+        rule([:origin_not_setup])   { @errors << I18n.t("repository.errors.origin_not_setup") }
         rule([:upstream_not_setup]) { @errors << I18n.t("repository.errors.upstream_not_setup") }
       end
 

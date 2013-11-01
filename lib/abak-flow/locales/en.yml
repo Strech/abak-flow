@@ -13,10 +13,20 @@ en:
       upstream_not_setup: Repository with name 'upstream' not found
     recommendations: "Check .git/cofig file"
 
+  pull_request:
+    name: Pull Request
+
   commands:
     checkup:
       fail: You are not prepared!
       success: "Congratulations, you are ready to ROCK :)"
     compare:
-      updating: "Updating %{branch} in %{upstream}"
+      fail: Something goes wrong!
+      updating: "Updating %{branch} → %{upstream}"
       diverging: "Branches may diverging\nAdvice: switch to branch '%{branch}' and retry operation"
+    publish:
+      fail: Something goes wrong!
+      success: "Pull request successfuly created %{link}"
+      requesting: "Creating pull request %{branch} → %{upstream}"
+      updating: "Updating %{branch} → %{upstream}"
+      nothing: I have nothing to say ...

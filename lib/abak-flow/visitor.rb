@@ -6,7 +6,7 @@ module Abak::Flow
       options = args.pop if args.last.is_a?(Hash)
 
       @objects = args
-      @ask  = options.fetch(:ask)
+      @call = options.fetch(:call)
       @info = options.fetch(:look_for)
 
       @asked = false
@@ -15,7 +15,7 @@ module Abak::Flow
     def ready?
       @asked = true
 
-      ready = @objects.map { |o| o.send(@ask) }.uniq
+      ready = @objects.map { |o| o.send(@call) }.uniq
       ready.size == 1 && ready.first
     end
 

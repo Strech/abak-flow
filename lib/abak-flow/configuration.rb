@@ -1,17 +1,13 @@
 # coding: utf-8
 require "i18n"
 require "ruler"
-require "forwardable"
 
 module Abak::Flow
   class Configuration
     include Ruler
-    extend Forwardable
 
     OPTIONS = [:oauth_user, :oauth_token, :locale, :http_proxy].freeze
     LOCALE_FILES = File.join(File.dirname(__FILE__), "locales/*.{rb,yml}").freeze
-
-    def_delegators :@manager, :git
 
     attr_reader :errors
 
@@ -26,10 +22,10 @@ module Abak::Flow
       @errors = []
 
       multi_ruleset do
-        fact(:oauth_user_not_setup) { oauth_user.nil? }
+        fact(:oauth_user_not_setup)  { oauth_user.nil? }
         fact(:oauth_token_not_setup) { oauth_token.nil? }
 
-        rule([:oauth_user_not_setup]) { @errors << I18n.t("configuration.errors.oauth_user_not_setup") }
+        rule([:oauth_user_not_setup])  { @errors << I18n.t("configuration.errors.oauth_user_not_setup") }
         rule([:oauth_token_not_setup]) { @errors << I18n.t("configuration.errors.oauth_token_not_setup") }
       end
 
@@ -52,9 +48,8 @@ module Abak::Flow
     end
 
     def load_gitconfig
-      git_config = git.config.select { |k, _| k.include? "abak-flow." }
-                             .map { |k,v| [to_method_name(k), v] }
-
+      git_config = @manager.git.config.select { |k, _| k.include? "abak-flow." }
+                               .map { |k,v| [to_method_name(k), v] }
 
       config = Hash[git_config]
       config[:locale] ||= "en"
