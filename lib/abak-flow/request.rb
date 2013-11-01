@@ -41,7 +41,7 @@ module Abak::Flow
 
       # TODO : Вот тут хочется спросить, является ли head.mappable? и если
       # да, то просто взять его отмапленную ветку
-      base = Branch.new(options.base || "master", m)
+      base = options.base || Branch.new(current, m)
 
       if head.current?
         say ANSI.white { I18n.t("commands.compare.updating", branch: head, upstream: "origin") }
