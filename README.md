@@ -3,6 +3,7 @@ Abak-flow
 Нет, это не новая идеология ведения проекта, это всего лишь набор утилит которые помогают связать использование [git-flow](https://github.com/nvie/gitflow) и [github flow](http://scottchacon.com/2011/08/31/github-flow.html)
 
 **Начиная с версии v0.2.1 используется авторизация OAuth2. [Как ей пользоваться?](https://github.com/Strech/abak-flow/wiki/How-start-work-with-new-abak-flow)**
+
 **Начиная с версии v1.0.0 используется новый формат конфигурации. [Как мигрировать старую?](https://github.com/Strech/abak-flow/wiki/How-start-work-with-abak-flow-v1.0.0)**
 
 # Концепция
