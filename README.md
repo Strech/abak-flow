@@ -34,7 +34,7 @@ Github-flow же наоборот ведет основную разработк
     $ git remote add upstream git://github.com/GITHUB_PROJECT_USER/GITHUB_PROJECT_NAME.git
     
 ### А если я использую прокси, как быть?
-    $ git config --global abak.proxy http://my-proxy.com:3129
+    $ git config --global abak-flow.http-proxy http://my-proxy.com:3129
     
 Далее по приоритету идут переменные окружения. Сначала **http_proxy**, затем **HTTP_PROXY**
 
