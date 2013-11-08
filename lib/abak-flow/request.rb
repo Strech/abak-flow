@@ -110,9 +110,7 @@ module Abak::Flow
 
       v = Visitor.new(p, call: :publish, look_for: :errors)
       if v.ready?
-        say ANSI.green {
-          I18n.t("commands.publish.success",
-            link: ANSI.bold { p.link }) }
+        say ANSI.green { I18n.t("commands.publish.success", link: p.link) }
       else
         say ANSI.red { I18n.t("commands.publish.fail") }
         say ANSI.yellow { v.output }
