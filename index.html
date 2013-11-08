@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Abak-flow by Strech</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Abak-flow</h1>
+        <h2>Abak press github + gitflow flow ^___^</h2>
+        <a href="https://github.com/Strech/abak-flow" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="abak-flow" class="anchor" href="#abak-flow"><span class="octicon octicon-link"></span></a>Abak-flow</h1>
+
+<p>Нет, это не новая идеология ведения проекта, это всего лишь набор утилит которые помогают связать использование <a href="https://github.com/nvie/gitflow">git-flow</a> и <a href="http://scottchacon.com/2011/08/31/github-flow.html">github flow</a></p>
+
+<p><strong>Начиная с версии v0.2.1 используется авторизация OAuth2. <a href="https://github.com/Strech/abak-flow/wiki/How-start-work-with-new-abak-flow">Как ей пользоваться</a></strong></p>
+
+<h1>
+<a name="%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%86%D0%B8%D1%8F" class="anchor" href="#%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%86%D0%B8%D1%8F"><span class="octicon octicon-link"></span></a>Концепция</h1>
+
+<p>Идеология git-flow использует следующий набор веток:</p>
+
+<ul>
+<li>
+<em>master</em> - всегда пригодна для развертывания</li>
+<li>
+<em>develop</em> - основная ветка разработки</li>
+<li>
+<em>hotfix</em> - ветка для изменений которые попадут на продакшен сервер</li>
+<li>
+<em>feature</em> - ветки для крупных задач</li>
+</ul><p>Github-flow же наоборот ведет основную разработку в ветке master, но при этом master является пригодным для развертывания в любой момент.</p>
+
+<p>После долгих раздумий было принято применить следующий набор правил, для разработки на github:</p>
+
+<ol>
+<li>Вся разработка любой задачи и функционала ведется только в ветках <strong>feature</strong>
+</li>
+<li>Разработаный функционал из ветки <strong>feature</strong> оформляется pull request только в ветку <strong>develop</strong>
+</li>
+<li>Все исправления ошибок, которые должны попасть на продакшен сервер делаются только в ветках <strong>hotfix</strong>
+</li>
+<li>Исправленные ошибки из ветки <strong>hotfix</strong> фофрмляются pull request только в ветку <strong>master</strong>
+</li>
+<li>После получения исправлений на текущий момент в репозитории инициируется merge ветки <strong>master</strong> в <strong>develop</strong>
+</li>
+</ol><h1>
+<a name="%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0" class="anchor" href="#%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0"><span class="octicon octicon-link"></span></a>Установка</h1>
+
+<pre><code>$ gem install abak-flow
+$ git config --global alias.request '!request'
+$ git config --global abak.apiuser YOUR_GITHUB_MAIL@gmail.com
+$ git config --global abak.apitoken 0123456789YOUR_GITHUB_API_TOKEN
+$ git remote add upstream git://github.com/GITHUB_PROJECT_USER/GITHUB_PROJECT_NAME.git
+</code></pre>
+
+<h3>
+<a name="%D0%90-%D0%B5%D1%81%D0%BB%D0%B8-%D1%8F-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D1%83%D1%8E-%D0%BF%D1%80%D0%BE%D0%BA%D1%81%D0%B8-%D0%BA%D0%B0%D0%BA-%D0%B1%D1%8B%D1%82%D1%8C" class="anchor" href="#%D0%90-%D0%B5%D1%81%D0%BB%D0%B8-%D1%8F-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D1%83%D1%8E-%D0%BF%D1%80%D0%BE%D0%BA%D1%81%D0%B8-%D0%BA%D0%B0%D0%BA-%D0%B1%D1%8B%D1%82%D1%8C"><span class="octicon octicon-link"></span></a>А если я использую прокси, как быть?</h3>
+
+<pre><code>$ git config --global abak.proxy http://my-proxy.com:3129
+</code></pre>
+
+<p>Далее по приоритету идут переменные окружения. Сначала <strong>http_proxy</strong>, затем <strong>HTTP_PROXY</strong></p>
+
+<p>Т.е если вы используете переменные окружения, то просто не указывайте прокси в конфиге</p>
+
+<hr><p><strong>Заметьте:</strong> В конфиге git, значением <em>abak.apiuser</em> должен являться тот email адрес, под которым вы заходите на github</p>
+
+<p><strong>Обратите внимание:</strong> В данном контексте под <strong>upstream</strong> подразумевается адрес репозитория в который будут оформляться pull request. А репозиторием <strong>origin</strong> будет являться ваш форк </p>
+
+<h1>
+<a name="%D0%A1-%D1%87%D0%B5%D0%B3%D0%BE-%D0%BD%D0%B0%D1%87%D0%B0%D1%82%D1%8C" class="anchor" href="#%D0%A1-%D1%87%D0%B5%D0%B3%D0%BE-%D0%BD%D0%B0%D1%87%D0%B0%D1%82%D1%8C"><span class="octicon octicon-link"></span></a>С чего начать?</h1>
+
+<pre><code>$ git request readycheck
+</code></pre>
+
+<p>или</p>
+
+<pre><code>$ git request help
+</code></pre>
+
+<p><strong>Примечание:</strong> Вообще-то все комманды поддерживают опцию <em>--help</em>, но вот именно <em>git request --help</em> успевает перехватиться самим git и он конечно неодумевает как ему показать хэлп по внешней комманде</p>
+
+<h1>
+<a name="%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F" class="anchor" href="#%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F"><span class="octicon octicon-link"></span></a>Примеры использования</h1>
+
+<h3>
+<a name="%D0%A1%D0%B0%D0%BC%D1%8B%D0%B9-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D0%BE%D0%B9-%D1%81%D0%BF%D0%BE%D1%81%D0%BE%D0%B1-%D0%BD%D0%B0%D1%87%D0%B0%D1%82%D1%8C-%D0%BD%D0%BE%D0%B2%D1%83%D1%8E-%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D1%83" class="anchor" href="#%D0%A1%D0%B0%D0%BC%D1%8B%D0%B9-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D0%BE%D0%B9-%D1%81%D0%BF%D0%BE%D1%81%D0%BE%D0%B1-%D0%BD%D0%B0%D1%87%D0%B0%D1%82%D1%8C-%D0%BD%D0%BE%D0%B2%D1%83%D1%8E-%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D1%83"><span class="octicon octicon-link"></span></a>Самый простой способ начать новую задачу:</h3>
+
+<pre><code>$ git checkout develop
+$ git request feature 'TASK-001'
+$ touch 'hello.txt' &amp;&amp; echo 'Hello world!' &gt; hello.txt
+$ git commit -a -m 'Hello world commit'
+$ git request publish
+</code></pre>
+
+<p><strong>Внимание:</strong> Не нужно называться ветку TASK. Используйте префикс задачь из jira</p>
+
+<p>Теперь то же самое, только словами:</p>
+
+<ul>
+<li>Переключимся в ветку develop</li>
+<li>Abak-flow создаст ветку, пригодную для оформления pull request (правила именования и правила самого реквеста)</li>
+<li>Простое создание нового файла</li>
+<li>Git процедуры добавления своих изменений в репозиторий</li>
+<li>Затем публикация вашей ветки на вашем форке (если таковая уже есть, то просто обновление), затем оформление pull request из этой ветки в соответствующую правилам ветку на upstream (в данном случае это будет ветка develop)</li>
+</ul><p>Для задач, которые должны быть выполнены в виде hotfix принцип тот же:</p>
+
+<pre><code>$ git checkout master
+$ git request hotfix 'TASK-001'
+$ …
+$ git request publish
+</code></pre>
+
+<p><em>На самом деле переключаться на master или develop в самом начале вовсе не обязательно, этот шаг был приведен для пущей ясности</em></p>
+
+<h3>
+<a name="%D0%9E%D0%B1%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2%D0%B5%D1%82%D0%BA%D0%B8-%D0%BD%D0%B0-%D1%83%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%BD%D0%BE%D0%BC-%D1%80%D0%B5%D0%BF%D0%BE%D0%B7%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D0%B8" class="anchor" href="#%D0%9E%D0%B1%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2%D0%B5%D1%82%D0%BA%D0%B8-%D0%BD%D0%B0-%D1%83%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%BD%D0%BE%D0%BC-%D1%80%D0%B5%D0%BF%D0%BE%D0%B7%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D0%B8"><span class="octicon octicon-link"></span></a>Обновление ветки на удаленном репозитории:</h3>
+
+<pre><code>$ git checkout feature/TASK-001
+$ git request update
+</code></pre>
+
+<h3>
+<a name="%D0%97%D0%B0%D0%B2%D0%B5%D1%80%D1%88%D0%B5%D0%BD%D0%B8%D0%B5-%D1%82%D0%B5%D0%BA%D1%83%D1%89%D0%B5%D0%B9-%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D0%B8" class="anchor" href="#%D0%97%D0%B0%D0%B2%D0%B5%D1%80%D1%88%D0%B5%D0%BD%D0%B8%D0%B5-%D1%82%D0%B5%D0%BA%D1%83%D1%89%D0%B5%D0%B9-%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D0%B8"><span class="octicon octicon-link"></span></a>Завершение текущей задачи:</h3>
+
+<p>Вообще, завершать задачу лучше только после того, как ваш pull request был принят. Почему? На самом деле по ряду причин. По умолчанию эта команда удаляет как вашу текущую ветку с задачей в локальном репозитории и в добавок ко всему - на вашем удаленном репозитории (форке)</p>
+
+<pre><code>$ git checkout feature/TASK-001
+$ git request done 
+</code></pre>
+
+<p>Чтобы оставить какую либо ветку в живых возможно напрямую указать, какую копию ветки <strong>удалить</strong>, локальную или же удаленную (на origin)</p>
+
+<pre><code>$ git checkout feature/TASK-001
+$ git request done --origin
+</code></pre>
+
+<p>Или же так</p>
+
+<pre><code>$ git checkout feature/TASK-001
+$ git request done --local
+</code></pre>
+
+<h3>
+<a name="%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0-%D0%B0%D0%BA%D1%82%D1%83%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D1%81%D1%82%D0%B8-%D0%B2%D0%B5%D1%82%D0%BE%D0%BA" class="anchor" href="#%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0-%D0%B0%D0%BA%D1%82%D1%83%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D1%81%D1%82%D0%B8-%D0%B2%D0%B5%D1%82%D0%BE%D0%BA"><span class="octicon octicon-link"></span></a>Проверка актуальности веток:</h3>
+
+<p>Работает основываясь на SHA кодах веток в репозитории.</p>
+
+<p>Возможные варианты сообщений:</p>
+
+<ol>
+<li>
+<strong>Ветка может быть удалена</strong> — означает, что SHA ветки присутствует как в локальном, так и в удаленном репозитории (origin), а так же присутствует в основном репозитории проекта (upstream)</li>
+<li>
+<strong>Ветка потенциально может быть удалена</strong> — означает, что SHA ветки присутствует как в удаленном репозитории (origin), так и в основном репозитории проекта (upstream), но отсутвует в локальном. Ее можно удалить, если она действительно вам не нужна</li>
+<li>
+<strong>Ветка никак не помечена</strong> — означает, что данная ветка отсутствует в одном из удаленных репозиториев или же имеются различия с локальным репозиторием</li>
+</ol><pre><code>$ git request garbage
+$ ...
+$ 6) keep_it_real_test
+$      ↪ отсутствует в upstream репозитории
+$      ↪ отсутствует в локальном репозитории
+$
+$ 7) hotfix/SG-2035 → потенциально можно удалить
+$      ↪ отсутствует в локальном репозитории
+$
+$ 8) keep_it_test → потенциально можно удалить
+$      ↪ отсутствует в локальном репозитории
+$
+$ 9) feature/SG-2089 → можно удалить
+$ ...
+</code></pre>
+
+<h2>
+<a name="%D0%9C%D0%B0%D0%BB%D0%B5%D0%BD%D1%8C%D0%BA%D0%B8%D0%B5-%D1%85%D0%B8%D1%82%D1%80%D0%BE%D1%81%D1%82%D0%B8" class="anchor" href="#%D0%9C%D0%B0%D0%BB%D0%B5%D0%BD%D1%8C%D0%BA%D0%B8%D0%B5-%D1%85%D0%B8%D1%82%D1%80%D0%BE%D1%81%D1%82%D0%B8"><span class="octicon octicon-link"></span></a>Маленькие хитрости</h2>
+
+<p>Если сразу правильно именовать ветки, т.е ветку с задачей создавать с именем, такого формата TASK-001, то, в описание pull request автоматически вставится ссылка на задачу в jira, а в имя pull request сразу вставится название, состоящее из имени задачи, т.е TASK-001</p>
+
+<h2>
+<a name="%D0%90-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C" class="anchor" href="#%D0%90-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C"><span class="octicon octicon-link"></span></a>А помощь?</h2>
+
+<p>Многие команды имеют какие-то дополнительные опции. Но они нужны только в экзотических случаях. Но при любом раскладе подсказку и тонкий намек всегда можно получить воспользовавших такой командой:</p>
+
+<pre><code>$ git request done --help
+</code></pre>
+
+<h1>
+<a name="%D0%92-%D0%B7%D0%B0%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B8" class="anchor" href="#%D0%92-%D0%B7%D0%B0%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B8"><span class="octicon octicon-link"></span></a>В заключении</h1>
+
+<p>Данный репозиторий и изложенные в нем идеи ни в коем случае не претендуют на идеал и совершенство. Это всего лишь узко заточенная комбинация гемов</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/Strech/abak-flow/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/Strech/abak-flow/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/Strech/abak-flow"></a> is maintained by <a href="https://github.com/Strech">Strech</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
