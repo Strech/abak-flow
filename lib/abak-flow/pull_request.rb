@@ -24,7 +24,7 @@ module Abak::Flow
         fact(:head_is_incorrect)  { not @head.valid? }
         fact(:base_is_incorrect)  { not @base.valid? }
         fact(:title_is_incorrect) { @title.empty? }
-        fact(:body_is_incorrect)  { @body.empty? }
+        fact(:body_is_incorrect)  { @head.tracker_task? ? @body.empty? : false }
 
         rule([:head_is_incorrect])  { @errors << I18n.t("pull_request.errors.head_is_incorrect") }
         rule([:base_is_incorrect])  { @errors << I18n.t("pull_request.errors.base_is_incorrect") }

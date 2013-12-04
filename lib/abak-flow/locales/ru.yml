@@ -15,6 +15,11 @@ ru:
 
   pull_request:
     name: Пулл реквест
+    errors:
+      head_is_incorrect: Что-то не так с 'head' веткой
+      base_is_incorrect: Что-то не так с 'base' веткой
+      title_is_incorrect: Не указан заголовок
+      body_is_incorrect: Не указано содержание
 
   commands:
     checkup:
