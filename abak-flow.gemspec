@@ -11,6 +11,7 @@ Gem::Specification.new do |gem|
   gem.homepage    = "https://github.com/Strech/abak-flow"
   gem.summary     = "Совмещение 2-х подходов разработки Git-flow & Github-flow"
   gem.description = "Простой набор правил и комманд, заточеных для работы в git-flow с использование в качестве удаленного репозитория github"
+  gem.license     = "MIT"
 
   gem.rubyforge_project = "abak-flow"
 
