@@ -15,14 +15,10 @@ module Abak::Flow
 
     c.action do |args, options|
       m = Manager.new
-      v = Visitor.new(m.configuration, m.repository, call: :ready?, look_for: :errors)
+      v = Visitor.new(m.configuration, m.repository, call: :ready?, inspect: :errors)
+      v.exit_on_fail(:checkup, 1)
 
-      if v.ready?
-        say ANSI.green { I18n.t("commands.checkup.success") }
-      else
-        say ANSI.red { I18n.t("commands.checkup.fail") }
-        say ANSI.yellow { v.output }
-      end
+      say ANSI.green { I18n.t("commands.checkup.success") }
     end
   end # command :checkup
 
@@ -34,16 +30,9 @@ module Abak::Flow
     c.option "--head STRING", String, "Имя ветки которую нужно сравнить"
 
     c.action do |args, options|
-      # TODO : Вот это дубль, хочется его как-то более красиво
       m = Manager.new
-      v = Visitor.new(m.configuration, m.repository, call: :ready?, look_for: :errors)
-
-      unless v.ready?
-        say ANSI.red { I18n.t("commands.compare.fail") }
-        say ANSI.yellow { v.output }
-
-        exit 1
-      end
+      v = Visitor.new(m.configuration, m.repository, call: :ready?, inspect: :errors)
+      v.exit_on_fail(:compare, 1)
 
       current = m.git.current_branch
       head = Branch.new(options.head || current, m)
@@ -81,20 +70,12 @@ module Abak::Flow
       base = Branch.new(options.base || head.pick_up_base_name, m)
 
       title = options.title || head.pick_up_title
-      body = [
-        options.body || (head.mappable? ? nil : I18n.t("commands.publish.nothing")),
-        head.pick_up_body
-      ].compact * "\n\n"
+      body  = options.body || head.pickup_up_body
 
       p = PullRequest.new({base: base, head: head, title: title, body: body}, m)
-      v = Visitor.new(m.configuration, m.repository, p, call: :ready?, look_for: :errors)
 
-      unless v.ready?
-        say ANSI.red { I18n.t("commands.publish.fail") }
-        say ANSI.yellow { v.output }
-
-        exit 1
-      end
+      v = Visitor.new(m.configuration, m.repository, p, call: :ready?, inspect: :errors)
+      v.exit_on_fail(:publish, 1)
 
       say ANSI.white {
         I18n.t("commands.publish.updating",
@@ -108,15 +89,10 @@ module Abak::Flow
           branch: ANSI.bold { "#{m.repository.origin.owner}:#{head}" },
           upstream: ANSI.bold { "#{m.repository.upstream.owner}:#{base}" }) }
 
-      v = Visitor.new(p, call: :publish, look_for: :errors)
-      if v.ready?
-        say ANSI.green { I18n.t("commands.publish.success", link: p.link) }
-      else
-        say ANSI.red { I18n.t("commands.publish.fail") }
-        say ANSI.yellow { v.output }
+      v = Visitor.new(p, call: :publish, inspect: :errors)
+      v.exit_on_fail(:publish, 2)
 
-        exit 3
-      end
+      say ANSI.green { I18n.t("commands.publish.success", link: p.link) }
     end
   end # command :publish
 end

@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_runtime_dependency "octokit",   "~> 1.19.0"
+  gem.add_dependency        "faraday",    "= 0.8.9" # TODO : remove after octokit upgrade
   gem.add_runtime_dependency "git",       "~> 1.2.5"
   gem.add_runtime_dependency "commander", ">= 4.1.3"
   gem.add_runtime_dependency "ruler",     ">= 1.4.2"

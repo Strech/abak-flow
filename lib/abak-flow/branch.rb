@@ -24,6 +24,7 @@ module Abak::Flow
       @branch.full
     end
 
+    # TODO : Брать коммит мессадж до перевода строки
     def message
       @branch.gcommit.message
     end
@@ -61,10 +62,12 @@ module Abak::Flow
                     : message
     end
 
-    # TODO : Вынести в i18n
+    # TODO : Сделать настраевыемым трекер и формат задачи
+    # TODO : Смотреть в коммит мессадж и искать там Fixes/Closes/Close/Fix
     def pick_up_body
-      tracker_task? ? "http://jira.railsc.ru/browse/#{task}"
-                    : nil
+      head.mappable? &&
+      head.tracker_task? ? "http://jira.railsc.ru/browse/#{task}"
+                         : I18n.t("commands.publish.nothing")
     end
 
     def hotfix?

@@ -7,7 +7,7 @@ module Abak::Flow
 
       @objects = args
       @call = options.fetch(:call)
-      @info = options.fetch(:look_for)
+      @inspect = options.fetch(:inspect)
 
       @asked = false
     end
@@ -23,16 +23,25 @@ module Abak::Flow
       ready? unless asked?
 
       @objects.map do |o|
-        next if o.send(@info).empty?
+        next if o.send(@inspect).empty?
 
         info = ""
         name = o.respond_to?(:display_name) ? o.display_name : o.class.name
-        o.send(@info).each_with_index do |inf, idx|
+        o.send(@inspect).each_with_index do |inf, idx|
           info << "\n  #{idx + 1}. #{inf}"
         end
 
         "\n#{name}#{info}"
       end * "\n"
+    end
+
+    def exit_on_fail(command, code = 1)
+      return if ready?
+
+      say ANSI.red { I18n.t("commands.#{command}.fail") }
+      say ANSI.yellow { output }
+
+      exit(code)
     end
 
     private

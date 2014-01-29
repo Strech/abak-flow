@@ -19,7 +19,7 @@ en:
       head_is_incorrect: Something wrong with 'head' branch
       base_is_incorrect: Something wrong with 'base' branch
       title_is_incorrect: Title is not specified
-      body_is_incorrect: Body is not specified
+      body_is_incorrect: Message body is not specified
 
   commands:
     checkup:
