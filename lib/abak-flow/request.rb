@@ -9,6 +9,7 @@ module Abak::Flow
 
   default_command :help
 
+  # TODO : Заменить команды классами
   command :checkup do |c|
     c.syntax      = "git request checkup"
     c.description = "Проверить все ли настроено для работы с github и удаленными репозиториями"
@@ -95,4 +96,49 @@ module Abak::Flow
       say ANSI.green { I18n.t("commands.publish.success", link: p.link) }
     end
   end # command :publish
+
+  command :done do |c|
+    c.syntax      = "git request done"
+    c.description = "Удалить ветки (local и origin) в которых велась работа"
+
+    c.action do |args, options|
+      m = Manager.new
+      v = Visitor.new(m.configuration, m.repository, call: :ready?, inspect: :errors)
+      v.exit_on_fail(:done, 1)
+
+      branch = Branch.new(m.git.current_branch, m)
+
+      if branch.develop? || branch.master?
+        say ANSI.red {
+          I18n.t("commands.done.errors.branch_is_incorrect",
+            branch: ANSI.bold { branch }) }
+        exit 2
+      end
+
+      say ANSI.white {
+        I18n.t("commands.done.deleting",
+          branch: ANSI.bold { branch },
+          upstream: ANSI.bold { "#{m.repository.origin}" }) }
+
+      # FIXME : Исправить молчаливую ситуацию
+      #         Возможно стоит предупредить о ее отсутствии
+      branch.delete_on_remote rescue nil
+
+      say ANSI.white {
+        I18n.t("commands.done.deleting",
+          branch: ANSI.bold { branch },
+          upstream: ANSI.bold { "working tree" }) }
+
+      # TODO : Добавить проверку, что ветка,
+      #        в которую надо попасть (master/develop)
+      #        существует
+
+      # TODO : Быть может стоит вынести это в настройки
+      #        и позволить выбирать, куда отправлять
+      #        при удалении ветки, а по умолчанию использовать master
+      m.git.checkout(
+        branch.pick_up_base_name(or_use: Branch::DEVELOPMENT))
+      branch.delete_on_local
+    end
+  end # command :done
 end

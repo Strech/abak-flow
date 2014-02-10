@@ -35,3 +35,8 @@ ru:
       requesting: "Создание пулл реквеста %{branch} → %{upstream}"
       updating: "Обновление %{branch} → %{upstream}"
       nothing: Мне нечего добавить ...
+    done:
+      fail: Что-то пошло не так!
+      deleting: "Удаление %{branch} из %{upstream}"
+      errors:
+        branch_is_incorrect: "Вы не можете удалить %{branch}"

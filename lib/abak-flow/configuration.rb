@@ -43,6 +43,7 @@ module Abak::Flow
     end
 
     def setup_locale
+      I18n.enforce_available_locales = false
       I18n.load_path += Dir.glob(LOCALE_FILES)
       I18n.locale = locale
     end

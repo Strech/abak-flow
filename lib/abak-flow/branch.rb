@@ -52,9 +52,18 @@ module Abak::Flow
       @manager.git.push(origin, @branch)
     end
 
-    def pick_up_base_name
+    def delete_on_remote
+      origin = @manager.repository.origin.repo
+      @manager.git.push(origin, ":#{@branch}")
+    end
+
+    def delete_on_local
+      @branch.delete
+    end
+
+    def pick_up_base_name(options = Hash.new)
       mappable? ? MAPPING[folder]
-                : name
+                : options.fetch(:or_use, name)
     end
 
     def pick_up_title
@@ -68,6 +77,14 @@ module Abak::Flow
       head.mappable? &&
       head.tracker_task? ? "http://jira.railsc.ru/browse/#{task}"
                          : I18n.t("commands.publish.nothing")
+    end
+
+    def develop?
+      @branch.name == DEVELOPMENT
+    end
+
+    def master?
+      @branch.name == MASTER
     end
 
     def hotfix?

@@ -35,3 +35,8 @@ en:
       requesting: "Creating pull request %{branch} → %{upstream}"
       updating: "Updating %{branch} → %{upstream}"
       nothing: I have nothing to say ...
+    done:
+      fail: Something goes wrong!
+      deleting: "Deleting %{branch} in %{upstream}"
+      errors:
+        branch_is_incorrect: "You can't delete %{branch}"
