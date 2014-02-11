@@ -1,7 +1,5 @@
 language: ruby
 rvm:
   - 1.9.3
-branches:
-  only:
-    - release-1.0
-bundler_args: --without linux mac
+  - 2.0.0
+  - 2.0.1

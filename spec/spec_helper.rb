@@ -2,16 +2,15 @@
 if ENV["COVERAGE"]
   require "simplecov"
 
-  SimpleCov.minimum_coverage 95
-  SimpleCov.start :test_frameworks do
+  SimpleCov.start do
     add_filter "/spec/"
   end
 end
 
 require "abak-flow"
 
-Dir["spec/support/**/*.rb"].sort.each { |f| require f }
-
 RSpec.configure do |config|
-  # ...
+  config.formatter = :progress
+  config.order = :random
+  config.color = true
 end

@@ -14,10 +14,15 @@ module Abak::Flow
       FOLDER_FEATURE => DEVELOPMENT
     }.freeze
 
-    def initialize(branch, manager)
-      @manager = manager
+    attr_reader :folder
+    attr_reader :task
+
+    def initialize(branch)
+      @manager = Manager.instance
       @branch = branch.is_a?(Git::Branch) ? branch
-                                          : manager.git.branch(branch)
+                                          : @manager.git.branch(branch)
+
+      parse_branch_name
     end
 
     def name
@@ -26,15 +31,14 @@ module Abak::Flow
 
     # TODO : Брать коммит мессадж до перевода строки
     def message
-      @branch.gcommit.message
+      content = @branch.gcommit.message.split("\n", 2).first
+      return content if content.length < 72
+
+      content[0...72] << "..."
     end
 
-    def folder
-      split_prefix_and_task.first
-    end
-
-    def task
-      split_prefix_and_task.last
+    def to_s
+      @branch.to_s
     end
 
     def compare_link(branch)
@@ -45,20 +49,6 @@ module Abak::Flow
         @manager.repository.origin.to_s,
         "compare", diff
       ]
-    end
-
-    def update
-      origin = @manager.repository.origin.repo
-      @manager.git.push(origin, @branch)
-    end
-
-    def delete_on_remote
-      origin = @manager.repository.origin.repo
-      @manager.git.push(origin, ":#{@branch}")
-    end
-
-    def delete_on_local
-      @branch.delete
     end
 
     def pick_up_base_name(options = Hash.new)
@@ -79,12 +69,26 @@ module Abak::Flow
                          : I18n.t("commands.publish.nothing")
     end
 
+    def update
+      origin = @manager.repository.origin.repo
+      @manager.git.push(origin, @branch)
+    end
+
+    def delete_on_remote
+      origin = @manager.repository.origin.repo
+      @manager.git.push(origin, ":#{@branch}")
+    end
+
+    def delete_on_local
+      @branch.delete
+    end
+
     def develop?
-      @branch.name == DEVELOPMENT
+      name == DEVELOPMENT
     end
 
     def master?
-      @branch.name == MASTER
+      name == MASTER
     end
 
     def hotfix?
@@ -111,18 +115,12 @@ module Abak::Flow
       !@branch.name.empty?
     end
 
-    def to_s
-      @branch.to_s
-    end
-
     private
-    def split_prefix_and_task
-      return @folder_and_task if defined? @folder_and_task
-
+    def parse_branch_name
       matches = name.match(/^(?<prefix>.+)\/(?<task>.+)$/)
 
-      @folder_and_task = matches.nil? ? [nil, nil]
-                                      : [matches[:prefix], matches[:task]]
+      @folder, @task = matches.nil? ? [nil, nil]
+                                    : [matches[:prefix], matches[:task]]
     end
   end
 end

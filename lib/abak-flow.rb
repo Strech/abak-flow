@@ -1,14 +1,9 @@
-module Abak
-  module Flow; end
-end
-
 require "abak-flow/version"       # ✔
 require "abak-flow/manager"       # ✔
 require "abak-flow/configuration" # ✔
 require "abak-flow/repository"    # ✔
 require "abak-flow/branch"        # ?
 require "abak-flow/pull_request"  # ?
-require "abak-flow/request"       # ?
 require "abak-flow/visitor"       # ✔
 
 

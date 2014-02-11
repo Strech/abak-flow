@@ -1,16 +1,16 @@
 # coding: utf-8
 require "git"
 require "octokit"
+require "singleton"
 
 module Abak::Flow
   class Manager
+    include Singleton
 
     def initialize
       # preload dependencies
       configuration
       repository
-
-      yield self if block_given?
     end
 
     def configuration

@@ -15,7 +15,7 @@ module Abak::Flow
     c.description = "Проверить все ли настроено для работы с github и удаленными репозиториями"
 
     c.action do |args, options|
-      m = Manager.new
+      m = Manager.instance
       v = Visitor.new(m.configuration, m.repository, call: :ready?, inspect: :errors)
       v.exit_on_fail(:checkup, 1)
 
@@ -31,7 +31,7 @@ module Abak::Flow
     c.option "--head STRING", String, "Имя ветки которую нужно сравнить"
 
     c.action do |args, options|
-      m = Manager.new
+      m = Manager.instance
       v = Visitor.new(m.configuration, m.repository, call: :ready?, inspect: :errors)
       v.exit_on_fail(:compare, 1)
 
@@ -65,7 +65,7 @@ module Abak::Flow
     c.option "--base STRING", String, "Имя ветки, в которую нужно принять изменения"
 
     c.action do |args, options|
-      m = Manager.new
+      m = Manager.instance
 
       head = Branch.new(m.git.current_branch, m)
       base = Branch.new(options.base || head.pick_up_base_name, m)
@@ -102,7 +102,7 @@ module Abak::Flow
     c.description = "Удалить ветки (local и origin) в которых велась работа"
 
     c.action do |args, options|
-      m = Manager.new
+      m = Manager.instance
       v = Visitor.new(m.configuration, m.repository, call: :ready?, inspect: :errors)
       v.exit_on_fail(:done, 1)
 
