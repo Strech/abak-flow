@@ -71,7 +71,7 @@ module Abak::Flow
       base = Branch.new(options.base || head.pick_up_base_name, m)
 
       title = options.title || head.pick_up_title
-      body  = options.body || head.pickup_up_body
+      body  = options.body || head.pick_up_body
 
       p = PullRequest.new({base: base, head: head, title: title, body: body}, m)
 
