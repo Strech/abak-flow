@@ -4,7 +4,9 @@ module Abak::Flow
   class Branch
     FOLDER_HOTFIX  = "hotfix".freeze
     FOLDER_FEATURE = "feature".freeze
-    TASK_FORMAT    = /^\w+\-\d{1,}$/.freeze
+    TASK_FORMAT    = '\w+\-\d{1,}'.freeze
+    MAGICK_WORDS   = %w{close closes closed fix fixes fixed
+                        resolve resolves resolved}.freeze
 
     DEVELOPMENT = "develop".freeze
     MASTER      = "master".freeze
@@ -61,11 +63,12 @@ module Abak::Flow
     end
 
     # TODO : Сделать настраевыемым трекер и формат задачи
-    # TODO : Смотреть в коммит мессадж и искать там Fixes/Closes/Close/Fix
     def extract_body
-      mappable? &&
-      tracker_task? ? "http://jira.railsc.ru/browse/#{task}"
-                    : I18n.t("commands.publish.nothing")
+      return I18n.t("commands.publish.nothing") if
+        tasks_from_commit_message.empty? && !tracker_task?
+
+      [tasks_from_commit_message, task].flatten
+        .map { |x| "http://jira.railsc.ru/browse/#{x}" } * "\n"
     end
 
     def update
@@ -99,7 +102,7 @@ module Abak::Flow
     end
 
     def tracker_task?
-      !(task =~ TASK_FORMAT).nil?
+      !(task =~ /^#{TASK_FORMAT}$/).nil?
     end
 
     def mappable?
@@ -115,6 +118,13 @@ module Abak::Flow
     end
 
     private
+    def tasks_from_commit_message
+      @parsed_tasks ||=
+        @branch.gcommit.message
+               .scan(/(?:#{MAGICK_WORDS * "|"})\s+(#{TASK_FORMAT})/i)
+               .reject { |x| x == task.to_s }
+    end
+
     def parse_branch_name
       matches = name.match(/^(?<prefix>.+)\/(?<task>.+)$/)
 

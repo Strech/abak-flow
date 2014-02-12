@@ -6,7 +6,7 @@ desc "Ready check"
 task default: [:quality, :coverage]
 
 RSpec::Core::RakeTask.new(:coverage) do |rspec|
-  ENV["COVERAGE"] = "true"
+  ENV["C"] = "true"
 end
 
 Cane::RakeTask.new(:quality) do |cane|

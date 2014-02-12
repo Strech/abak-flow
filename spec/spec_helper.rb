@@ -1,5 +1,5 @@
 # coding: utf-8
-if ENV["COVERAGE"]
+if ENV["C"]
   require "simplecov"
 
   SimpleCov.start do

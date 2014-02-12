@@ -36,8 +36,8 @@ module Abak::Flow
       v.exit_on_fail(:compare, 1)
 
       current = m.git.current_branch
-      head = Branch.new(options.head || current, m)
-      base = Branch.new(options.base || head.extract_base_name, m)
+      head = Branch.new(options.head || current)
+      base = Branch.new(options.base || head.extract_base_name)
 
       if head.current?
         say ANSI.white {
@@ -67,8 +67,8 @@ module Abak::Flow
     c.action do |args, options|
       m = Manager.instance
 
-      head = Branch.new(m.git.current_branch, m)
-      base = Branch.new(options.base || head.extract_base_name, m)
+      head = Branch.new(m.git.current_branch)
+      base = Branch.new(options.base || head.extract_base_name)
 
       title = options.title || head.extract_title
       body  = options.body || head.extract_body
@@ -106,7 +106,7 @@ module Abak::Flow
       v = Visitor.new(m.configuration, m.repository, call: :ready?, inspect: :errors)
       v.exit_on_fail(:done, 1)
 
-      branch = Branch.new(m.git.current_branch, m)
+      branch = Branch.new(m.git.current_branch)
 
       if branch.develop? || branch.master?
         say ANSI.red {

@@ -86,7 +86,7 @@ describe Abak::Flow::Branch do
     it { expect(develop.valid?).to be_true }
     it { expect(noname.valid?).to be_true }
     it do
-      branch = double("Branch", name: "", full: "", is_a?: true)
+      branch = double("Branch", name: "", full: "")
       expect(described_class.new(branch).valid?).to be_false
     end
   end
@@ -168,6 +168,63 @@ describe Abak::Flow::Branch do
       it { expect(hotfix.extract_base_name(if_undef: "foo")).to eq "master" }
       it { expect(master.extract_base_name(if_undef: "foo")).to eq "foo" }
       it { expect(noname.extract_base_name(if_undef: "foo")).to eq "foo" }
+    end
+  end
+
+  describe "#extract_body" do
+    before { I18n.stub(:t).with("commands.publish.nothing").and_return "Empty!" }
+
+    context "when commit message has no magick words" do
+      let(:gcommit) { double("Git commit", message: "Hello world") }
+
+      before do
+        git_feature.stub(:gcommit).and_return gcommit
+        git_hotfix.stub(:gcommit).and_return gcommit
+        git_master.stub(:gcommit).and_return gcommit
+        git_develop.stub(:gcommit).and_return gcommit
+        git_noname.stub(:gcommit).and_return gcommit
+      end
+
+      it { expect(feature.extract_body).to eq "http://jira.railsc.ru/browse/JP-515" }
+      it { expect(hotfix.extract_body).to eq "http://jira.railsc.ru/browse/PR-2011" }
+      it { expect(master.extract_body).to eq "Empty!" }
+      it { expect(develop.extract_body).to eq "Empty!" }
+      it { expect(noname.extract_body).to eq "Empty!" }
+
+      it  do
+        branch = double("Branch", name: "feature/ho-ho-ho", full: "feature/ho-ho-ho")
+        branch.stub(:gcommit).and_return gcommit
+
+        expect(described_class.new(branch).extract_body).to eq "Empty!"
+      end
+
+      it do
+        branch = double("Branch", name: "ho-ho-ho/PC4-10202", full: "ho-ho-ho/PC4-10202")
+        branch.stub(:gcommit).and_return gcommit
+
+        expect(described_class.new(branch).extract_body).to eq "http://jira.railsc.ru/browse/PC4-10202"
+      end
+    end
+
+    context "when commit message has magick word" do
+      context "when branch is task" do
+        let(:gcommit) { double("Git commit", message: "Fix PC4-200") }
+
+        before { git_feature.stub(:gcommit).and_return gcommit }
+
+        it { expect(feature.extract_body).to include "http://jira.railsc.ru/browse/JP-515" }
+        it { expect(feature.extract_body).to include "http://jira.railsc.ru/browse/PC4-200" }
+      end
+
+      context "when branch is not task" do
+        let(:gcommit) { double("Git commit", message: "Fix PC4-200, PC5-111\n\nCloses PC2-1122") }
+
+        before { git_master.stub(:gcommit).and_return gcommit }
+
+        it { expect(master.extract_body).to include "http://jira.railsc.ru/browse/PC4-200" }
+        it { expect(master.extract_body).to include "http://jira.railsc.ru/browse/PC2-1122" }
+        it { expect(master.extract_body).not_to include "PC5-111" }
+      end
     end
   end
 end
