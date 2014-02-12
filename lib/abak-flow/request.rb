@@ -37,7 +37,7 @@ module Abak::Flow
 
       current = m.git.current_branch
       head = Branch.new(options.head || current, m)
-      base = Branch.new(options.base || head.pick_up_base_name, m)
+      base = Branch.new(options.base || head.extract_base_name, m)
 
       if head.current?
         say ANSI.white {
@@ -68,10 +68,10 @@ module Abak::Flow
       m = Manager.instance
 
       head = Branch.new(m.git.current_branch, m)
-      base = Branch.new(options.base || head.pick_up_base_name, m)
+      base = Branch.new(options.base || head.extract_base_name, m)
 
-      title = options.title || head.pick_up_title
-      body  = options.body || head.pick_up_body
+      title = options.title || head.extract_title
+      body  = options.body || head.extract_body
 
       p = PullRequest.new({base: base, head: head, title: title, body: body}, m)
 
@@ -137,7 +137,7 @@ module Abak::Flow
       #        и позволить выбирать, куда отправлять
       #        при удалении ветки, а по умолчанию использовать master
       m.git.checkout(
-        branch.pick_up_base_name(or_use: Branch::DEVELOPMENT))
+        branch.extract_base_name(if_undef: Branch::DEVELOPMENT))
       branch.delete_on_local
     end
   end # command :done

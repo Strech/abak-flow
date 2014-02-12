@@ -29,7 +29,6 @@ module Abak::Flow
       @branch.full
     end
 
-    # TODO : Брать коммит мессадж до перевода строки
     def message
       content = @branch.gcommit.message.split("\n", 2).first
       return content if content.length < 72
@@ -51,22 +50,22 @@ module Abak::Flow
       ]
     end
 
-    def pick_up_base_name(options = Hash.new)
+    def extract_base_name(options = Hash.new)
       mappable? ? MAPPING[folder]
-                : options.fetch(:or_use, name)
+                : options.fetch(:if_undef, name)
     end
 
-    def pick_up_title
+    def extract_title
       tracker_task? ? task
                     : message
     end
 
     # TODO : Сделать настраевыемым трекер и формат задачи
     # TODO : Смотреть в коммит мессадж и искать там Fixes/Closes/Close/Fix
-    def pick_up_body
-      head.mappable? &&
-      head.tracker_task? ? "http://jira.railsc.ru/browse/#{task}"
-                         : I18n.t("commands.publish.nothing")
+    def extract_body
+      mappable? &&
+      tracker_task? ? "http://jira.railsc.ru/browse/#{task}"
+                    : I18n.t("commands.publish.nothing")
     end
 
     def update
