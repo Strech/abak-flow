@@ -207,13 +207,21 @@ describe Abak::Flow::Branch do
     end
 
     context "when commit message has magick word" do
-      context "when branch is task" do
+      context "when branch is task different from commit message" do
         let(:gcommit) { double("Git commit", message: "Fix PC4-200") }
 
         before { git_feature.stub(:gcommit).and_return gcommit }
 
         it { expect(feature.extract_body).to include "http://jira.railsc.ru/browse/JP-515" }
         it { expect(feature.extract_body).to include "http://jira.railsc.ru/browse/PC4-200" }
+      end
+
+      context "when branch is task equals to commit message" do
+        let(:gcommit) { double("Git commit", message: "Fix JP-515") }
+
+        before { git_feature.stub(:gcommit).and_return gcommit }
+
+        it { expect(feature.extract_body).to eq "http://jira.railsc.ru/browse/JP-515" }
       end
 
       context "when branch is not task" do

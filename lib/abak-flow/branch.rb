@@ -67,7 +67,7 @@ module Abak::Flow
       return I18n.t("commands.publish.nothing") if
         tasks_from_commit_message.empty? && !tracker_task?
 
-      [tasks_from_commit_message, task].flatten
+      [tasks_from_commit_message, task].flatten.uniq
         .map { |x| "http://jira.railsc.ru/browse/#{x}" } * "\n"
     end
 
@@ -122,7 +122,6 @@ module Abak::Flow
       @parsed_tasks ||=
         @branch.gcommit.message
                .scan(/(?:#{MAGICK_WORDS * "|"})\s+(#{TASK_FORMAT})/i)
-               .reject { |x| x == task.to_s }
     end
 
     def parse_branch_name
