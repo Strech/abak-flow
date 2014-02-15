@@ -21,12 +21,14 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_runtime_dependency "octokit",   "~> 1.19.0"
-  gem.add_runtime_dependency "faraday",    "= 0.8.9" # TODO : remove after octokit upgrade
   gem.add_runtime_dependency "git",       "~> 1.2.5"
-  gem.add_runtime_dependency "commander", ">= 4.1.3"
-  gem.add_runtime_dependency "ruler",     ">= 1.4.2"
+  gem.add_runtime_dependency "commander", "~> 4.1.6"
+  gem.add_runtime_dependency "ruler",     "~> 1.4.2"
   gem.add_runtime_dependency "i18n",      "~> 0.6.9"
-  gem.add_runtime_dependency "ansi",      ">= 1.4.3"
+  gem.add_runtime_dependency "ansi",      "~> 1.4.3"
+
+  gem.add_runtime_dependency "faraday",   "= 0.8.9" # TODO : remove after octokit upgrade
+  gem.add_runtime_dependency "systemu",   "~> 2.5.0"  # TODO : remove after https://github.com/ahoward/macaddr/issues/18
 
   gem.add_development_dependency "cane"
   gem.add_development_dependency "simplecov"
