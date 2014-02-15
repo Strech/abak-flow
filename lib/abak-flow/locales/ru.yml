@@ -22,6 +22,8 @@ ru:
       body_is_incorrect: Не указано содержание
 
   commands:
+    default:
+      fail: Что-то пошло не так!
     checkup:
       fail: "Вы не готовы!"
       success: "Поздравляем, вы готовы чтобы жечь :)"

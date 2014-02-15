@@ -9,18 +9,10 @@ module Abak::Flow
 
   default_command :help
 
-  # TODO : Заменить команды классами
-  command :checkup do |c|
-    c.syntax      = "git request checkup"
-    c.description = "Проверить все ли настроено для работы с github и удаленными репозиториями"
-
-    c.action do |args, options|
-      m = Manager.instance
-      v = Visitor.new(m.configuration, m.repository, call: :ready?, inspect: :errors)
-      v.exit_on_fail(:checkup, 1)
-
-      say ANSI.green { I18n.t("commands.checkup.success") }
-    end
+  command :checkup do |cmd|
+    cmd.syntax      = "git request checkup"
+    cmd.description = "Проверить все ли настроено для работы с github и удаленными репозиториями"
+    cmd.action Commands::Checkup, :run
   end # command :checkup
 
   command :compare do |c|

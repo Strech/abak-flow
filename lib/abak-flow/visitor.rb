@@ -8,6 +8,7 @@ module Abak::Flow
       @objects = args
       @call = options.fetch(:call)
       @inspect = options.fetch(:inspect)
+      @command = options.fetch(:command, "default")
 
       @asked = false
     end
@@ -42,6 +43,15 @@ module Abak::Flow
       say ANSI.yellow { output }
 
       exit(code)
+    end
+
+    def on_fail(options = Hash.new, &block)
+      return if ready?
+
+      say ANSI.red I18n.t("commands.#{@command}.fail")
+      say ANSI.yellow { output }
+
+      exit(options[:exit]) if options.key?(:exit)
     end
 
     private

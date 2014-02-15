@@ -1,10 +1,11 @@
-require "abak-flow/version"       # ✔
-require "abak-flow/manager"       # ✔
-require "abak-flow/configuration" # ✔
-require "abak-flow/repository"    # ✔
-require "abak-flow/branch"        # ?
-require "abak-flow/pull_request"  # ?
-require "abak-flow/visitor"       # ✔
+require "abak-flow/version"
+require "abak-flow/manager"
+require "abak-flow/configuration"
+require "abak-flow/repository"
+require "abak-flow/branch"
+require "abak-flow/pull_request"
+require "abak-flow/visitor"
+require "abak-flow/commands/checkup"
 
 
 # Может пригодится
