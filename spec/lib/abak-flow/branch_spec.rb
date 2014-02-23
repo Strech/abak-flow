@@ -123,14 +123,14 @@ describe Abak::Flow::Branch do
     end
 
     context "when git commit is a short multi line" do
-      let(:message) { "Hello commit message\n\nFixes PC4-100" }
+      let(:message) { "Hello commit message\n\nAnother new line" }
       let(:gcommit) { double("Git commit", message: message) }
 
       it { expect(noname.message).to eq "Hello commit message" }
     end
 
     context "when git commit is a very long multi line" do
-      let(:message) { "#{'X' * 200}\n\nFixes PC4-100" }
+      let(:message) { "#{'X' * 200}\n\nAnother new line" }
       let(:gcommit) { double("Git commit", message: message) }
 
       it { expect(noname.message.length).to eq 75 }
@@ -139,7 +139,7 @@ describe Abak::Flow::Branch do
   end
 
   describe "#extract_title" do
-    let(:message) { "Hello world!\n\nFixes PC4-100" }
+    let(:message) { "Hello world!\n\nAnother new line" }
     let(:gcommit) { double("Git commit", message: message) }
 
     context "when branch named not like tracker task" do
@@ -175,7 +175,7 @@ describe Abak::Flow::Branch do
     before { I18n.stub(:t).with("commands.publish.nothing").and_return "Empty!" }
 
     context "when commit message has no magick words" do
-      let(:gcommit) { double("Git commit", message: "Hello world") }
+      let(:gcommit) { double("Git commit", contents: "Hello world") }
 
       before do
         git_feature.stub(:gcommit).and_return gcommit
@@ -208,7 +208,7 @@ describe Abak::Flow::Branch do
 
     context "when commit message has magick word" do
       context "when branch is task different from commit message" do
-        let(:gcommit) { double("Git commit", message: "Fix PC4-200") }
+        let(:gcommit) { double("Git commit", contents: "Fix PC4-200") }
 
         before { git_feature.stub(:gcommit).and_return gcommit }
 
@@ -217,7 +217,7 @@ describe Abak::Flow::Branch do
       end
 
       context "when branch is task equals to commit message" do
-        let(:gcommit) { double("Git commit", message: "Fix JP-515") }
+        let(:gcommit) { double("Git commit", contents: "Fix JP-515") }
 
         before { git_feature.stub(:gcommit).and_return gcommit }
 
@@ -225,7 +225,7 @@ describe Abak::Flow::Branch do
       end
 
       context "when branch is not task" do
-        let(:gcommit) { double("Git commit", message: "Fix PC4-200, PC5-111\n\nCloses PC2-1122") }
+        let(:gcommit) { double("Git commit", contents: "Fix PC4-200, PC5-111\n\nCloses PC2-1122") }
 
         before { git_master.stub(:gcommit).and_return gcommit }
 
