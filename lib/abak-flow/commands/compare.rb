@@ -5,6 +5,8 @@ require "commander/command"
 module Abak::Flow
   module Commands
     class Compare
+      # TODO : Быть может стоит сделать include ANSI
+
       def initialize
         manager = Manager.instance
 
@@ -14,7 +16,8 @@ module Abak::Flow
       end
 
       def run(args, options)
-        Checkup.new.run(Array.new, ::Commander::Command::Options.new)
+        Checkup.new.process(
+          Array.new, ::Commander::Command::Options.new)
 
         current = @git.current_branch
         head = Branch.new(options.head || current)

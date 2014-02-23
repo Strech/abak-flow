@@ -12,13 +12,15 @@ module Abak::Flow
       end
 
       def run(args, options)
-        Visitor.new(@configuration, @repository,
-                    command: "checkup", call: :ready?, inspect: :errors)
-               .on_fail(exit: 1)
-
+        process(args, options)
         say ANSI.green { I18n.t("commands.checkup.success") }
       end
 
-    end
-  end
-end
+      def process(args, options)
+        Visitor.new(@configuration, @repository,
+                    command: "checkup", call: :ready?, inspect: :errors)
+               .on_fail(exit: 1)
+      end
+    end # class Checkup
+  end # module Commands
+end # module Abak::Flow
