@@ -120,7 +120,7 @@ module Abak::Flow
     private
     def tasks_from_commit_message
       @parsed_tasks ||=
-        @branch.gcommit.message
+        @branch.gcommit.contents
                .scan(/(?:#{MAGICK_WORDS * "|"})\s+(#{TASK_FORMAT})/i)
     end
 
