@@ -8,7 +8,7 @@ describe Abak::Flow::Commands::Checkup do
   let(:ansi) { double("ANSI") }
   let(:manager) do
     double("Manager", configuration: configuration,
-                      repository: repository)
+      repository: repository)
   end
 
   before do

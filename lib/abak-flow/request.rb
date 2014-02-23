@@ -22,30 +22,7 @@ module Abak::Flow
     c.option "--base STRING", String, "Имя ветки с которой нужно сравнить"
     c.option "--head STRING", String, "Имя ветки которую нужно сравнить"
 
-    c.action do |args, options|
-      m = Manager.instance
-      v = Visitor.new(m.configuration, m.repository, call: :ready?, inspect: :errors)
-      v.exit_on_fail(:compare, 1)
-
-      current = m.git.current_branch
-      head = Branch.new(options.head || current)
-      base = Branch.new(options.base || head.extract_base_name)
-
-      if head.current?
-        say ANSI.white {
-          I18n.t("commands.compare.updating",
-            branch: ANSI.bold { head },
-            upstream: ANSI.bold { "#{m.repository.origin}" }) }
-
-        head.update
-      else
-        say ANSI.yellow {
-          I18n.t("commands.compare.diverging",
-            branch: ANSI.bold { head }) }
-      end
-
-      say ANSI.green { head.compare_link(base) }
-    end
+    cmd.action Commands::Compare, :run
   end # command :compare
 
   command :publish do |c|

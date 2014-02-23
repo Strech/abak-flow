@@ -6,6 +6,7 @@ require "abak-flow/branch"
 require "abak-flow/pull_request"
 require "abak-flow/visitor"
 require "abak-flow/commands/checkup"
+require "abak-flow/commands/compare"
 
 
 # Может пригодится
