@@ -15,12 +15,12 @@ module Abak::Flow
     cmd.action Commands::Checkup, :run
   end # command :checkup
 
-  command :compare do |c|
-    c.syntax      = "git request compare"
-    c.description = "Сравнить свою ветку с веткой upstream репозитория"
+  command :compare do |cmd|
+    cmd.syntax      = "git request compare"
+    cmd.description = "Сравнить свою ветку с веткой upstream репозитория"
 
-    c.option "--base STRING", String, "Имя ветки с которой нужно сравнить"
-    c.option "--head STRING", String, "Имя ветки которую нужно сравнить"
+    cmd.option "--base STRING", String, "Имя ветки с которой нужно сравнить"
+    cmd.option "--head STRING", String, "Имя ветки которую нужно сравнить"
 
     cmd.action Commands::Compare, :run
   end # command :compare
