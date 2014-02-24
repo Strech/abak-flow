@@ -1,4 +1,5 @@
 # coding: utf-8
+require "ansi/code"
 
 module Abak::Flow
   class Visitor
@@ -48,7 +49,7 @@ module Abak::Flow
     def on_fail(options = Hash.new, &block)
       return if ready?
 
-      say ANSI.red I18n.t("commands.#{@command}.fail")
+      say ANSI.red { I18n.t("commands.#{@command}.fail") }
       say ANSI.yellow { output }
 
       exit(options[:exit]) if options.key?(:exit)

@@ -1,4 +1,5 @@
 # coding: utf-8
+require "ansi/code"
 
 module Abak::Flow
   module Commands

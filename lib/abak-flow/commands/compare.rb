@@ -1,6 +1,7 @@
 # coding: utf-8
 require "commander/blank"
 require "commander/command"
+require "ansi/code"
 
 module Abak::Flow
   module Commands

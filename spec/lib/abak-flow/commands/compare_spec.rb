@@ -5,20 +5,19 @@ describe Abak::Flow::Commands::Compare do
   let(:command) { described_class.new }
   let(:options) { double("Options") }
   let(:run) { command.run(Array.new, options) }
-  let(:ansi) { double("ANSI") }
   let(:git) { double("Git") }
+  let(:github) { double("Github", web_endpoint: "github.com") }
+  let(:master) { double("Master branch", name: "master", full: "master", to_s: "master") }
+  let(:develop) { double("Develop branch", name: "develop", full: "develop", to_s: "develop") }
+  let(:noname) { double("Noname branch", name: "noname", full: "noname", to_s: "noname") }
   let(:manager) do
     double("Manager", configuration: configuration,
-      repository: repository, git: git)
+      repository: repository, git: git, github: github)
   end
 
   before do
-    stub_const('ANSI', ansi)
-    ansi.stub(green: "Success")
-    ansi.stub(red: "Fail")
-    ansi.stub(yellow: "Warning")
-
     git.stub(:branch) { |x| x }
+    I18n.stub(:t) { |args| args }
 
     Abak::Flow::Manager.stub(instance: manager)
     Abak::Flow::Visitor.any_instance.stub(:say) { |args| args }
@@ -34,14 +33,12 @@ describe Abak::Flow::Commands::Compare do
   end
 
   context "when no errors occurred" do
-    let(:repository) { double("Repository", ready?: true, errors: Array.new, origin: origin) }
+    let(:repository) { double("Repository", ready?: true, errors: Array.new, origin: origin, upstream: upstream) }
     let(:configuration) { double("Configuration", ready?: true, errors: Array.new) }
-    let(:origin) { double("Origin", repo: "origin-repo/flow") }
+    let(:origin) { double("Origin", repo: "origin-repo/flow", to_s: "origin-repo/flow") }
+    let(:upstream) { double("Upstream", owner: "User") }
 
     context "when only head/base is given" do
-      let(:current_branch) { double("Current branch", name: "cur-br-name", full: "cur-br-name") }
-      let(:master) { double("Master branch", name: "master", full: "master") }
-
       before do
         options.stub(head: master)
         options.stub(base: nil)
@@ -53,36 +50,26 @@ describe Abak::Flow::Commands::Compare do
           git.stub(current_branch: master)
           master.stub(current: true)
 
-          expect(ansi).to receive(:white)
-          expect(ansi).to receive(:green)
+          expect(git).to receive(:push).with("origin-repo/flow", master)
         end
 
-        after { run }
-
-        it { expect(git).to receive(:push).with("origin-repo/flow", master) }
+        it { expect(run).to include "github.com/origin-repo/flow/compare/User:master...master" }
       end
 
       context "when current branch is not master" do
         before do
-          Abak::Flow::Branch.any_instance.stub(extract_base_name: current_branch)
-          git.stub(current_branch: current_branch)
+          Abak::Flow::Branch.any_instance.stub(extract_base_name: noname)
+          git.stub(current_branch: noname)
           master.stub(current: false)
         end
 
         after { run }
 
-        it do
-          expect(ansi).to receive(:yellow)
-          expect(ansi).to receive(:green)
-        end
+        it { expect(run).to include "github.com/origin-repo/flow/compare/User:noname...master" }
       end
     end
 
     context "when head and base are given" do
-      let(:current_branch) { double("Current branch") }
-      let(:master) { double("Master branch", name: "master", full: "master") }
-      let(:develop) { double("Develop branch", name: "develop", full: "develop") }
-
       before do
         options.stub(head: master)
         options.stub(base: develop)
@@ -90,16 +77,11 @@ describe Abak::Flow::Commands::Compare do
 
       context "when current branch is not head" do
         before do
-          git.stub(current_branch: current_branch)
+          git.stub(current_branch: noname)
           master.stub(current: false)
         end
 
-        after { run }
-
-        it do
-          expect(ansi).to receive(:yellow)
-          expect(ansi).to receive(:green)
-        end
+        it { expect(run).to include "github.com/origin-repo/flow/compare/User:develop...master" }
       end
 
       context "when current branch is head" do
@@ -107,13 +89,10 @@ describe Abak::Flow::Commands::Compare do
           git.stub(current_branch: master)
           master.stub(current: true)
 
-          expect(ansi).to receive(:white)
-          expect(ansi).to receive(:green)
+          expect(git).to receive(:push).with("origin-repo/flow", master)
         end
 
-        after { run }
-
-        it { expect(git).to receive(:push).with("origin-repo/flow", master) }
+        it { expect(run).to include "github.com/origin-repo/flow/compare/User:develop...master" }
       end
     end
   end
