@@ -212,12 +212,11 @@ describe Abak::Flow::Branch do
 
         before { git_feature.stub(:gcommit).and_return gcommit }
 
-        it { expect(feature.extract_body).to include "http://jira.railsc.ru/browse/JP-515" }
-        it { expect(feature.extract_body).to include "http://jira.railsc.ru/browse/PC4-200" }
+        it { expect(feature.extract_body).to eq "http://jira.railsc.ru/browse/PC4-200\nhttp://jira.railsc.ru/browse/JP-515" }
       end
 
       context "when branch is task equals to commit message" do
-        let(:gcommit) { double("Git commit", contents: "Fix JP-515") }
+        let(:gcommit) { double("Git commit", contents: "[Fix JP-515]") }
 
         before { git_feature.stub(:gcommit).and_return gcommit }
 
@@ -225,13 +224,14 @@ describe Abak::Flow::Branch do
       end
 
       context "when branch is not task" do
-        let(:gcommit) { double("Git commit", contents: "Fix PC4-200, PC5-111\n\nCloses PC2-1122") }
+        let(:gcommit) do
+          double("Git commit",
+            contents: "tree 077f77484213cd706ec6958dc7836d1c8d6aafe6\nparent 266a68fec47942a53a119c78ce74994372107d44\nauthor Strech (Sergey Fedorov) <strech_ftf@mail.ru> 1393176082 +0600\ncommitter Strech (Sergey Fedorov) <strech_ftf@mail.ru> 1393176094 +0600\n\nFIXME: Created example\n\nCloses PC4-12547")
+        end
 
         before { git_master.stub(:gcommit).and_return gcommit }
 
-        it { expect(master.extract_body).to include "http://jira.railsc.ru/browse/PC4-200" }
-        it { expect(master.extract_body).to include "http://jira.railsc.ru/browse/PC2-1122" }
-        it { expect(master.extract_body).not_to include "PC5-111" }
+        it { expect(master.extract_body).to eq "http://jira.railsc.ru/browse/PC4-12547" }
       end
     end
   end

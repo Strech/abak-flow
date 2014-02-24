@@ -67,7 +67,7 @@ module Abak::Flow
       return I18n.t("commands.publish.nothing") if
         tasks_from_commit_message.empty? && !tracker_task?
 
-      [tasks_from_commit_message, task].flatten.uniq
+      [tasks_from_commit_message, task].flatten.compact.uniq
         .map { |x| "http://jira.railsc.ru/browse/#{x}" } * "\n"
     end
 
