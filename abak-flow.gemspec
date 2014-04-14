@@ -28,7 +28,6 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "ansi",      "~> 1.4.3"
 
   gem.add_runtime_dependency "faraday",   "= 0.8.9" # TODO : remove after octokit upgrade
-  gem.add_runtime_dependency "systemu",   "~> 2.5.0"  # TODO : remove after https://github.com/ahoward/macaddr/issues/18
 
   gem.add_development_dependency "cane"
   gem.add_development_dependency "simplecov"
