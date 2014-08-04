@@ -1,43 +1,33 @@
 # coding: utf-8
-require "commander/blank"
-require "commander/command"
-require "ansi/code"
+# 101 exit code available
 
 module Abak::Flow
   module Commands
     class Compare
-      # TODO : Быть может стоит сделать include ANSI
-
-      def initialize
-        manager = Manager.instance
-
-        @configuration = manager.configuration
-        @repository = manager.repository
-        @git = manager.git
-      end
+      include ANSI::Code
 
       def run(args, options)
-        Checkup.new.process(
-          Array.new, ::Commander::Command::Options.new)
+        Checkup.new.process(Array.new, ::Commander::Command::Options.new)
 
-        current = @git.current_branch
+        current = Manager.git.current_branch
         head = Branch.new(options.head || current)
         base = Branch.new(options.base || head.extract_base_name)
 
         if head.current?
-          say ANSI.white {
-            I18n.t("commands.compare.updating",
-              branch: ANSI.bold { head },
-              upstream: ANSI.bold { "#{@repository.origin}" }) }
+          say white {
+            Manager.locale.word(self, 'updating',
+              branch: bold { head },
+              upstream: bold { "#{Manager.repository.origin}" })
+          }
 
           head.update
         else
-          say ANSI.yellow {
-            I18n.t("commands.compare.diverging",
-              branch: ANSI.bold { head }) }
+          say yellow {
+            Manager.locale.word(self, 'diverging', branch: bold { head })
+          }
         end
 
-        say ANSI.green { head.compare_link(base) }
+        say green { head.compare_link(base) }
       end
 
     end

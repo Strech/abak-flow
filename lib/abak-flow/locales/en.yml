@@ -1,44 +1,82 @@
 en:
-  configuration:
-    name: Configuration
-    errors:
-      oauth_user_not_setup: Options oauth_user not setted
-      oauth_token_not_setup: Options oauth_token not setted
-    recommendations: "Check [abak-flow] section in ~/.gitcofig file"
+  abak:
+    flow:
+      commands:
+        checkup:
+          fail: You are not prepared!
+          success: Congratulations, you are ready to ROCK :)
 
-  repository:
-    name: Repository
-    errors:
-      origin_not_setup: Repository with name 'origin' not found
-      upstream_not_setup: Repository with name 'upstream' not found
-    recommendations: "Check .git/cofig file"
+        compare:
+          words:
+            updating: "Updating %{branch} → %{upstream}"
+            diverging: "Branches may diverging\nAdvice: switch to branch '%{branch}' and retry operation"
 
-  pull_request:
-    name: Pull Request
-    errors:
-      head_is_incorrect: Something wrong with 'head' branch
-      base_is_incorrect: Something wrong with 'base' branch
-      title_is_incorrect: Title is not specified
-      body_is_incorrect: Message body is not specified
+        configure:
+          fail: Something goes wrong!
+          success: Configuration generated and saved ↓
+          words:
+            email: Email
+            password: Password
+            locale: Locale
+            http_proxy: HTTP proxy
+            sms_otp: SMS OTP
+            configuring: Configuring
+          errors:
+            execution_failed: Github api request failed
+            empty_response: Github service respond with empty response body
 
-  commands:
-    default:
-      fail: Something goes wrong!
-    checkup:
-      fail: You are not prepared!
-      success: "Congratulations, you are ready to ROCK :)"
-    compare:
-      fail: Something goes wrong!
-      updating: "Updating %{branch} → %{upstream}"
-      diverging: "Branches may diverging\nAdvice: switch to branch '%{branch}' and retry operation"
-    publish:
-      fail: Something goes wrong!
-      success: "Pull request successfuly created %{link}"
-      requesting: "Creating pull request %{branch} → %{upstream}"
-      updating: "Updating %{branch} → %{upstream}"
-      nothing: I have nothing to say ...
-    done:
-      fail: Something goes wrong!
-      deleting: "Deleting %{branch} in %{upstream}"
-      errors:
-        branch_is_incorrect: "You can't delete %{branch}"
+        done:
+          words:
+            deleting: Deleting %{branch} in %{upstream}
+            done: √
+          errors:
+            branch:
+              delete_now_allowed: You can't delete %{branch}
+              missed_on: Branch %{branch} doesn`t exists on %{upstream}
+
+        publish:
+          fail: Goddamned, not again!
+          words:
+            updating: Updating %{branch} → %{upstream}
+            publicating: Creating pull request %{branch} → %{upstream}
+          errors:
+            publication:
+              failed: Some errors occurs while request publicating
+
+      configuration:
+        name: Configuration
+        fields:
+          login: Login
+          password: Password
+        errors:
+          login:
+            blank: Can't be blank
+          password:
+            blank: Can't be blank
+
+      repository:
+        name: Repository
+        fields:
+          origin: Origin
+          upstream: Upstream
+        errors:
+          origin:
+            not_set: Git remote 'origin' not set
+          upstream:
+            not_set: Git remote 'upstream' not set
+
+      pullrequest:
+        name: Pull Request
+        fields:
+          title: Title message
+          body: Body message
+          head: Head branch
+          base: Base branch
+          exception: Exception
+        errors:
+          head:
+            invalid: Branch name is invalid
+          base:
+            invalid: Branch name is invalid
+          exception:
+            message: "%{backtrace}"

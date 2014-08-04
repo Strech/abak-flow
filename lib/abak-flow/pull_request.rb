@@ -1,15 +1,10 @@
 # coding: utf-8
-require "ruler"
-
 module Abak::Flow
   class PullRequest
-    include Ruler
+    attr_reader :link
 
-    attr_reader :errors, :link
-
-    def initialize(params, manager)
-      @manager = manager
-      @errors = []
+    def initialize(params)
+      @_errors = Hash.new
 
       @head = params.fetch(:head)
       @base = params.fetch(:base)
@@ -17,42 +12,38 @@ module Abak::Flow
       @body = params.fetch(:body)
     end
 
-    def ready?
-      @errors = []
+    def valid?
+      @_errors = Hash.new
+      @_errors["head"] = ["invalid"] unless @head.valid?
+      @_errors["base"] = ["invalid"] unless @base.valid?
+      @_errors["title"] = ["blank"] if @title.empty?
 
-      multi_ruleset do
-        fact(:head_is_incorrect)  { not @head.valid? }
-        fact(:base_is_incorrect)  { not @base.valid? }
-        fact(:title_is_incorrect) { @title.empty? }
-        fact(:body_is_incorrect)  { @head.tracker_task? ? @body.empty? : false }
-
-        rule([:head_is_incorrect])  { @errors << I18n.t("pull_request.errors.head_is_incorrect") }
-        rule([:base_is_incorrect])  { @errors << I18n.t("pull_request.errors.base_is_incorrect") }
-        rule([:title_is_incorrect]) { @errors << I18n.t("pull_request.errors.title_is_incorrect") }
-        rule([:body_is_incorrect])  { @errors << I18n.t("pull_request.errors.body_is_incorrect") }
-      end
-
-      @errors.empty? ? true : false
+      @_errors.empty?
     end
 
-    def display_name
-      I18n.t("pull_request.name")
+    def errors
+      ErrorsPresenter.new(self, @_errors)
     end
 
     def publish
+      @_errors = Hash.new
+
       begin
-        head_with_repo = [@manager.repository.origin.owner, @head] * ':'
+        head_with_repo = [Manager.repository.origin.owner, @head] * ':'
 
-        response = @manager.github.create_pull_request(
-          @manager.repository.upstream.to_s, @base.to_s, head_with_repo, @title, @body)
+        response = Manager.github.create_pull_request(
+          Manager.repository.upstream.to_s, @base.to_s, head_with_repo, @title, @body)
 
-        @link = response._links.html.href
+        @link = response[:html_url]
 
         true
       rescue Exception => exception
         backtrace = exception.backtrace[0...10] * "\n"
 
-        @errors = ["#{exception.message}\n\n#{backtrace}"]
+        @_errors["exception"] = [{
+          field: "message",
+          options: {backtrace: "#{exception.message}\n\n#{backtrace}"}
+        }]
 
         false
       end

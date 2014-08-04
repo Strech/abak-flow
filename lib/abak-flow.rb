@@ -1,23 +1,27 @@
+# coding: utf-8
+
+require "ansi/code"
+require "commander/blank"
+require "commander/command"
+
+module Abak
+  module Flow
+  end
+end
+
 require "abak-flow/version"
+require "abak-flow/locale"
 require "abak-flow/manager"
 require "abak-flow/configuration"
 require "abak-flow/repository"
 require "abak-flow/branch"
 require "abak-flow/pull_request"
-require "abak-flow/visitor"
+require "abak-flow/inspector"
+require "abak-flow/errors_presenter"
 require "abak-flow/commands/checkup"
 require "abak-flow/commands/compare"
+require "abak-flow/commands/configure"
+require "abak-flow/commands/publish"
+require "abak-flow/commands/done"
 
-
-# Может пригодится
-# module ::Faraday
-#   class Response::RaiseOctokitError < Response::Middleware
-#     def error_message_with_trace(response)
-#       message = (response[:body].errors || []).map {|error| "=> #{error.code}: #{error.message}" }.join("\n")
-
-#       [error_message_without_trace(response), message].reject { |m| m.empty? }.join("\n\nДополнительные сообщения:\n")
-#     end
-#     alias_method :error_message_without_trace, :error_message
-#     alias_method :error_message, :error_message_with_trace
-#   end
-# end
+Abak::Flow::Manager.locale

@@ -20,9 +20,8 @@ module Abak::Flow
     attr_reader :task
 
     def initialize(branch)
-      @manager = Manager.instance
       @branch = branch.is_a?(Git::Branch) ? branch
-                                          : @manager.git.branch(branch)
+                                          : Manager.git.branch(branch)
 
       parse_branch_name
     end
@@ -43,11 +42,11 @@ module Abak::Flow
     end
 
     def compare_link(branch)
-      diff = "#{@manager.repository.upstream.owner}:#{branch}...#{@branch}"
+      diff = "#{Manager.repository.upstream.owner}:#{branch}...#{@branch}"
 
       File.join [
-        @manager.github.web_endpoint,
-        @manager.repository.origin.to_s,
+        Manager.github.web_endpoint,
+        Manager.repository.origin.to_s,
         "compare", diff
       ]
     end
@@ -72,13 +71,13 @@ module Abak::Flow
     end
 
     def update
-      origin = @manager.repository.origin.repo
-      @manager.git.push(origin, @branch)
+      origin = Manager.repository.origin.repo
+      Manager.git.push(origin, @branch)
     end
 
     def delete_on_remote
-      origin = @manager.repository.origin.repo
-      @manager.git.push(origin, ":#{@branch}")
+      origin = Manager.repository.origin.repo
+      Manager.git.push(origin, ":#{@branch}")
     end
 
     def delete_on_local
@@ -114,7 +113,7 @@ module Abak::Flow
     end
 
     def valid?
-      !@branch.name.empty?
+      !@branch.name.strip.empty?
     end
 
     private

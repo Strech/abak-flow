@@ -20,14 +20,12 @@ Gem::Specification.new do |gem|
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths = ["lib"]
 
-  gem.add_runtime_dependency "octokit",   "~> 1.19.0"
+  gem.add_runtime_dependency "octokit",   "~> 3.1.0"
   gem.add_runtime_dependency "git",       "~> 1.2.5"
   gem.add_runtime_dependency "commander", "~> 4.1.6"
   gem.add_runtime_dependency "ruler",     "~> 1.4.2"
   gem.add_runtime_dependency "i18n",      "~> 0.6.9"
   gem.add_runtime_dependency "ansi",      "~> 1.4.3"
-
-  gem.add_runtime_dependency "faraday",   "= 0.8.9" # TODO : remove after octokit upgrade
 
   gem.add_development_dependency "cane"
   gem.add_development_dependency "simplecov"

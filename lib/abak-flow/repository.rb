@@ -1,64 +1,49 @@
 # coding: utf-8
-require "i18n"
-require "ruler"
-require "forwardable"
 
 module Abak::Flow
   class Repository
-    include Ruler
     extend Forwardable
 
-    REMOTES = [:origin, :upstream].freeze
+    REMOTES = %w{origin upstream}.map(&:freeze)
 
-    def_delegators :@manager, :git
+    def initialize
+      @_errors = Hash.new
 
-    attr_reader :errors
-
-    def initialize(manager)
-      @manager = manager
-      @errors  = []
-
-      configure!
+      create_public_instance_methods
     end
 
-    def ready?
-      @errors = []
+    def valid?
+      @_errors = Hash.new
+      @_errors["origin"] = ['not_set'] if origin.nil?
+      @_errors["upstream"] = ['not_set'] if upstream.nil?
 
-      multi_ruleset do
-        fact(:origin_not_setup)   { origin.nil? }
-        fact(:upstream_not_setup) { upstream.nil? }
-
-        rule([:origin_not_setup])   { @errors << I18n.t("repository.errors.origin_not_setup") }
-        rule([:upstream_not_setup]) { @errors << I18n.t("repository.errors.upstream_not_setup") }
-      end
-
-      @errors.empty? ? true : false
+      @_errors.empty?
     end
 
-    def display_name
-      I18n.t("repository.name")
+    def errors
+      ErrorsPresenter.new(self, @_errors)
     end
 
     private
-    def configure!
+
+    def create_public_instance_methods
       remotes = Hash[fetch_remotes_from_git]
+
       REMOTES.each do |name|
         define_singleton_method(name) { remotes[name] }
       end
     end
 
     def fetch_remotes_from_git
-      git.remotes.
-          select { |remote| REMOTES.include?(remote.name.to_sym) }.
-          map { |remote| create_remote(remote) }.
-          compact
+      Manager.git.remotes.select { |remote| REMOTES.include?(remote.name) }
+        .map { |remote| create_remote(remote) }.compact
     end
 
     def create_remote(remote)
       matches = /.+.github\.com[\:|\/](?<owner>.+)\/(?<project>.+).git/.match(remote.url)
 
       if !matches.nil? && matches.captures.length == 2
-        [remote.name.to_sym, Remote.new(matches[:owner], matches[:project], remote)]
+        [remote.name, Remote.new(matches[:owner], matches[:project], remote)]
       end
     end
 

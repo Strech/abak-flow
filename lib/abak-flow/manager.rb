@@ -7,23 +7,40 @@ module Abak::Flow
   class Manager
     include Singleton
 
-    def initialize
-      # preload dependencies
-      configuration
-      repository
+    class << self
+      def git
+        instance.git
+      end
+
+      def github
+        instance.github
+      end
+
+      def locale
+        instance.locale
+      end
+
+      def configuration
+        instance.configuration
+      end
+
+      def repository
+        instance.repository
+      end
     end
 
     def configuration
-      @configuration ||= Configuration.new(self)
+      @configuration ||= Configuration.new
     end
 
     def repository
-      @repository ||= Repository.new(self)
+      @repository ||= Repository.new
     end
 
     def github
-      @github ||= Octokit::Client.new(login: configuration.oauth_user,
-        oauth_token: configuration.oauth_token,
+      @github ||= Octokit::Client.new(
+        login: configuration.login,
+        password: configuration.password,
         proxy: configuration.http_proxy)
     end
 
@@ -31,5 +48,8 @@ module Abak::Flow
       @git ||= Git.open(".")
     end
 
+    def locale
+      @locale ||= Locale.new(configuration.locale)
+    end
   end
 end

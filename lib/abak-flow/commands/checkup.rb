@@ -1,26 +1,23 @@
 # coding: utf-8
-require "ansi/code"
-
 module Abak::Flow
   module Commands
     class Checkup
-
-      def initialize
-        manager = Manager.instance
-
-        @configuration = manager.configuration
-        @repository = manager.repository
-      end
+      include ANSI::Code
 
       def run(args, options)
         process(args, options)
-        say ANSI.green { I18n.t("commands.checkup.success") }
+
+        say green { Manager.locale.success(self) }
       end
 
       def process(args, options)
-        Visitor.new(@configuration, @repository,
-                    command: "checkup", call: :ready?, inspect: :errors)
-               .on_fail(exit: 1)
+        inspector = Inspector.new(call_method: :valid?, collect_attribute: :errors)
+        inspector.examine(Manager.configuration, Manager.repository).on_fail do |insp|
+          say red { Manager.locale.error(self) }
+          say yellow { insp.output }
+
+          exit 100
+        end
       end
     end # class Checkup
   end # module Commands

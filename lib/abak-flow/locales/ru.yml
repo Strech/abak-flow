@@ -1,44 +1,82 @@
 ru:
-  configuration:
-    name: Корфигурация
-    errors:
-      oauth_user_not_setup: Не установлена опция oauth_user
-      oauth_token_not_setup: Не установлена опция oauth_token
-    recommendations: "Проверьте секцию [abak-flow] в файле ~/.gitcofig"
+  abak:
+    flow:
+      commands:
+        checkup:
+          fail: Вы не готовы!
+          success: Поздравляем, вы готовы чтобы жечь :)
 
-  repository:
-    name: Репозиторий
-    errors:
-      origin_not_setup: Репозиторий с именем 'origin' не найден
-      upstream_not_setup: Репозиторий с именем 'upstream' не найден
-    recommendations: Проверьте файл .git/cofig
+        compare:
+          words:
+            updating: "Обновляю %{branch} → %{upstream}"
+            diverging: "Ветки могут расходиться\nСовет: переключитесь в ветку '%{branch}' и повторите команду"
 
-  pull_request:
-    name: Пулл реквест
-    errors:
-      head_is_incorrect: Что-то не так с 'head' веткой
-      base_is_incorrect: Что-то не так с 'base' веткой
-      title_is_incorrect: Не указан заголовок
-      body_is_incorrect: Не указано содержание
+        configure:
+          fail: Что-то пошло не так!
+          success: Конфигурация сгененирована и сохранена ↓
+          words:
+            email: Почта
+            password: Пароль
+            locale: Язык
+            http_proxy: HTTP прокси
+            sms_otp: SMS пароль
+            configuring: Настраиваю
+          errors:
+            execution_failed: Ошибка при запрос к апи Github
+            empty_response: Почему-то ответ от апи Github был пустотой
 
-  commands:
-    default:
-      fail: Что-то пошло не так!
-    checkup:
-      fail: "Вы не готовы!"
-      success: "Поздравляем, вы готовы чтобы жечь :)"
-    compare:
-      fail: Что-то пошло не так!
-      updating: "Обновление %{branch} → %{upstream}"
-      diverging: "Ветки могут расходиться.\nСовет: переключитесь в ветку '%{branch}' и повторите операцию"
-    publish:
-      fail: Что-то пошло не так!
-      success: "Пулл реквест успешно создан %{link}"
-      requesting: "Создание пулл реквеста %{branch} → %{upstream}"
-      updating: "Обновление %{branch} → %{upstream}"
-      nothing: Мне нечего добавить ...
-    done:
-      fail: Что-то пошло не так!
-      deleting: "Удаление %{branch} из %{upstream}"
-      errors:
-        branch_is_incorrect: "Вы не можете удалить %{branch}"
+        done:
+          words:
+            deleting: Удаляю %{branch} в %{upstream}
+            done: √
+          errors:
+            branch:
+              delete_now_allowed: Вы не можете удалить %{branch}
+              missed_on: Ветка %{branch} не существует на %{upstream}
+
+        publish:
+          fail: Черт побери, только не ошибка!
+          words:
+            updating: Обновляю %{branch} → %{upstream}
+            publicating: Создаю пул реквест %{branch} → %{upstream}
+          errors:
+            publication:
+              failed: Во время публикации произошли ошибки
+
+      configuration:
+        name: Конфигурация
+        fields:
+          login: Логин
+          password: Пароль
+        errors:
+          login:
+            blank: Не может быть пустым
+          password:
+            blank: Не может быть пустым
+
+      repository:
+        name: Репозиторий
+        fields:
+          origin: Origin
+          upstream: Upstream
+        errors:
+          origin:
+            not_set: Удаленный репозиторий 'origin' не объявлен
+          upstream:
+            not_set: Удаленный репозиторий 'upstream' не объявлен
+
+      pullrequest:
+        name: Пул реквест
+        fields:
+          title: Заголовок
+          body: Описание
+          head: Ветка Head
+          base: Ветка Base
+          exception: Исключение
+        errors:
+          head:
+            invalid: Название ветки неверно
+          base:
+            invalid: Название ветки неверно
+          exception:
+            message: "%{backtrace}"

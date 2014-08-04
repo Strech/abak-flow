@@ -4,15 +4,17 @@ require "spec_helper"
 describe Abak::Flow::Commands::Compare do
   let(:command) { described_class.new }
   let(:options) { double("Options") }
-  let(:run) { command.run(Array.new, options) }
+  let(:locale) { Abak::Flow::Locale.new("en") }
   let(:git) { double("Git") }
   let(:github) { double("Github", web_endpoint: "github.com") }
   let(:master) { double("Master branch", name: "master", full: "master", to_s: "master") }
   let(:develop) { double("Develop branch", name: "develop", full: "develop", to_s: "develop") }
   let(:noname) { double("Noname branch", name: "noname", full: "noname", to_s: "noname") }
+  let(:run) { command.run(Array.new, options) }
   let(:manager) do
     double("Manager", configuration: configuration,
-      repository: repository, git: git, github: github)
+      repository: repository, locale: locale,
+      git: git, github: github)
   end
 
   before do
@@ -20,21 +22,20 @@ describe Abak::Flow::Commands::Compare do
     I18n.stub(:t) { |args| args }
 
     Abak::Flow::Manager.stub(instance: manager)
-    Abak::Flow::Visitor.any_instance.stub(:say) { |args| args }
     Abak::Flow::Commands::Compare.any_instance.stub(:say) { |args| args }
     Abak::Flow::Commands::Checkup.any_instance.stub(:say) { |args| args }
   end
 
   context "when errors occurred" do
-    let(:repository) { double("Repository", ready?: false, errors: ["Damn"]) }
-    let(:configuration) { double("Configuration", ready?: true, errors: Array.new) }
+    let(:repository) { double("Repository", valid?: false, errors: ["Damn"]) }
+    let(:configuration) { double("Configuration", valid?: true, errors: Array.new) }
 
     it { expect { run }.to raise_error SystemExit }
   end
 
   context "when no errors occurred" do
-    let(:repository) { double("Repository", ready?: true, errors: Array.new, origin: origin, upstream: upstream) }
-    let(:configuration) { double("Configuration", ready?: true, errors: Array.new) }
+    let(:repository) { double("Repository", valid?: true, errors: Array.new, origin: origin, upstream: upstream) }
+    let(:configuration) { double("Configuration", valid?: true, errors: Array.new) }
     let(:origin) { double("Origin", repo: "origin-repo/flow", to_s: "origin-repo/flow") }
     let(:upstream) { double("Upstream", owner: "User") }
 
