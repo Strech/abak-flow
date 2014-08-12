@@ -3,91 +3,68 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
-
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <title>abak-flow by Strech</title>
   </head>
 
   <body>
-    <header>
+    <div id="container">
       <div class="inner">
-        <h1>abak-flow</h1>
-        <h2>Abak-press github + gitflow flow</h2>
-        <a href="https://github.com/Strech/abak-flow" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
+        <header>
+          <h1>abak-flow</h1>
+          <h2>Abak-press github + gitflow flow</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/Strech/abak-flow/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/Strech/abak-flow/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/Strech/abak-flow" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
           <h1>
 <a name="abak-flow" class="anchor" href="#abak-flow"><span class="octicon octicon-link"></span></a>Abak-flow</h1>
 
-<p>Нет, это не новая идеология ведения проекта, это всего лишь набор утилит которые помогают связать использование <a href="https://github.com/nvie/gitflow">git-flow</a> и <a href="http://scottchacon.com/2011/08/31/github-flow.html">github flow</a></p>
+<p>Нет, это не новая идеология ведения разработки в проекте, это всего лишь набор утилит которые помогают связать использование <a href="https://github.com/nvie/gitflow">git-flow</a> и <a href="http://scottchacon.com/2011/08/31/github-flow.html">github flow</a></p>
 
-<p>Начиная с версии <strong>v0.2.1</strong> используется авторизация OAuth2. <a href="https://github.com/Strech/abak-flow/wiki/How-start-work-with-new-abak-flow">Как ей пользоваться?</a></p>
+<p><strong>Начиная с версии v0.2.1 используется авторизация OAuth2. <a href="https://github.com/Strech/abak-flow/wiki/How-start-work-with-new-abak-flow">Как ей пользоваться?</a></strong></p>
 
-<p>Начиная с версии <strong>v1.0.0</strong> используется новый формат конфигурации. <a href="https://github.com/Strech/abak-flow/wiki/How-start-work-with-abak-flow-v1.0.0">Как мигрировать старую?</a></p>
+<p><strong>Начиная с версии v1.0.0 используется новый формат конфигурации. <a href="https://github.com/Strech/abak-flow/wiki/How-start-work-with-abak-flow-v1.0.0">Как мигрировать старую?</a></strong></p>
+
+<p><strong>Начиная с версии v1.1.0 используется новый формат токена для Github API. <a href="https://github.com/Strech/abak-flow/wiki/How-start-work-with-abak-flow-v1.1.0">Как обновить?</a></strong></p>
 
 <h1>
-<a name="%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%86%D0%B8%D1%8F" class="anchor" href="#%D0%9A%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%86%D0%B8%D1%8F"><span class="octicon octicon-link"></span></a>Концепция</h1>
-
-<p>Идеология git-flow использует следующий набор веток:</p>
-
-<ul>
-<li>
-<em>master</em> - всегда пригодна для развертывания</li>
-<li>
-<em>develop</em> - основная ветка разработки</li>
-<li>
-<em>hotfix</em> - ветка для изменений которые попадут на продакшен сервер</li>
-<li>
-<em>feature</em> - ветки для крупных задач</li>
-</ul><p>Github-flow же наоборот ведет основную разработку в ветке master, но при этом master является пригодным для развертывания в любой момент.</p>
-
-<p>После долгих раздумий было принято применить следующий набор правил, для разработки на github:</p>
-
-<ol>
-<li>Вся разработка любой задачи и функционала ведется только в ветках <strong>feature</strong>
-</li>
-<li>Разработаный функционал из ветки <strong>feature</strong> оформляется pull request только в ветку <strong>develop</strong>
-</li>
-<li>Все исправления ошибок, которые должны попасть на продакшен сервер делаются только в ветках <strong>hotfix</strong>
-</li>
-<li>Исправленные ошибки из ветки <strong>hotfix</strong> фофрмляются pull request только в ветку <strong>master</strong>
-</li>
-<li>После получения исправлений на текущий момент в репозитории инициируется merge ветки <strong>master</strong> в <strong>develop</strong>
-</li>
-</ol><h1>
 <a name="%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0" class="anchor" href="#%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0"><span class="octicon octicon-link"></span></a>Установка</h1>
 
-<pre><code>$ gem install abak-flow -v 1.0.0
+<pre><code>$ gem install abak-flow -v '&gt;= 1.1.0'
 $ git config --global alias.request '!request'
-$ git config --global abak-flow.oauth-user YOUR_GITHUB_MAIL@gmail.com
-$ git config --global abak-flow.oauth-token 0123456789YOUR_GITHUB_API_TOKEN
+$ git request configure
 $ git remote add upstream git://github.com/GITHUB_PROJECT_USER/GITHUB_PROJECT_NAME.git
 </code></pre>
 
-<p><em>А если я использую прокси, как быть?</em></p>
+<h3>
+<a name="%D0%90-%D0%B5%D1%81%D0%BB%D0%B8-%D1%8F-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D1%83%D1%8E-%D0%BF%D1%80%D0%BE%D0%BA%D1%81%D0%B8-%D0%BA%D0%B0%D0%BA-%D0%B1%D1%8B%D1%82%D1%8C" class="anchor" href="#%D0%90-%D0%B5%D1%81%D0%BB%D0%B8-%D1%8F-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D1%83%D1%8E-%D0%BF%D1%80%D0%BE%D0%BA%D1%81%D0%B8-%D0%BA%D0%B0%D0%BA-%D0%B1%D1%8B%D1%82%D1%8C"><span class="octicon octicon-link"></span></a>А если я использую прокси, как быть?</h3>
 
-<pre><code>$ git config --global abak-flow.http_proxy http://my-proxy.com:3129
-</code></pre>
+<p>При конфигурации вас спросят о прокси сервере. Если его нет, оставьте поле пустым</p>
 
 <p>Далее по приоритету идут переменные окружения. Сначала <strong>http_proxy</strong>, затем <strong>HTTP_PROXY</strong></p>
 
 <p>Т.е если вы используете переменные окружения, то просто не указывайте прокси в конфиге</p>
 
-<hr><p><strong>Заметьте:</strong> В конфиге git, значением <em>abak.oauth-user</em> должен являться тот email адрес, под которым вы заходите на github</p>
+<hr><p><strong>Важно:</strong> Пароль никогда и нигде не будет сохранен. Он <a href="https://developer.github.com/v3/#basic-authentication">будет использован</a> для создания персонального токена</p>
 
-<p><strong>Обратите внимание:</strong> В данном контексте под <strong>upstream</strong> подразумевается адрес репозитория в который будут оформляться pull request. А репозиторием <strong>origin</strong> будет являться ваш форк </p>
+<p><strong>Заметьте:</strong> При конфигурации необходимо указать email адрес под которым вы заходите на github</p>
+
+<p><strong>Обратите внимание:</strong> В данном контексте под <strong>upstream</strong> подразумевается адрес репозитория в который будут оформляться пул реквесты. А репозиторием <strong>origin</strong> будет являться ваш форк</p>
 
 <h1>
 <a name="%D0%A1-%D1%87%D0%B5%D0%B3%D0%BE-%D0%BD%D0%B0%D1%87%D0%B0%D1%82%D1%8C" class="anchor" href="#%D0%A1-%D1%87%D0%B5%D0%B3%D0%BE-%D0%BD%D0%B0%D1%87%D0%B0%D1%82%D1%8C"><span class="octicon octicon-link"></span></a>С чего начать?</h1>
@@ -100,22 +77,20 @@ $ git remote add upstream git://github.com/GITHUB_PROJECT_USER/GITHUB_PROJECT_NA
 <pre><code>$ git request help
 </code></pre>
 
-<p><strong>Примечание:</strong> Вообще-то все комманды поддерживают опцию <em>--help</em>, но вот именно <em>git request --help</em> успевает перехватиться самим git и он конечно неодумевает как ему показать хэлп по внешней комманде</p>
+<p><strong>Примечание:</strong> Вообще-то все комманды поддерживают опцию <code>--help</code>, но вот именно <code>git request --help</code> успевает перехватиться самим git и он конечно неодумевает как ему показать хэлп по внешней комманде</p>
 
 <h1>
-<a name="%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F" class="anchor" href="#%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F"><span class="octicon octicon-link"></span></a>Примеры использования</h1>
+<a name="%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA-%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4" class="anchor" href="#%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA-%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4"><span class="octicon octicon-link"></span></a>Список команд</h1>
 
-<pre><code>$ git checkout develop
-$ git flow feature start 'TASK-001'
-$ touch 'hello.txt' &amp;&amp; echo 'Hello world!' &gt; hello.txt
-$ git commit -a -m 'Hello world commit'
-$ git request publish
+<pre><code>$ git request configure
+$ git request checkup
+$ git request compare [--base &lt;имя ветки&gt;] [--head &lt;имя ветки&gt;]
+$ git request publish [--base &lt;имя ветки&gt;] [--head &lt;имя ветки&gt;] [--title &lt;заголовок&gt;] [--body &lt;описание&gt;]
+$ git request done
 </code></pre>
 
-<p><strong>Внимание:</strong> Не нужно называться ветку TASK. Используйте префикс задачь из jira</p>
-
-<h1>
-<a name="%D0%90-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C" class="anchor" href="#%D0%90-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C"><span class="octicon octicon-link"></span></a>А помощь?</h1>
+<h2>
+<a name="%D0%90-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C" class="anchor" href="#%D0%90-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C"><span class="octicon octicon-link"></span></a>А помощь?</h2>
 
 <p>Многие команды имеют какие-то дополнительные опции. Но они нужны только в экзотических случаях. Но при любом раскладе подсказку и тонкий намек всегда можно получить воспользовавших такой командой:</p>
 
@@ -126,25 +101,20 @@ $ git request publish
 <a name="%D0%92-%D0%B7%D0%B0%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B8" class="anchor" href="#%D0%92-%D0%B7%D0%B0%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B8"><span class="octicon octicon-link"></span></a>В заключении</h1>
 
 <p>Данный репозиторий и изложенные в нем идеи ни в коем случае не претендуют на идеал и совершенство. Это всего лишь узко заточенная комбинация гемов</p>
+
+<h2>
+<a name="%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F" class="anchor" href="#%D0%9B%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F"><span class="octicon octicon-link"></span></a>Лицензия</h2>
+
+<p>Abak-flow выпускается под лицензией <a href="http://www.opensource.org/licenses/MIT">MIT</a>.</p>
         </section>
 
-        <aside id="sidebar">
-          <a href="https://github.com/Strech/abak-flow/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/Strech/abak-flow/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
+        <footer>
+          abak-flow is maintained by <a href="https://github.com/Strech">Strech</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
 
-          <p class="repo-owner"><a href="https://github.com/Strech/abak-flow"></a> is maintained by <a href="https://github.com/Strech">Strech</a>.</p>
-
-          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
+        
       </div>
     </div>
-
-  
   </body>
 </html>
