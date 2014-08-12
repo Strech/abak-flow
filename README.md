@@ -1,5 +1,8 @@
 Abak-flow
 =========
+
+[![Code Climate](https://codeclimate.com/github/Strech/abak-flow/badges/gpa.svg)](https://codeclimate.com/github/Strech/abak-flow)
+
 Нет, это не новая идеология ведения проекта, это всего лишь набор утилит которые помогают связать использование [git-flow](https://github.com/nvie/gitflow) и [github flow](http://scottchacon.com/2011/08/31/github-flow.html)
 
 **Начиная с версии v0.2.1 используется авторизация OAuth2. [Как ей пользоваться?](https://github.com/Strech/abak-flow/wiki/How-start-work-with-new-abak-flow)**
