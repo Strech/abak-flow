@@ -3,6 +3,7 @@ Abak-flow
 
 [![Code Climate](https://codeclimate.com/github/Strech/abak-flow/badges/gpa.svg)](https://codeclimate.com/github/Strech/abak-flow)
 [![Dependency Status](https://gemnasium.com/Strech/abak-flow.svg)](https://gemnasium.com/Strech/abak-flow)
+[![Gem Version](https://badge.fury.io/rb/abak-flow.svg)](http://badge.fury.io/rb/abak-flow)
 
 Нет, это не новая идеология ведения разработки в проекте, это всего лишь набор утилит которые помогают связать использование [git-flow](https://github.com/nvie/gitflow) и [github flow](http://scottchacon.com/2011/08/31/github-flow.html)
 
