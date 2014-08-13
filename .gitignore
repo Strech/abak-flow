@@ -1,0 +1,11 @@
+*.gem
+.ruby-*
+.bundle
+Gemfile.lock
+pkg/*
+tmp/
+.idea/
+coverage/
+.rvmrc
+.DS_Store
+tmtags*
