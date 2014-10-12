@@ -172,7 +172,7 @@ describe Abak::Flow::Branch do
   end
 
   describe "#extract_body" do
-    before { I18n.stub(:t).with("commands.publish.nothing").and_return "Empty!" }
+    before { I18n.stub(:t).with("abak.flow.commands.publish.words.nothing").and_return "Empty!" }
 
     context "when commit message has no magick words" do
       let(:gcommit) { double("Git commit", contents: "Hello world") }
