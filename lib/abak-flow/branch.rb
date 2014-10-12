@@ -63,7 +63,7 @@ module Abak::Flow
 
     # TODO : Сделать настраевыемым трекер и формат задачи
     def extract_body
-      return I18n.t("commands.publish.nothing") if
+      return I18n.t("abak.flow.commands.publish.words.nothing") if
         tasks_from_commit_message.empty? && !tracker_task?
 
       [tasks_from_commit_message, task].flatten.compact.uniq

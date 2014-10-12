@@ -39,6 +39,7 @@ en:
           words:
             updating: Updating %{branch} → %{upstream}
             publicating: Creating pull request %{branch} → %{upstream}
+            nothing: I have nothing to say
           errors:
             publication:
               failed: Some errors occurs while request publicating
@@ -80,3 +81,4 @@ en:
             invalid: Branch name is invalid
           exception:
             message: "%{backtrace}"
+

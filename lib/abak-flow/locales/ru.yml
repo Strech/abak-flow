@@ -39,6 +39,7 @@ ru:
           words:
             updating: Обновляю %{branch} → %{upstream}
             publicating: Создаю пул реквест %{branch} → %{upstream}
+            nothing: Мне нечего добавить
           errors:
             publication:
               failed: Во время публикации произошли ошибки
@@ -80,3 +81,4 @@ ru:
             invalid: Название ветки неверно
           exception:
             message: "%{backtrace}"
+
